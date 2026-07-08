@@ -196,17 +196,6 @@ pandasは**バッチ化するだけで約6.6倍**速くなります。これは�
 
 ## 付録: 再現手順
 
-本記事のベンチマークはDockerfileと合わせて公開しています。同じバージョンの環境で再現できます。
-
-:::message
-本文中の画像リンクはZenn CLI管理リポジトリの慣例に合わせて `/images/xxx.png`(リポジトリ直下からの絶対パス)で記載しています。入稿時はリポジトリ直下の `images/` ディレクトリに `diagram_string_memory.png` `exp_a_memory.png` `diagram_blockmanager.png` `exp_b1_drop_scaling.png` `exp_b2_add_columns.png` を配置するか、Zennの画像アップロード機能でURLに差し替えてください。なお、`diagram_*.png` はベンチマーク結果ではなく構造説明用の模式図で、`bench/make_diagrams.py` で生成しています。
-:::
-
-```bash
-docker build -t pandas-bench .
-docker run --rm -v $(pwd)/results:/bench/results -v $(pwd)/images:/bench/images pandas-bench
-```
-
 **主な依存バージョン:** pandas 2.3.3 / polars 1.42.1 / pyarrow 24.0.0 / numpy 2.2.6 / Python 3.10(Docker)。pandasはあえて3.0未満にピン止めし、`object`dtypeの挙動を明確に示しています。
 
-**測定環境(筆者環境):** Linux (aarch64) / 4 vCPU / メモリ 3.8GB。実験A(メモリ使用量)は決定的な値、実験B-1(列削除)は各条件7回実行の中央値、実験B-2(列の逐次追加)は単発測定です。個別の測定値は環境やCPUアーキテクチャ、測定回数によって変動しますが、傾向(比例 vs ほぼ一定、ループ vs バッチの差)は再現するはずです。より厳密に追試したい場合は、B-2のスクリプトの反復回数を増やして実行することをおすすめします。
+**測定環境(筆者環境):** Linux (aarch64) / 4 vCPU / メモリ 3.8GB。実験A(メモリ使用量)は決定的な値、実験B-1(列削除)は各条件7回実行の中央値、実験B-2(列の逐次追加)は単発測定です。個別の測定値は環境やCPUアーキテクチャ、測定回数によって変動しますが、傾向(比例 vs ほぼ一定、ループ vs バッチの差)は再現するはずです。
