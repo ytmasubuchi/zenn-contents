@@ -21,19 +21,19 @@ os.makedirs(IMAGES, exist_ok=True)
 
 LIB_LABELS = {
     "pandas_object": "pandas (object dtype)",
-    "pandas_arrow": "pandas (string[pyarrow])",
+    "pandas_default": "pandas 3.0 default (str, storage=python)",
     "pandas_category": "pandas (category)",
     "polars": "polars (String)",
 }
 LIB_COLORS = {
     "pandas_object": "#d62728",
-    "pandas_arrow": "#ff7f0e",
+    "pandas_default": "#ff7f0e",
     "pandas_category": "#9467bd",
     "polars": "#1f77b4",
 }
 LIB_MARKERS = {
     "pandas_object": "o",
-    "pandas_arrow": "s",
+    "pandas_default": "s",
     "pandas_category": "^",
     "polars": "D",
 }

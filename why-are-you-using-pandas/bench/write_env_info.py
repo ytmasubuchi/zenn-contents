@@ -7,13 +7,19 @@ from bench.common import env_info  # noqa: E402
 
 import pandas as pd
 import polars as pl
-import pyarrow
 import numpy as np
+
+try:
+    import pyarrow
+
+    pyarrow_version = pyarrow.__version__
+except ImportError:
+    pyarrow_version = None
 
 info = env_info()
 info["pandas_version"] = pd.__version__
 info["polars_version"] = pl.__version__
-info["pyarrow_version"] = pyarrow.__version__
+info["pyarrow_version"] = pyarrow_version
 info["numpy_version"] = np.__version__
 
 out_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")

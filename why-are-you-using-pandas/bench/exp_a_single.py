@@ -23,7 +23,7 @@ def main():
     ap.add_argument(
         "--lib",
         required=True,
-        choices=["pandas_object", "pandas_arrow", "pandas_category", "polars"],
+        choices=["pandas_object", "pandas_default", "pandas_category", "polars"],
     )
     ap.add_argument("--n", type=int, required=True)
     ap.add_argument("--length", type=int, required=True)
@@ -33,26 +33,33 @@ def main():
     baseline_rss = rss_bytes()
 
     api_bytes = None
+    dtype_repr = None
     if args.lib == "pandas_object":
         import pandas as pd
 
         s = pd.Series(strings, dtype=object)
         api_bytes = int(s.memory_usage(deep=True))
-    elif args.lib == "pandas_arrow":
+        dtype_repr = str(s.dtype)
+    elif args.lib == "pandas_default":
         import pandas as pd
 
-        s = pd.Series(strings, dtype="string[pyarrow]")
+        # dtype引数を指定しない場合にpandasが選ぶデフォルトのdtypeを計測する
+        # (pyarrow未インストール環境ではpythonストレージのstring dtypeにフォールバックする想定)
+        s = pd.Series(strings)
         api_bytes = int(s.memory_usage(deep=True))
+        dtype_repr = str(s.dtype)
     elif args.lib == "pandas_category":
         import pandas as pd
 
         s = pd.Series(strings, dtype="category")
         api_bytes = int(s.memory_usage(deep=True))
+        dtype_repr = str(s.dtype)
     elif args.lib == "polars":
         import polars as pl
 
         s = pl.Series(strings)
         api_bytes = int(s.estimated_size())
+        dtype_repr = str(s.dtype)
 
     after_rss = rss_bytes()
 
@@ -64,6 +71,7 @@ def main():
         "api_bytes_per_elem": api_bytes / args.n,
         "rss_delta_bytes": after_rss - baseline_rss,
         "rss_delta_per_elem": (after_rss - baseline_rss) / args.n,
+        "dtype_repr": dtype_repr,
     }
     print(json.dumps(result))
 
