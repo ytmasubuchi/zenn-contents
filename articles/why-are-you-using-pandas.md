@@ -84,7 +84,7 @@ pandasが`object`dtypeで文字列を格納するとき、numpy配列の各要�
 
 理論上は、object dtypeの1要素あたりのメモリコストはおおよそ「ポインタ8バイト + Python文字列オブジェクトのヘッダ約49バイト + 文字列本体の長さ」になるはずです。
 
-![文字列格納方式の模式図: object dtype(ポインタの配列)とArrow形式(連結バッファ+オフセット配列)](/images/diagram_string_memory.png)
+![文字列格納方式の模式図: object dtype(ポインタの配列)とArrow形式(連結バッファ+オフセット配列)](https://raw.githubusercontent.com/ytmasubuchi/zenn-contents/main/why-are-you-using-pandas/images/diagram_string_memory.png)
 *図1: pandasのobject dtype(ポインタ経由でヒープ上に散らばる文字列オブジェクトを指す)と、Arrow形式(実データを連結したバッファ+オフセット配列で管理)の模式図*
 
 図で描いた通りの構造であれば、上記の理論値になるはずです。実際に測ってみます。
@@ -98,7 +98,7 @@ pandasが`object`dtypeで文字列を格納するとき、numpy配列の各要�
 - pandas: `category`(「カテゴリ化すればいいのでは」という声への回答も兼ねて)
 - polars: 標準の`String`型
 
-![文字列格納方式ごとのメモリ使用量比較](/images/exp_a_memory.png)
+![文字列格納方式ごとのメモリ使用量比較](https://raw.githubusercontent.com/ytmasubuchi/zenn-contents/main/why-are-you-using-pandas/images/exp_a_memory.png)
 *図2: 文字列長Lに対する1要素あたりのメモリ使用量(pandas/polarsのAPI値ベース。N=200,000)*
 
 結果は次の通りです(measured値、単位はbytes/要素)。
@@ -137,14 +137,14 @@ pandasは同じdtypeの列をまとめて1枚のnumpy配列(ブロック)とし�
 
 対してpolarsは、各列を独立したメモリ領域に配置する設計のため、列の追加・削除は基本的にポインタの付け替えで済み、既存データの再配置が発生しません。
 
-![BlockManagerの模式図: pandasの同dtype列の統合配置とpolarsの独立列配置](/images/diagram_blockmanager.png)
+![BlockManagerの模式図: pandasの同dtype列の統合配置とpolarsの独立列配置](https://raw.githubusercontent.com/ytmasubuchi/zenn-contents/main/why-are-you-using-pandas/images/diagram_blockmanager.png)
 *図3: pandasのBlockManager(同じdtypeの列を1枚の2次元配列にまとめて保持し、列の増減で再構築が起きる)と、polars(列ごとに独立したバッファを持ち、増減がポインタ操作で済む)の模式図*
 
 ### ベンチマークB-1: 列削除のコストはデータ量に比例するか
 
 101列(すべてfloat64)のデータフレームから中央の1列を削除する処理を、行数を5,000〜500,000まで変えて計測しました(各条件7回の中央値)。
 
-![列削除コストのスケーリング](/images/exp_b1_drop_scaling.png)
+![列削除コストのスケーリング](https://raw.githubusercontent.com/ytmasubuchi/zenn-contents/main/why-are-you-using-pandas/images/exp_b1_drop_scaling.png)
 *図4: 行数Nに対する列削除の所要時間(対数-対数プロット)*
 
 | 行数N | pandas(中央値) | polars(中央値) |
@@ -165,7 +165,7 @@ pandasは同じdtypeの列をまとめて1枚のnumpy配列(ブロック)とし�
 
 一方で、"1列ずつ足す"のをやめて`pd.concat(axis=1)`で150列をまとめて追加すると、話は変わります。
 
-![ループ追加とバッチ追加の比較](/images/exp_b2_add_columns.png)
+![ループ追加とバッチ追加の比較](https://raw.githubusercontent.com/ytmasubuchi/zenn-contents/main/why-are-you-using-pandas/images/exp_b2_add_columns.png)
 *図5: 150列をループで1つずつ追加した場合と、まとめて追加した場合の所要時間*
 
 | | ループで1列ずつ追加 | まとめて追加(バッチ) |
