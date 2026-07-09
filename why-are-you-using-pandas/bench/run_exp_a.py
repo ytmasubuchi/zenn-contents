@@ -8,7 +8,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-LIBS = ["pandas_object", "pandas_arrow", "pandas_category", "polars"]
+LIBS = ["pandas_object", "pandas_default", "pandas_category", "polars"]
 LENGTHS = [5, 10, 20, 50, 100, 200]
 N = 200_000
 

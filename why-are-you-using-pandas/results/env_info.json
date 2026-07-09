@@ -1,10 +1,10 @@
 {
-  "python": "3.10.12",
-  "platform": "Linux-6.8.0-124-generic-aarch64-with-glibc2.35",
-  "cpu_count": 4,
-  "total_mem_gb": 3.81,
-  "pandas_version": "2.3.3",
+  "python": "3.11.15",
+  "platform": "Linux-6.8.0-117-generic-aarch64-with-glibc2.41",
+  "cpu_count": 8,
+  "total_mem_gb": 15.58,
+  "pandas_version": "3.0.3",
   "polars_version": "1.42.1",
-  "pyarrow_version": "24.0.0",
+  "pyarrow_version": null,
   "numpy_version": "2.2.6"
 }
