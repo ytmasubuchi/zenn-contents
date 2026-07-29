@@ -4,6 +4,7 @@ emoji: "🐼"
 type: "tech"
 topics: ["python", "pandas", "polars", "dataframe", "performance"]
 published: false
+publication_name: jdsc_sol_dev
 ---
 
 ## はじめに
