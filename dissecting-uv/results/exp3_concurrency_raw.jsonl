@@ -1,0 +1,6 @@
+{"tool": "uv", "concurrent_downloads": 1, "run": 0, "sync_sec": 2.595, "returncode": 0, "timestamp": "2026-07-28T10:27:35Z"}
+{"tool": "uv", "concurrent_downloads": 1, "run": 1, "sync_sec": 3.131, "returncode": 0, "timestamp": "2026-07-28T10:27:39Z"}
+{"tool": "uv", "concurrent_downloads": 1, "run": 2, "sync_sec": 2.85, "returncode": 0, "timestamp": "2026-07-28T10:27:43Z"}
+{"tool": "uv", "concurrent_downloads": "default(50)", "run": 0, "sync_sec": 2.103, "returncode": 0, "timestamp": "2026-07-28T10:27:56Z"}
+{"tool": "uv", "concurrent_downloads": "default(50)", "run": 1, "sync_sec": 2.356, "returncode": 0, "timestamp": "2026-07-28T10:27:59Z"}
+{"tool": "uv", "concurrent_downloads": "default(50)", "run": 2, "sync_sec": 2.213, "returncode": 0, "timestamp": "2026-07-28T10:28:03Z"}

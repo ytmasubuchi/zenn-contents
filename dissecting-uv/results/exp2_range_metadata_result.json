@@ -1,0 +1,22 @@
+{
+  "wheel_url": "https://files.pythonhosted.org/packages/2f/69/7a1984df015d01875c9ac79bfda7c31492cc94f81a2625303ce4707188e5/streamlit-1.60.0-py3-none-any.whl",
+  "wheel_total_size_bytes": 10419153,
+  "metadata_entry_name": "streamlit-1.60.0.dist-info/METADATA",
+  "metadata_content_size_bytes": 10369,
+  "total_transferred_bytes_via_range": 92655,
+  "request_count": 6,
+  "transferred_over_wheel_ratio": 0.008893,
+  "metadata_first_10_lines": [
+    "Metadata-Version: 2.4",
+    "Name: streamlit",
+    "Version: 1.60.0",
+    "Summary: A faster way to build and share data apps",
+    "Author-email: Snowflake Inc <hello@streamlit.io>",
+    "License-Expression: Apache-2.0",
+    "Project-URL: Homepage, https://streamlit.io",
+    "Project-URL: Documentation, https://docs.streamlit.io/",
+    "Project-URL: Source Code, https://github.com/streamlit/streamlit",
+    "Project-URL: Bug Tracker, https://github.com/streamlit/streamlit/issues"
+  ],
+  "timestamp": "2026-07-28T10:25:59Z"
+}

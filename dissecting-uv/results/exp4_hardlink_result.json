@@ -1,0 +1,95 @@
+{
+  "uv": {
+    "tool": "uv",
+    "package": "numpy",
+    "sync_a_sec": 0.68,
+    "sync_b_sec": 0.095,
+    "returncode_a": 0,
+    "returncode_b": 0,
+    "stats": {
+      "venv_a_file": {
+        "path": "/bench/work/hardlink_uv_a/.venv/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-017048f4.so",
+        "inode": 20725570,
+        "nlink": 3,
+        "size": 25128625,
+        "dev": 110
+      },
+      "venv_b_file": {
+        "path": "/bench/work/hardlink_uv_b/.venv/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-017048f4.so",
+        "inode": 20725570,
+        "nlink": 3,
+        "size": 25128625,
+        "dev": 110
+      },
+      "cache_file": {
+        "path": "/bench/.cache/uv/archive-v0/T2-c0qeNriHnztDo/numpy.libs/libscipy_openblas64_-017048f4.so",
+        "inode": 20725570,
+        "nlink": 3,
+        "size": 25128625,
+        "dev": 110
+      }
+    },
+    "venvA_venvB_same_inode": true,
+    "venvA_cache_same_inode": true,
+    "venv_a_nlink": 3,
+    "du_venv_a_bytes": 57079333,
+    "du_venv_b_bytes": 57079333,
+    "du_projA_plus_projB_bytes": 114187146,
+    "timestamp": "2026-07-28T10:29:05Z",
+    "note": "uv結果は本タスクの初回実施時のもの(uv自体はバージョン変更なし、再計測不要)"
+  },
+  "poetry": {
+    "tool": "poetry",
+    "package": "numpy",
+    "install_a_sec": 2.221,
+    "install_b_sec": 1.608,
+    "lock_a_sec": 1.654,
+    "lock_b_sec": 1.541,
+    "returncode_install_a": 0,
+    "returncode_install_b": 0,
+    "stats": {
+      "venv_a_file": {
+        "path": "/bench/work/hardlink_poetry_a/.venv/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-017048f4.so",
+        "inode": 20610565,
+        "nlink": 1,
+        "size": 25128625,
+        "dev": 110
+      },
+      "venv_b_file": {
+        "path": "/bench/work/hardlink_poetry_b/.venv/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-017048f4.so",
+        "inode": 20612179,
+        "nlink": 1,
+        "size": 25128625,
+        "dev": 110
+      },
+      "cache_file": null
+    },
+    "venvA_venvB_same_inode": false,
+    "venvA_cache_same_inode": null,
+    "venv_a_nlink": 1,
+    "du_venv_a_bytes": 62707091,
+    "du_venv_b_bytes": 62707091,
+    "du_projA_plus_projB_bytes": 125428498,
+    "timestamp": "2026-07-28T10:42:23Z",
+    "poetry_version": "2.4.1"
+  },
+  "combined_du_check": {
+    "uv_two_projects_combined_bytes": 57197631,
+    "uv_two_projects_naive_sum_bytes": 114187146,
+    "poetry_two_projects_combined_bytes": 125414182,
+    "poetry_two_projects_naive_sum_bytes": 125428498,
+    "poetry_version": "2.4.1",
+    "poetry_cached_wheel_stat": {
+      "inode": 20603463,
+      "nlink": 1,
+      "size": 16672469
+    },
+    "note": "combined値はdu -sb <dirA> <dirB> --totalを単一プロセスで実行しinode重複を検出させた値。uvはハードリンクにより2件目以降の実体コピーがほぼ発生しないため naive_sum と combined に大差が出る。poetry(2.4.1)は依然コピーのため差がない。",
+    "reference_poetry_1_8_3": {
+      "poetry_two_projects_combined_bytes": 125165528,
+      "poetry_two_projects_naive_sum_bytes": 125179766,
+      "venv_a_inode": 20727098,
+      "venv_b_inode": 20728725
+    }
+  }
+}

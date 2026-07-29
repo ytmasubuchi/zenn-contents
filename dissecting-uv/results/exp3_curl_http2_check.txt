@@ -1,0 +1,74 @@
+=== curl --http2 -sI files.pythonhosted.org wheel ===
+HTTP/2 200 
+server: nginx
+content-type: application/octet-stream
+last-modified: Tue, 21 Jul 2026 21:13:58 GMT
+etag: "60fe6625111a3bb712010cbe3c998181"
+x-amz-request-id: b1eceda0017aa784
+x-amz-id-2: aN1xjFTHYNrBmejGeMBJkTGYMY7Qwhzjs
+x-amz-version-id: 4_z179c51e67f11a0ad8f6c0018_f108ad903eda00a5d_d20260721_m211358_c005_v0501020_t0030_u01784668438812
+cache-control: max-age=365000000, immutable, public
+accept-ranges: bytes
+date: Tue, 28 Jul 2026 10:28:18 GMT
+age: 566057
+x-served-by: cache-iad-kcgs7200095-IAD, cache-nrt-rjtt7900050-NRT
+x-cache: HIT, HIT
+x-cache-hits: 35, 1
+x-timer: S1785234498.211180,VS0,VE2
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-content-type-options: nosniff
+x-permitted-cross-domain-policies: none
+x-robots-header: noindex
+x-pypi-file-python-version: py3
+x-pypi-file-version: 1.60.0
+x-pypi-file-package-type: bdist_wheel
+x-pypi-file-project: streamlit
+content-length: 10419153
+
+
+=== curl --http2 -sI pypi.org ===
+HTTP/2 200 
+access-control-allow-methods: GET
+access-control-allow-origin: *
+cache-control: max-age=600, public
+x-pypi-last-serial: 39235754
+access-control-allow-headers: Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since
+access-control-max-age: 86400
+referrer-policy: origin-when-cross-origin
+access-control-expose-headers: X-PyPI-Last-Serial
+etag: "4F9Q2l33FIUa/A5vkHP8Jw"
+content-security-policy: default-src 'none'; sandbox allow-top-navigation
+server: gunicorn
+accept-ranges: bytes
+date: Tue, 28 Jul 2026 10:28:18 GMT
+x-served-by: cache-iad-kcgs7200058-IAD, cache-iad-kcgs7200058-IAD, cache-iad-kcgs7200058-IAD, cache-nrt-rjtf7700078-NRT
+x-cache: MISS, HIT, HIT
+x-cache-hits: 0, 182, 0
+x-timer: S1785234498.255533,VS0,VE152
+content-type: text/html
+vary: Accept-Encoding, Accept
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-content-type-options: nosniff
+x-permitted-cross-domain-policies: none
+permissions-policy: publickey-credentials-create=(self),publickey-credentials-get=(self),accelerometer=(),ambient-light-sensor=(),autoplay=(),battery=(),camera=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),identity-credentials-get=(),idle-detection=(),local-fonts=(),magnetometer=(),microphone=(),midi=(),otp-credentials=(),payment=(),picture-in-picture=(),screen-wake-lock=(),serial=(),speaker-selection=(),storage-access=(),usb=(),web-share=(),xr-spatial-tracking=()
+content-length: 185340
+
+
+=== curl -v --http2 (connection negotiation detail, head only) ===
+* ALPN: curl offers h2,http/1.1
+* SSL connection using TLSv1.3 / TLS_AES_128_GCM_SHA256 / X25519MLKEM768 / RSASSA-PSS
+* ALPN: server accepted h2
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://files.pythonhosted.org/packages/2f/69/7a1984df015d01875c9ac79bfda7c31492cc94f81a2625303ce4707188e5/streamlit-1.60.0-py3-none-any.whl
+* [HTTP/2] [1] [:method: HEAD]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: files.pythonhosted.org]
+* [HTTP/2] [1] [:path: /packages/2f/69/7a1984df015d01875c9ac79bfda7c31492cc94f81a2625303ce4707188e5/streamlit-1.60.0-py3-none-any.whl]
+* [HTTP/2] [1] [user-agent: curl/8.14.1]
+* [HTTP/2] [1] [accept: */*]
+> HEAD /packages/2f/69/7a1984df015d01875c9ac79bfda7c31492cc94f81a2625303ce4707188e5/streamlit-1.60.0-py3-none-any.whl HTTP/2
+< HTTP/2 200 

@@ -1,0 +1,1766 @@
+Loading configuration file /root/.config/pypoetry/config.toml
+Creating virtualenv poetry-debug in /bench/work/poetry_debug/.venv
+[virtualenv:virtualenv.app_data] created app data folder /root/.cache/virtualenv
+[virtualenv:virtualenv.discovery.builtin] find interpreter for spec PythonSpec(path=/root/.local/share/pypoetry/venv/bin/python)
+[virtualenv:virtualenv.info] filesystem is case-sensitive
+[filelock:filelock] Attempting to acquire lock 123685295695456 on /root/.cache/virtualenv/py_info/4/4cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462.lock
+[filelock:filelock] Lock 123685295695456 acquired on /root/.cache/virtualenv/py_info/4/4cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462.lock
+[virtualenv:virtualenv.app_data.via_disk_folder] got python info of /usr/local/bin/python from /root/.cache/virtualenv/py_info/4/4cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462.json
+[filelock:filelock] Attempting to release lock 123685295695456 on /root/.cache/virtualenv/py_info/4/4cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462.lock
+[filelock:filelock] Lock 123685295695456 released on /root/.cache/virtualenv/py_info/4/4cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462.lock
+[virtualenv:virtualenv.discovery.builtin] proposed PythonInfo(spec=CPython3.12.13.final.0-64-x86_64, system=/usr/local/bin/python, exe=/root/.local/share/pypoetry/venv/bin/python, platform=linux, version='3.12.13 (main, Jul 14 2026, 02:09:00) [GCC 14.2.0]', encoding_fs_io=utf-8-utf-8)
+[virtualenv:virtualenv.discovery.builtin] accepted PythonInfo(spec=CPython3.12.13.final.0-64-x86_64, system=/usr/local/bin/python, exe=/root/.local/share/pypoetry/venv/bin/python, platform=linux, version='3.12.13 (main, Jul 14 2026, 02:09:00) [GCC 14.2.0]', encoding_fs_io=utf-8-utf-8)
+[virtualenv:virtualenv.info] symlink on filesystem does work
+[virtualenv:virtualenv.seed.embed.base_embed] The --no-wheel and --wheel options are deprecated. They have no effect for Python > 3.8 as wheel is no longer bundled in virtualenv.
+[virtualenv:virtualenv.run.session] create virtual environment via CPython3Posix(dest=/bench/work/poetry_debug/.venv, clear=False, no_vcs_ignore=False, global=False)
+[virtualenv:virtualenv.util.path._sync] create folder /bench/work/poetry_debug/.venv/bin
+[virtualenv:virtualenv.util.path._sync] create folder /bench/work/poetry_debug/.venv/include
+[virtualenv:virtualenv.util.path._sync] create folder /bench/work/poetry_debug/.venv/lib/python3.12/site-packages
+[virtualenv:virtualenv.create.pyenv_cfg] write /bench/work/poetry_debug/.venv/pyvenv.cfg
+[virtualenv:virtualenv.create.pyenv_cfg] 	home = /usr/local/bin
+[virtualenv:virtualenv.create.pyenv_cfg] 	implementation = CPython
+[virtualenv:virtualenv.create.pyenv_cfg] 	version_info = 3.12.13.final.0
+[virtualenv:virtualenv.create.pyenv_cfg] 	version = 3.12.13
+[virtualenv:virtualenv.create.pyenv_cfg] 	executable = /usr/local/bin/python3.12
+[virtualenv:virtualenv.create.pyenv_cfg] 	command = /root/.local/share/pypoetry/venv/bin/python -m virtualenv /bench/work/poetry_debug/.venv
+[virtualenv:virtualenv.create.pyenv_cfg] 	virtualenv = 20.39.1
+[virtualenv:virtualenv.create.pyenv_cfg] 	prompt = "poetry-debug-py3.12"
+[virtualenv:virtualenv.create.pyenv_cfg] 	include-system-site-packages = false
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-prefix = /usr/local
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-exec-prefix = /usr/local
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-executable = /usr/local/bin/python
+[virtualenv:virtualenv.util.path._sync] symlink /usr/local/bin/python to /bench/work/poetry_debug/.venv/bin/python
+[virtualenv:virtualenv.create.via_global_ref.api] create virtualenv import hook file /bench/work/poetry_debug/.venv/lib/python3.12/site-packages/_virtualenv.pth
+[virtualenv:virtualenv.create.via_global_ref.api] create /bench/work/poetry_debug/.venv/lib/python3.12/site-packages/_virtualenv.py
+[virtualenv:virtualenv.run.session] ============================== target debug ==============================
+[virtualenv:virtualenv.create.creator] debug via /bench/work/poetry_debug/.venv/bin/python /root/.local/share/pypoetry/venv/lib/python3.12/site-packages/virtualenv/create/debug.py
+[virtualenv:virtualenv.run.session] {
+[virtualenv:virtualenv.run.session]   "sys": {
+[virtualenv:virtualenv.run.session]     "executable": "/bench/work/poetry_debug/.venv/bin/python",
+[virtualenv:virtualenv.run.session]     "_base_executable": "/usr/local/bin/python3.12",
+[virtualenv:virtualenv.run.session]     "prefix": "/bench/work/poetry_debug/.venv",
+[virtualenv:virtualenv.run.session]     "base_prefix": "/usr/local",
+[virtualenv:virtualenv.run.session]     "real_prefix": null,
+[virtualenv:virtualenv.run.session]     "exec_prefix": "/bench/work/poetry_debug/.venv",
+[virtualenv:virtualenv.run.session]     "base_exec_prefix": "/usr/local",
+[virtualenv:virtualenv.run.session]     "path": [
+[virtualenv:virtualenv.run.session]       "/usr/local/lib/python312.zip",
+[virtualenv:virtualenv.run.session]       "/usr/local/lib/python3.12",
+[virtualenv:virtualenv.run.session]       "/usr/local/lib/python3.12/lib-dynload",
+[virtualenv:virtualenv.run.session]       "/bench/work/poetry_debug/.venv/lib/python3.12/site-packages"
+[virtualenv:virtualenv.run.session]     ],
+[virtualenv:virtualenv.run.session]     "meta_path": [
+[virtualenv:virtualenv.run.session]       "<class '_virtualenv._Finder'>",
+[virtualenv:virtualenv.run.session]       "<class '_frozen_importlib.BuiltinImporter'>",
+[virtualenv:virtualenv.run.session]       "<class '_frozen_importlib.FrozenImporter'>",
+[virtualenv:virtualenv.run.session]       "<class '_frozen_importlib_external.PathFinder'>"
+[virtualenv:virtualenv.run.session]     ],
+[virtualenv:virtualenv.run.session]     "fs_encoding": "utf-8",
+[virtualenv:virtualenv.run.session]     "io_encoding": "utf-8"
+[virtualenv:virtualenv.run.session]   },
+[virtualenv:virtualenv.run.session]   "version": "3.12.13 (main, Jul 14 2026, 02:09:00) [GCC 14.2.0]",
+[virtualenv:virtualenv.run.session]   "makefile_filename": "/usr/local/lib/python3.12/config-3.12-x86_64-linux-gnu/Makefile",
+[virtualenv:virtualenv.run.session]   "os": "<module 'os' (frozen)>",
+[virtualenv:virtualenv.run.session]   "site": "<module 'site' (frozen)>",
+[virtualenv:virtualenv.run.session]   "datetime": "<module 'datetime' from '/usr/local/lib/python3.12/datetime.py'>",
+[virtualenv:virtualenv.run.session]   "math": "<module 'math' from '/usr/local/lib/python3.12/lib-dynload/math.cpython-312-x86_64-linux-gnu.so'>",
+[virtualenv:virtualenv.run.session]   "json": "<module 'json' from '/usr/local/lib/python3.12/json/__init__.py'>"
+[virtualenv:virtualenv.run.session] }
+[virtualenv:virtualenv.run.session] add seed packages via FromAppData(download=False, pip=bundle, via=copy, app_data_dir=/root/.cache/virtualenv)
+[virtualenv:virtualenv.seed.embed.via_app_data.via_app_data] install pip from wheel /root/.local/share/pypoetry/venv/lib/python3.12/site-packages/virtualenv/seed/wheels/embed/pip-26.0.1-py3-none-any.whl via CopyPipInstall
+[filelock:filelock] Attempting to acquire lock 123685294037264 on /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any.lock
+[filelock:filelock] Lock 123685294037264 acquired on /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any.lock
+[filelock:filelock] Attempting to release lock 123685294037264 on /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any.lock
+[filelock:filelock] Lock 123685294037264 released on /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any.lock
+[virtualenv:virtualenv.util.path._sync] copy directory /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any/pip to /bench/work/poetry_debug/.venv/lib/python3.12/site-packages/pip
+[virtualenv:virtualenv.util.path._sync] copy /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any/pip-26.0.1.virtualenv to /bench/work/poetry_debug/.venv/lib/python3.12/site-packages/pip-26.0.1.virtualenv
+[virtualenv:virtualenv.util.path._sync] copy directory /root/.cache/virtualenv/wheel/3.12/image/1/CopyPipInstall/pip-26.0.1-py3-none-any/pip-26.0.1.dist-info to /bench/work/poetry_debug/.venv/lib/python3.12/site-packages/pip-26.0.1.dist-info
+[distlib:distlib.util] changing mode of /bench/work/poetry_debug/.venv/bin/pip3.12 to 755
+[distlib:distlib.util] changing mode of /bench/work/poetry_debug/.venv/bin/pip to 755
+[distlib:distlib.util] changing mode of /bench/work/poetry_debug/.venv/bin/pip-3.12 to 755
+[distlib:distlib.util] changing mode of /bench/work/poetry_debug/.venv/bin/pip3 to 755
+[virtualenv:virtualenv.seed.embed.via_app_data.pip_install.base] generated console scripts pip3.12 pip3 pip-3.12 pip
+[virtualenv:virtualenv.run.session] add activators for Bash, CShell, Fish, Nushell, PowerShell, Python
+[virtualenv:virtualenv.create.pyenv_cfg] write /bench/work/poetry_debug/.venv/pyvenv.cfg
+[virtualenv:virtualenv.create.pyenv_cfg] 	home = /usr/local/bin
+[virtualenv:virtualenv.create.pyenv_cfg] 	implementation = CPython
+[virtualenv:virtualenv.create.pyenv_cfg] 	version_info = 3.12.13.final.0
+[virtualenv:virtualenv.create.pyenv_cfg] 	version = 3.12.13
+[virtualenv:virtualenv.create.pyenv_cfg] 	executable = /usr/local/bin/python3.12
+[virtualenv:virtualenv.create.pyenv_cfg] 	command = /root/.local/share/pypoetry/venv/bin/python -m virtualenv /bench/work/poetry_debug/.venv
+[virtualenv:virtualenv.create.pyenv_cfg] 	virtualenv = 20.39.1
+[virtualenv:virtualenv.create.pyenv_cfg] 	prompt = "poetry-debug-py3.12"
+[virtualenv:virtualenv.create.pyenv_cfg] 	include-system-site-packages = false
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-prefix = /usr/local
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-exec-prefix = /usr/local
+[virtualenv:virtualenv.create.pyenv_cfg] 	base-executable = /usr/local/bin/python
+Using virtualenv: /bench/work/poetry_debug/.venv
+Updating dependencies
+Resolving dependencies...
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Checking if keyring is available
+[keyring:keyring.backend] Loading KWallet
+[keyring:keyring.backend] Loading SecretService
+[keyring:keyring.backend] Loading Windows
+[keyring:keyring.backend] Loading chainer
+[keyring:keyring.backend] Loading libsecret
+[keyring:keyring.backend] Loading macOS
+Backend 'fail Keyring' is not suitable
+No valid keyring backend was found
+Creating new session for pypi.org
+[urllib3:urllib3.connectionpool] Starting new HTTPS connection (1): pypi.org:443
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/streamlit/ HTTP/1.1" 200 60548
+[filelock:filelock] Attempting to acquire lock 123685269610256 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/5/5/8/3/655831cd15b69b6295517747fc568e968efffafe8490bbb9d7ea7611.lock
+[filelock:filelock] Lock 123685269610256 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/5/5/8/3/655831cd15b69b6295517747fc568e968efffafe8490bbb9d7ea7611.lock
+[filelock:filelock] Attempting to release lock 123685269610256 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/5/5/8/3/655831cd15b69b6295517747fc568e968efffafe8490bbb9d7ea7611.lock
+[filelock:filelock] Lock 123685269610256 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/5/5/8/3/655831cd15b69b6295517747fc568e968efffafe8490bbb9d7ea7611.lock
+Source (PyPI): 244 packages found for streamlit *
+Source (PyPI): Getting info for streamlit (1.60.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/streamlit/1.60.0/json HTTP/1.1" 200 4553
+[filelock:filelock] Attempting to acquire lock 123685268600448 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/f/0/1/6/2f0163a0ca839085b5e770cf2382abdcc10414a53b38b81cff6be985.lock
+[filelock:filelock] Lock 123685268600448 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/f/0/1/6/2f0163a0ca839085b5e770cf2382abdcc10414a53b38b81cff6be985.lock
+[filelock:filelock] Attempting to release lock 123685268600448 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/f/0/1/6/2f0163a0ca839085b5e770cf2382abdcc10414a53b38b81cff6be985.lock
+[filelock:filelock] Lock 123685268600448 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/f/0/1/6/2f0163a0ca839085b5e770cf2382abdcc10414a53b38b81cff6be985.lock
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/watchdog/ HTTP/1.1" 200 77090
+[filelock:filelock] Attempting to acquire lock 123685266849920 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/e/3/e/1/9e3e160141f34477f10e68c836875622ed5a1a592545675f2407d6e2.lock
+[filelock:filelock] Lock 123685266849920 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/e/3/e/1/9e3e160141f34477f10e68c836875622ed5a1a592545675f2407d6e2.lock
+[filelock:filelock] Attempting to release lock 123685266849920 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/e/3/e/1/9e3e160141f34477f10e68c836875622ed5a1a592545675f2407d6e2.lock
+[filelock:filelock] Lock 123685266849920 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/e/3/e/1/9e3e160141f34477f10e68c836875622ed5a1a592545675f2407d6e2.lock
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/itsdangerous/ HTTP/1.1" 200 4944
+[filelock:filelock] Attempting to acquire lock 123685266640288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/5/3/8/5/85385fd8a53d3d88ac67db4bf015be7ba931f024227668d42969ea92.lock
+[filelock:filelock] Lock 123685266640288 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/5/3/8/5/85385fd8a53d3d88ac67db4bf015be7ba931f024227668d42969ea92.lock
+[filelock:filelock] Attempting to release lock 123685266640288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/5/3/8/5/85385fd8a53d3d88ac67db4bf015be7ba931f024227668d42969ea92.lock
+[filelock:filelock] Lock 123685266640288 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/5/3/8/5/85385fd8a53d3d88ac67db4bf015be7ba931f024227668d42969ea92.lock
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/websockets/ HTTP/1.1" 200 192327
+[filelock:filelock] Attempting to acquire lock 123685266649984 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/3/4/4/6/23446cc6157b1ce7d0c47be470d3e3e086ba28baabb823def5b31de1.lock
+[filelock:filelock] Lock 123685266649984 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/3/4/4/6/23446cc6157b1ce7d0c47be470d3e3e086ba28baabb823def5b31de1.lock
+[filelock:filelock] Attempting to release lock 123685266649984 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/3/4/4/6/23446cc6157b1ce7d0c47be470d3e3e086ba28baabb823def5b31de1.lock
+[filelock:filelock] Lock 123685266649984 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/3/4/4/6/23446cc6157b1ce7d0c47be470d3e3e086ba28baabb823def5b31de1.lock
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/python-multipart/ HTTP/1.1" 200 8762
+[filelock:filelock] Attempting to acquire lock 123685262480624 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/9/7/e/8f97ef75556783011e845ded3fc9022e2cd218389c6cb033450483a6.lock
+[filelock:filelock] Lock 123685262480624 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/9/7/e/8f97ef75556783011e845ded3fc9022e2cd218389c6cb033450483a6.lock
+[filelock:filelock] Attempting to release lock 123685262480624 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/9/7/e/8f97ef75556783011e845ded3fc9022e2cd218389c6cb033450483a6.lock
+[filelock:filelock] Lock 123685262480624 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/9/7/e/8f97ef75556783011e845ded3fc9022e2cd218389c6cb033450483a6.lock
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/anyio/ HTTP/1.1" 200 19031
+[filelock:filelock] Attempting to acquire lock 123685260586416 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/8/f/7/d/88f7d71f2d1361f8fb38230bb8ae05bdb624c08a2414e1c535731370.lock
+[filelock:filelock] Lock 123685260586416 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/8/f/7/d/88f7d71f2d1361f8fb38230bb8ae05bdb624c08a2414e1c535731370.lock
+[filelock:filelock] Attempting to release lock 123685260586416 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/8/f/7/d/88f7d71f2d1361f8fb38230bb8ae05bdb624c08a2414e1c535731370.lock
+[filelock:filelock] Lock 123685260586416 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/8/f/7/d/88f7d71f2d1361f8fb38230bb8ae05bdb624c08a2414e1c535731370.lock
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/httptools/ HTTP/1.1" 200 49721
+[filelock:filelock] Attempting to acquire lock 123685260906992 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/6/1/5/5/7615591b7c1aa1d6d99b4d19be5c9e6a370bb94208eb3a4a666b106d.lock
+[filelock:filelock] Lock 123685260906992 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/6/1/5/5/7615591b7c1aa1d6d99b4d19be5c9e6a370bb94208eb3a4a666b106d.lock
+[filelock:filelock] Attempting to release lock 123685260906992 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/6/1/5/5/7615591b7c1aa1d6d99b4d19be5c9e6a370bb94208eb3a4a666b106d.lock
+[filelock:filelock] Lock 123685260906992 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/6/1/5/5/7615591b7c1aa1d6d99b4d19be5c9e6a370bb94208eb3a4a666b106d.lock
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/uvicorn/ HTTP/1.1" 200 35928
+[filelock:filelock] Attempting to acquire lock 123685192555440 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/7/4/a/a/874aac7e0531859c4ffdba7c707fe13c5a17402412a957022cdd3807.lock
+[filelock:filelock] Lock 123685192555440 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/7/4/a/a/874aac7e0531859c4ffdba7c707fe13c5a17402412a957022cdd3807.lock
+[filelock:filelock] Attempting to release lock 123685192555440 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/7/4/a/a/874aac7e0531859c4ffdba7c707fe13c5a17402412a957022cdd3807.lock
+[filelock:filelock] Lock 123685192555440 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/7/4/a/a/874aac7e0531859c4ffdba7c707fe13c5a17402412a957022cdd3807.lock
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/starlette/ HTTP/1.1" 200 37363
+[filelock:filelock] Attempting to acquire lock 123685191094912 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/0/d/7/6/60d76000e692d001575cc8b3c5636dbc7c1427cc1b31cd5b6a7ddf58.lock
+[filelock:filelock] Lock 123685191094912 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/0/d/7/6/60d76000e692d001575cc8b3c5636dbc7c1427cc1b31cd5b6a7ddf58.lock
+[filelock:filelock] Attempting to release lock 123685191094912 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/0/d/7/6/60d76000e692d001575cc8b3c5636dbc7c1427cc1b31cd5b6a7ddf58.lock
+[filelock:filelock] Lock 123685191094912 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/0/d/7/6/60d76000e692d001575cc8b3c5636dbc7c1427cc1b31cd5b6a7ddf58.lock
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/typing-extensions/ HTTP/1.1" 200 15878
+[filelock:filelock] Attempting to acquire lock 123685191693136 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/2/0/7/4/e207426cbcf220918fdf354826064190a066f96cd6ad8830f1f11fdc.lock
+[filelock:filelock] Lock 123685191693136 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/2/0/7/4/e207426cbcf220918fdf354826064190a066f96cd6ad8830f1f11fdc.lock
+[filelock:filelock] Attempting to release lock 123685191693136 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/2/0/7/4/e207426cbcf220918fdf354826064190a066f96cd6ad8830f1f11fdc.lock
+[filelock:filelock] Lock 123685191693136 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/2/0/7/4/e207426cbcf220918fdf354826064190a066f96cd6ad8830f1f11fdc.lock
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/toml/ HTTP/1.1" 200 2879
+[filelock:filelock] Attempting to acquire lock 123685191983008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/1/a/b/3/01ab38ac63d82e82f212dd86d62de883eb0d7de6be8db88f70d14a62.lock
+[filelock:filelock] Lock 123685191983008 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/1/a/b/3/01ab38ac63d82e82f212dd86d62de883eb0d7de6be8db88f70d14a62.lock
+[filelock:filelock] Attempting to release lock 123685191983008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/1/a/b/3/01ab38ac63d82e82f212dd86d62de883eb0d7de6be8db88f70d14a62.lock
+[filelock:filelock] Lock 123685191983008 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/1/a/b/3/01ab38ac63d82e82f212dd86d62de883eb0d7de6be8db88f70d14a62.lock
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/tenacity/ HTTP/1.1" 200 13594
+[filelock:filelock] Attempting to acquire lock 123685191987904 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/f/f/8/6/4ff8606ef3565dd3d8cb49160a12b00a0874f4891b47bf2460855867.lock
+[filelock:filelock] Lock 123685191987904 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/f/f/8/6/4ff8606ef3565dd3d8cb49160a12b00a0874f4891b47bf2460855867.lock
+[filelock:filelock] Attempting to release lock 123685191987904 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/f/f/8/6/4ff8606ef3565dd3d8cb49160a12b00a0874f4891b47bf2460855867.lock
+[filelock:filelock] Lock 123685191987904 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/f/f/8/6/4ff8606ef3565dd3d8cb49160a12b00a0874f4891b47bf2460855867.lock
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/requests/ HTTP/1.1" 200 31334
+[filelock:filelock] Attempting to acquire lock 123685190177504 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/a/c/6/1/eac61126daf80149d2a016f12a54eab5e3b5c1dbc77410ff1a97edc4.lock
+[filelock:filelock] Lock 123685190177504 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/a/c/6/1/eac61126daf80149d2a016f12a54eab5e3b5c1dbc77410ff1a97edc4.lock
+[filelock:filelock] Attempting to release lock 123685190177504 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/a/c/6/1/eac61126daf80149d2a016f12a54eab5e3b5c1dbc77410ff1a97edc4.lock
+[filelock:filelock] Lock 123685190177504 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/a/c/6/1/eac61126daf80149d2a016f12a54eab5e3b5c1dbc77410ff1a97edc4.lock
+Source (PyPI): 17 packages found for requests >=2.27,<3
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/pyarrow/ HTTP/1.1" 200 174147
+[filelock:filelock] Attempting to acquire lock 123685190595072 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/d/f/1/e/9df1ee6c2e327fe1c6b83e310229ce0dc078eddefce5100826a82a16.lock
+[filelock:filelock] Lock 123685190595072 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/d/f/1/e/9df1ee6c2e327fe1c6b83e310229ce0dc078eddefce5100826a82a16.lock
+[filelock:filelock] Attempting to release lock 123685190595072 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/d/f/1/e/9df1ee6c2e327fe1c6b83e310229ce0dc078eddefce5100826a82a16.lock
+[filelock:filelock] Lock 123685190595072 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/d/f/1/e/9df1ee6c2e327fe1c6b83e310229ce0dc078eddefce5100826a82a16.lock
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/protobuf/ HTTP/1.1" 200 322934
+[filelock:filelock] Attempting to acquire lock 123685185834400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/6/9/3/2/1693297fb9daf7bfe370bf51d371acfeb8ff40759bf8650dfd404ba4.lock
+[filelock:filelock] Lock 123685185834400 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/6/9/3/2/1693297fb9daf7bfe370bf51d371acfeb8ff40759bf8650dfd404ba4.lock
+[filelock:filelock] Attempting to release lock 123685185834400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/6/9/3/2/1693297fb9daf7bfe370bf51d371acfeb8ff40759bf8650dfd404ba4.lock
+[filelock:filelock] Lock 123685185834400 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/6/9/3/2/1693297fb9daf7bfe370bf51d371acfeb8ff40759bf8650dfd404ba4.lock
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/pydeck/ HTTP/1.1" 200 11347
+[filelock:filelock] Attempting to acquire lock 123685183805376 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/d/3/4/f/4d34fb50a0dc20a2d1f387feb9119da62fd697ccd2959207fda16ddb.lock
+[filelock:filelock] Lock 123685183805376 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/d/3/4/f/4d34fb50a0dc20a2d1f387feb9119da62fd697ccd2959207fda16ddb.lock
+[filelock:filelock] Attempting to release lock 123685183805376 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/d/3/4/f/4d34fb50a0dc20a2d1f387feb9119da62fd697ccd2959207fda16ddb.lock
+[filelock:filelock] Lock 123685183805376 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/d/3/4/f/4d34fb50a0dc20a2d1f387feb9119da62fd697ccd2959207fda16ddb.lock
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/pillow/ HTTP/1.1" 200 414213
+[filelock:filelock] Attempting to acquire lock 123685184005344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/e/e/3/1/4ee3138b60ee0c1b5c7c6d39d2830adba9f08a2f0a1a300dfb7d80b0.lock
+[filelock:filelock] Lock 123685184005344 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/e/e/3/1/4ee3138b60ee0c1b5c7c6d39d2830adba9f08a2f0a1a300dfb7d80b0.lock
+[filelock:filelock] Attempting to release lock 123685184005344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/e/e/3/1/4ee3138b60ee0c1b5c7c6d39d2830adba9f08a2f0a1a300dfb7d80b0.lock
+[filelock:filelock] Lock 123685184005344 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/e/e/3/1/4ee3138b60ee0c1b5c7c6d39d2830adba9f08a2f0a1a300dfb7d80b0.lock
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/pandas/ HTTP/1.1" 200 267004
+[filelock:filelock] Attempting to acquire lock 123685176391104 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/6/e/c/7/66ec76a7b6ed4081044f5c7821af293b63c17bc2ac523ff93d5ca7d5.lock
+[filelock:filelock] Lock 123685176391104 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/6/e/c/7/66ec76a7b6ed4081044f5c7821af293b63c17bc2ac523ff93d5ca7d5.lock
+[filelock:filelock] Attempting to release lock 123685176391104 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/6/e/c/7/66ec76a7b6ed4081044f5c7821af293b63c17bc2ac523ff93d5ca7d5.lock
+[filelock:filelock] Lock 123685176391104 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/6/e/c/7/66ec76a7b6ed4081044f5c7821af293b63c17bc2ac523ff93d5ca7d5.lock
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/packaging/ HTTP/1.1" 200 14624
+[filelock:filelock] Attempting to acquire lock 123685166199968 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/4/e/5/b/44e5b11a6caa92636d8ccfe658d420ba4ed8f67f7f4e835b214255aa.lock
+[filelock:filelock] Lock 123685166199968 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/4/e/5/b/44e5b11a6caa92636d8ccfe658d420ba4ed8f67f7f4e835b214255aa.lock
+[filelock:filelock] Attempting to release lock 123685166199968 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/4/e/5/b/44e5b11a6caa92636d8ccfe658d420ba4ed8f67f7f4e835b214255aa.lock
+[filelock:filelock] Lock 123685166199968 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/4/e/5/b/44e5b11a6caa92636d8ccfe658d420ba4ed8f67f7f4e835b214255aa.lock
+Source (PyPI): 24 packages found for packaging >=20
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/numpy/ HTTP/1.1" 200 454877
+[filelock:filelock] Attempting to acquire lock 123685166477776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/1/3/3/cc133da5701a066bc3777b2575e0daa601596f19871db4608ca98b97.lock
+[filelock:filelock] Lock 123685166477776 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/1/3/3/cc133da5701a066bc3777b2575e0daa601596f19871db4608ca98b97.lock
+[filelock:filelock] Attempting to release lock 123685166477776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/1/3/3/cc133da5701a066bc3777b2575e0daa601596f19871db4608ca98b97.lock
+[filelock:filelock] Lock 123685166477776 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/1/3/3/cc133da5701a066bc3777b2575e0daa601596f19871db4608ca98b97.lock
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/gitpython/ HTTP/1.1" 200 26440
+[filelock:filelock] Attempting to acquire lock 123685164167008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/3/a/d/7/33ad7fe31489f80e15fea42300adbfc4d75c0efc76d75cfab7d2e5b0.lock
+[filelock:filelock] Lock 123685164167008 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/3/a/d/7/33ad7fe31489f80e15fea42300adbfc4d75c0efc76d75cfab7d2e5b0.lock
+[filelock:filelock] Attempting to release lock 123685164167008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/3/a/d/7/33ad7fe31489f80e15fea42300adbfc4d75c0efc76d75cfab7d2e5b0.lock
+[filelock:filelock] Lock 123685164167008 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/3/a/d/7/33ad7fe31489f80e15fea42300adbfc4d75c0efc76d75cfab7d2e5b0.lock
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/click/ HTTP/1.1" 200 17281
+[filelock:filelock] Attempting to acquire lock 123685164700768 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/a/c/4/d/8ac4d14dc45e27d21da49fb515570b6f875b78707de9b08ce1088d1b.lock
+[filelock:filelock] Lock 123685164700768 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/a/c/4/d/8ac4d14dc45e27d21da49fb515570b6f875b78707de9b08ce1088d1b.lock
+[filelock:filelock] Attempting to release lock 123685164700768 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/a/c/4/d/8ac4d14dc45e27d21da49fb515570b6f875b78707de9b08ce1088d1b.lock
+[filelock:filelock] Lock 123685164700768 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/a/c/4/d/8ac4d14dc45e27d21da49fb515570b6f875b78707de9b08ce1088d1b.lock
+Source (PyPI): 27 packages found for click >=7.0,<9
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/blinker/ HTTP/1.1" 200 3865
+[filelock:filelock] Attempting to acquire lock 123685154900928 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/2/6/e/2/226e20ef37baae18486c4b142f19362b0176ef112b8135637169c623.lock
+[filelock:filelock] Lock 123685154900928 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/2/6/e/2/226e20ef37baae18486c4b142f19362b0176ef112b8135637169c623.lock
+[filelock:filelock] Attempting to release lock 123685154900928 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/2/6/e/2/226e20ef37baae18486c4b142f19362b0176ef112b8135637169c623.lock
+[filelock:filelock] Lock 123685154900928 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/2/6/e/2/226e20ef37baae18486c4b142f19362b0176ef112b8135637169c623.lock
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/altair/ HTTP/1.1" 200 17474
+[filelock:filelock] Attempting to acquire lock 123685154909280 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/3/3/2/5/53325ceb1ca49d1f81a023fb16d32677afdd7a2060d12a87cb3a0c75.lock
+[filelock:filelock] Lock 123685154909280 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/3/3/2/5/53325ceb1ca49d1f81a023fb16d32677afdd7a2060d12a87cb3a0c75.lock
+[filelock:filelock] Attempting to release lock 123685154909280 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/3/3/2/5/53325ceb1ca49d1f81a023fb16d32677afdd7a2060d12a87cb3a0c75.lock
+[filelock:filelock] Lock 123685154909280 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/3/3/2/5/53325ceb1ca49d1f81a023fb16d32677afdd7a2060d12a87cb3a0c75.lock
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+Source (PyPI): Getting info for protobuf (7.35.1) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/protobuf/7.35.1/json HTTP/1.1" 200 2026
+[filelock:filelock] Attempting to acquire lock 123685155247056 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/1/9/3/f/4193fe322c67cb9188d808af75d8d905c5efe6b3d5f4efe1022bcca6.lock
+[filelock:filelock] Lock 123685155247056 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/1/9/3/f/4193fe322c67cb9188d808af75d8d905c5efe6b3d5f4efe1022bcca6.lock
+[filelock:filelock] Attempting to release lock 123685155247056 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/1/9/3/f/4193fe322c67cb9188d808af75d8d905c5efe6b3d5f4efe1022bcca6.lock
+[filelock:filelock] Lock 123685155247056 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/1/9/3/f/4193fe322c67cb9188d808af75d8d905c5efe6b3d5f4efe1022bcca6.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+Creating new session for files.pythonhosted.org
+[urllib3:urllib3.connectionpool] Starting new HTTPS connection (1): files.pythonhosted.org:443
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/19/c7/5f7c636ec43e0c545e28d1f1db71990108306f7bdcb89f069ba97e428e7f/protobuf-7.35.1-py3-none-any.whl.metadata HTTP/1.1" 200 240
+[filelock:filelock] Attempting to acquire lock 123685155255216 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/f/3/8/a/6f38a073cf1614de5db4517fdc02e89380bbfed024e8cf63528b9896.lock
+[filelock:filelock] Lock 123685155255216 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/f/3/8/a/6f38a073cf1614de5db4517fdc02e89380bbfed024e8cf63528b9896.lock
+[filelock:filelock] Attempting to release lock 123685155255216 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/f/3/8/a/6f38a073cf1614de5db4517fdc02e89380bbfed024e8cf63528b9896.lock
+[filelock:filelock] Lock 123685155255216 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/f/3/8/a/6f38a073cf1614de5db4517fdc02e89380bbfed024e8cf63528b9896.lock
+   1: selecting protobuf (7.35.1)
+Source (PyPI): Getting info for gitpython (3.1.57) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/gitpython/3.1.57/json HTTP/1.1" 200 5998
+[filelock:filelock] Attempting to acquire lock 123685155252528 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/3/e/9/4/e3e94d1d1e01de15423156e401dd09504cf9c8367917ee41302c75a7.lock
+[filelock:filelock] Lock 123685155252528 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/3/e/9/4/e3e94d1d1e01de15423156e401dd09504cf9c8367917ee41302c75a7.lock
+[filelock:filelock] Attempting to release lock 123685155252528 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/3/e/9/4/e3e94d1d1e01de15423156e401dd09504cf9c8367917ee41302c75a7.lock
+[filelock:filelock] Lock 123685155252528 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/3/e/9/4/e3e94d1d1e01de15423156e401dd09504cf9c8367917ee41302c75a7.lock
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/gitdb/ HTTP/1.1" 200 4587
+[filelock:filelock] Attempting to acquire lock 123685155365104 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/9/0/f/6/490f6d7cd33219a4671ccf426e5cf1fb77b4a08820a91961cb0ae903.lock
+[filelock:filelock] Lock 123685155365104 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/9/0/f/6/490f6d7cd33219a4671ccf426e5cf1fb77b4a08820a91961cb0ae903.lock
+[filelock:filelock] Attempting to release lock 123685155365104 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/9/0/f/6/490f6d7cd33219a4671ccf426e5cf1fb77b4a08820a91961cb0ae903.lock
+[filelock:filelock] Lock 123685155365104 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/9/0/f/6/490f6d7cd33219a4671ccf426e5cf1fb77b4a08820a91961cb0ae903.lock
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+Source (PyPI): Getting info for numpy (2.5.1) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/numpy/2.5.1/json HTTP/1.1" 200 9945
+[filelock:filelock] Attempting to acquire lock 123685155442128 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/c/5/e/9/5c5e9e37a5e8abdcf1ee587c5d7e6ea4bc08fedd6ebda7f68ccaf7f9.lock
+[filelock:filelock] Lock 123685155442128 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/c/5/e/9/5c5e9e37a5e8abdcf1ee587c5d7e6ea4bc08fedd6ebda7f68ccaf7f9.lock
+[filelock:filelock] Attempting to release lock 123685155442128 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/c/5/e/9/5c5e9e37a5e8abdcf1ee587c5d7e6ea4bc08fedd6ebda7f68ccaf7f9.lock
+[filelock:filelock] Lock 123685155442128 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/c/5/e/9/5c5e9e37a5e8abdcf1ee587c5d7e6ea4bc08fedd6ebda7f68ccaf7f9.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/62/7b/14687aa674250e5e546f616f486b0d56d3631cd5b2415739141ce40bdcea/numpy-2.5.1-cp312-cp312-macosx_10_13_x86_64.whl.metadata HTTP/1.1" 200 2627
+[filelock:filelock] Attempting to acquire lock 123685155448320 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/9/a/9/4b9a9bd03a3d59b5d3acc41a7fe22192fcecf8d0d307be28410bcabd.lock
+[filelock:filelock] Lock 123685155448320 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/9/a/9/4b9a9bd03a3d59b5d3acc41a7fe22192fcecf8d0d307be28410bcabd.lock
+[filelock:filelock] Attempting to release lock 123685155448320 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/9/a/9/4b9a9bd03a3d59b5d3acc41a7fe22192fcecf8d0d307be28410bcabd.lock
+[filelock:filelock] Lock 123685155448320 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/9/a/9/4b9a9bd03a3d59b5d3acc41a7fe22192fcecf8d0d307be28410bcabd.lock
+   1: selecting numpy (2.5.1)
+Source (PyPI): Getting info for pillow (12.3.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/pillow/12.3.0/json HTTP/1.1" 200 15976
+[filelock:filelock] Attempting to acquire lock 123685155444864 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/e/6/c/3/ae6c32870363a9895b21b194ec60d772343c48cf37a5331cb85abe04.lock
+[filelock:filelock] Lock 123685155444864 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/e/6/c/3/ae6c32870363a9895b21b194ec60d772343c48cf37a5331cb85abe04.lock
+[filelock:filelock] Attempting to release lock 123685155444864 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/e/6/c/3/ae6c32870363a9895b21b194ec60d772343c48cf37a5331cb85abe04.lock
+[filelock:filelock] Lock 123685155444864 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/e/6/c/3/ae6c32870363a9895b21b194ec60d772343c48cf37a5331cb85abe04.lock
+   1: selecting pillow (12.3.0)
+Source (PyPI): Getting info for uvicorn (0.51.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/uvicorn/0.51.0/json HTTP/1.1" 200 3632
+[filelock:filelock] Attempting to acquire lock 123685155445248 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/9/4/6/07946184d46a1aac181f20db944be3187e83c17b2e3c24ef99197faa.lock
+[filelock:filelock] Lock 123685155445248 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/9/4/6/07946184d46a1aac181f20db944be3187e83c17b2e3c24ef99197faa.lock
+[filelock:filelock] Attempting to release lock 123685155445248 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/9/4/6/07946184d46a1aac181f20db944be3187e83c17b2e3c24ef99197faa.lock
+[filelock:filelock] Lock 123685155445248 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/9/4/6/07946184d46a1aac181f20db944be3187e83c17b2e3c24ef99197faa.lock
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/h11/ HTTP/1.1" 200 3805
+[filelock:filelock] Attempting to acquire lock 123685155590064 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/1/a/c/4/91ac4141ee513b48d6e2106b8504eedf08543a9ac70e664c84a86c9b.lock
+[filelock:filelock] Lock 123685155590064 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/1/a/c/4/91ac4141ee513b48d6e2106b8504eedf08543a9ac70e664c84a86c9b.lock
+[filelock:filelock] Attempting to release lock 123685155590064 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/1/a/c/4/91ac4141ee513b48d6e2106b8504eedf08543a9ac70e664c84a86c9b.lock
+[filelock:filelock] Lock 123685155590064 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/1/a/c/4/91ac4141ee513b48d6e2106b8504eedf08543a9ac70e664c84a86c9b.lock
+Source (PyPI): 10 packages found for h11 >=0.8
+Source (PyPI): Getting info for starlette (1.3.1) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/starlette/1.3.1/json HTTP/1.1" 200 3471
+[filelock:filelock] Attempting to acquire lock 123685155596928 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/f/9/a/2/af9a2bc64476aae03a1e4349d60e443fc6b3eeb9698b131be53a8908.lock
+[filelock:filelock] Lock 123685155596928 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/f/9/a/2/af9a2bc64476aae03a1e4349d60e443fc6b3eeb9698b131be53a8908.lock
+[filelock:filelock] Attempting to release lock 123685155596928 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/f/9/a/2/af9a2bc64476aae03a1e4349d60e443fc6b3eeb9698b131be53a8908.lock
+[filelock:filelock] Lock 123685155596928 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/f/9/a/2/af9a2bc64476aae03a1e4349d60e443fc6b3eeb9698b131be53a8908.lock
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+Source (PyPI): Getting info for pandas (3.0.5) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/pandas/3.0.5/json HTTP/1.1" 200 26989
+[filelock:filelock] Attempting to acquire lock 123685155815792 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/f/9/2/5/bf925423fbdbeac6f26cbcb80a476017864eff388f608f17109d0f68.lock
+[filelock:filelock] Lock 123685155815792 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/f/9/2/5/bf925423fbdbeac6f26cbcb80a476017864eff388f608f17109d0f68.lock
+[filelock:filelock] Attempting to release lock 123685155815792 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/f/9/2/5/bf925423fbdbeac6f26cbcb80a476017864eff388f608f17109d0f68.lock
+[filelock:filelock] Lock 123685155815792 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/f/9/2/5/bf925423fbdbeac6f26cbcb80a476017864eff388f608f17109d0f68.lock
+   0: Duplicate dependencies for numpy
+   0: Different requirements found for numpy (>=1.26.0) with markers python_version < "3.14" and numpy (>=2.3.3) with markers python_version >= "3.14".
+   1: Version solving took 1.565 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   0: Duplicate dependencies for tzdata
+   0: Different requirements found for tzdata (*) with markers sys_platform == "win32" or sys_platform == "emscripten" and tzdata (<empty>) with markers sys_platform != "win32" and sys_platform != "emscripten".
+   1: Version solving took 0.054 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>, 'tzdata': <Dependency tzdata>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   1: fact: pandas (3.0.5) depends on numpy (>=1.26.0)
+   1: fact: pandas (3.0.5) depends on python-dateutil (>=2.8.2)
+   1: fact: pandas (3.0.5) depends on tzdata (*)
+   1: selecting pandas (3.0.5)
+   1: derived: tzdata
+   1: derived: python-dateutil (>=2.8.2)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/tzdata/ HTTP/1.1" 200 9580
+[filelock:filelock] Attempting to acquire lock 123685152475232 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/f/6/e/0cf6e817e2c5554000c735ecab0f3cf492f7d33b50d5a474a801ba24.lock
+[filelock:filelock] Lock 123685152475232 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/f/6/e/0cf6e817e2c5554000c735ecab0f3cf492f7d33b50d5a474a801ba24.lock
+[filelock:filelock] Attempting to release lock 123685152475232 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/f/6/e/0cf6e817e2c5554000c735ecab0f3cf492f7d33b50d5a474a801ba24.lock
+[filelock:filelock] Lock 123685152475232 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/f/6/e/0cf6e817e2c5554000c735ecab0f3cf492f7d33b50d5a474a801ba24.lock
+Source (PyPI): 30 packages found for tzdata *
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/python-dateutil/ HTTP/1.1" 200 7326
+[filelock:filelock] Attempting to acquire lock 123685152633296 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/a/1/0/e1a102a58d5f97b4d2a7ffd62157f43e68a5808f81e4779f2eb95e89.lock
+[filelock:filelock] Lock 123685152633296 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/a/1/0/e1a102a58d5f97b4d2a7ffd62157f43e68a5808f81e4779f2eb95e89.lock
+[filelock:filelock] Attempting to release lock 123685152633296 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/a/1/0/e1a102a58d5f97b4d2a7ffd62157f43e68a5808f81e4779f2eb95e89.lock
+[filelock:filelock] Lock 123685152633296 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/a/1/0/e1a102a58d5f97b4d2a7ffd62157f43e68a5808f81e4779f2eb95e89.lock
+Source (PyPI): 3 packages found for python-dateutil >=2.8.2
+Source (PyPI): Getting info for pyarrow (24.0.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/pyarrow/24.0.0/json HTTP/1.1" 200 9572
+[filelock:filelock] Attempting to acquire lock 123685150692688 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/c/c/e/4/1cce43431e752a66f33559dac66fccd5d99fc7d76b670e975f9932c8.lock
+[filelock:filelock] Lock 123685150692688 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/c/c/e/4/1cce43431e752a66f33559dac66fccd5d99fc7d76b670e975f9932c8.lock
+[filelock:filelock] Attempting to release lock 123685150692688 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/c/c/e/4/1cce43431e752a66f33559dac66fccd5d99fc7d76b670e975f9932c8.lock
+[filelock:filelock] Lock 123685150692688 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/c/c/e/4/1cce43431e752a66f33559dac66fccd5d99fc7d76b670e975f9932c8.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/a5/bf/a34fee1d624152124fa8355c42f34195ad5fe5233ce5bb87946432047d52/pyarrow-24.0.0-cp310-cp310-macosx_12_0_arm64.whl.metadata HTTP/1.1" 200 1344
+[filelock:filelock] Attempting to acquire lock 123685150699792 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/f/a/0/1/dfa012117d93545eb51b05ccbb038f94826fee89356e460d02522d25.lock
+[filelock:filelock] Lock 123685150699792 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/f/a/0/1/dfa012117d93545eb51b05ccbb038f94826fee89356e460d02522d25.lock
+[filelock:filelock] Attempting to release lock 123685150699792 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/f/a/0/1/dfa012117d93545eb51b05ccbb038f94826fee89356e460d02522d25.lock
+[filelock:filelock] Lock 123685150699792 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/f/a/0/1/dfa012117d93545eb51b05ccbb038f94826fee89356e460d02522d25.lock
+   1: selecting pyarrow (24.0.0)
+Source (PyPI): Getting info for click (8.4.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/click/8.4.2/json HTTP/1.1" 200 2156
+[filelock:filelock] Attempting to acquire lock 123685150695856 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/4/f/a/7/b4fa7c476efc97302af818c33b46919a8050ac0a03779adea1c5af3a.lock
+[filelock:filelock] Lock 123685150695856 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/4/f/a/7/b4fa7c476efc97302af818c33b46919a8050ac0a03779adea1c5af3a.lock
+[filelock:filelock] Attempting to release lock 123685150695856 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/4/f/a/7/b4fa7c476efc97302af818c33b46919a8050ac0a03779adea1c5af3a.lock
+[filelock:filelock] Lock 123685150695856 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/4/f/a/7/b4fa7c476efc97302af818c33b46919a8050ac0a03779adea1c5af3a.lock
+   1: fact: click (8.4.2) depends on colorama (*)
+   1: selecting click (8.4.2)
+   1: derived: colorama
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/colorama/ HTTP/1.1" 200 11103
+[filelock:filelock] Attempting to acquire lock 123685150698496 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/e/0/1/04e017851dbfe81db92d092eaaf2526622c3950bcb8f2696e57143da.lock
+[filelock:filelock] Lock 123685150698496 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/e/0/1/04e017851dbfe81db92d092eaaf2526622c3950bcb8f2696e57143da.lock
+[filelock:filelock] Attempting to release lock 123685150698496 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/e/0/1/04e017851dbfe81db92d092eaaf2526622c3950bcb8f2696e57143da.lock
+[filelock:filelock] Lock 123685150698496 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/e/0/1/04e017851dbfe81db92d092eaaf2526622c3950bcb8f2696e57143da.lock
+Source (PyPI): 43 packages found for colorama *
+Source (PyPI): Getting info for packaging (26.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/packaging/26.2/json HTTP/1.1" 200 2245
+[filelock:filelock] Attempting to acquire lock 123685150914896 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/3/f/5/8b3f59b1525ba9ac34bc247028ba3907e7fb6da137eea02f14694f25.lock
+[filelock:filelock] Lock 123685150914896 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/3/f/5/8b3f59b1525ba9ac34bc247028ba3907e7fb6da137eea02f14694f25.lock
+[filelock:filelock] Attempting to release lock 123685150914896 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/3/f/5/8b3f59b1525ba9ac34bc247028ba3907e7fb6da137eea02f14694f25.lock
+[filelock:filelock] Lock 123685150914896 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/3/f/5/8b3f59b1525ba9ac34bc247028ba3907e7fb6da137eea02f14694f25.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl.metadata HTTP/1.1" 200 1358
+[filelock:filelock] Attempting to acquire lock 123685150982560 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/3/6/8/4/436846b847c9c90a13539a872e2084e3f9ca23eb93b4b1cc44b55964.lock
+[filelock:filelock] Lock 123685150982560 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/3/6/8/4/436846b847c9c90a13539a872e2084e3f9ca23eb93b4b1cc44b55964.lock
+[filelock:filelock] Attempting to release lock 123685150982560 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/3/6/8/4/436846b847c9c90a13539a872e2084e3f9ca23eb93b4b1cc44b55964.lock
+[filelock:filelock] Lock 123685150982560 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/3/6/8/4/436846b847c9c90a13539a872e2084e3f9ca23eb93b4b1cc44b55964.lock
+   1: selecting packaging (26.2)
+Source (PyPI): Getting info for anyio (4.14.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/anyio/4.14.2/json HTTP/1.1" 200 2744
+[filelock:filelock] Attempting to acquire lock 123685150915568 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/4/1/d/d841de97df272b1c2dd22ff7958dd7d910f1f1b07cf0816c0490c07f.lock
+[filelock:filelock] Lock 123685150915568 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/4/1/d/d841de97df272b1c2dd22ff7958dd7d910f1f1b07cf0816c0490c07f.lock
+[filelock:filelock] Attempting to release lock 123685150915568 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/4/1/d/d841de97df272b1c2dd22ff7958dd7d910f1f1b07cf0816c0490c07f.lock
+[filelock:filelock] Lock 123685150915568 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/4/1/d/d841de97df272b1c2dd22ff7958dd7d910f1f1b07cf0816c0490c07f.lock
+   1: fact: anyio (4.14.2) depends on idna (>=2.8)
+   1: fact: anyio (4.14.2) depends on typing_extensions (>=4.5)
+   1: selecting anyio (4.14.2)
+   1: derived: idna (>=2.8)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/idna/ HTTP/1.1" 200 9734
+[filelock:filelock] Attempting to acquire lock 123685150987216 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/2/4/2/8b24226e2da88df4abeee0d8ca6bce79b19ca2bcd5f94b543939c66c.lock
+[filelock:filelock] Lock 123685150987216 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/2/4/2/8b24226e2da88df4abeee0d8ca6bce79b19ca2bcd5f94b543939c66c.lock
+[filelock:filelock] Attempting to release lock 123685150987216 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/2/4/2/8b24226e2da88df4abeee0d8ca6bce79b19ca2bcd5f94b543939c66c.lock
+[filelock:filelock] Lock 123685150987216 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/b/2/4/2/8b24226e2da88df4abeee0d8ca6bce79b19ca2bcd5f94b543939c66c.lock
+Source (PyPI): 22 packages found for idna >=2.8
+Source (PyPI): Getting info for idna (3.18) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/idna/3.18/json HTTP/1.1" 200 3516
+[filelock:filelock] Attempting to acquire lock 123685151136784 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/f/b/3/4/5fb3447b4ba29fd6e445bb24132f6eac32c30f474f981114220426ba.lock
+[filelock:filelock] Lock 123685151136784 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/f/b/3/4/5fb3447b4ba29fd6e445bb24132f6eac32c30f474f981114220426ba.lock
+[filelock:filelock] Attempting to release lock 123685151136784 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/f/b/3/4/5fb3447b4ba29fd6e445bb24132f6eac32c30f474f981114220426ba.lock
+[filelock:filelock] Lock 123685151136784 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/f/b/3/4/5fb3447b4ba29fd6e445bb24132f6eac32c30f474f981114220426ba.lock
+   1: selecting idna (3.18)
+Source (PyPI): Getting info for python-multipart (0.0.32) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/python-multipart/0.0.32/json HTTP/1.1" 200 1699
+[filelock:filelock] Attempting to acquire lock 123685151138848 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/1/f/4/d81f4191f6f08d67245fe4b0a649e5efcbc557cef5d7b0714f51a25d.lock
+[filelock:filelock] Lock 123685151138848 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/1/f/4/d81f4191f6f08d67245fe4b0a649e5efcbc557cef5d7b0714f51a25d.lock
+[filelock:filelock] Attempting to release lock 123685151138848 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/1/f/4/d81f4191f6f08d67245fe4b0a649e5efcbc557cef5d7b0714f51a25d.lock
+[filelock:filelock] Lock 123685151138848 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/8/1/f/4/d81f4191f6f08d67245fe4b0a649e5efcbc557cef5d7b0714f51a25d.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl.metadata HTTP/1.1" 200 879
+[filelock:filelock] Attempting to acquire lock 123685151141008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/a/a/9/9/1aa9932b9212cdb6893542de255134343c42cb30ac5a2ec4034eb7bb.lock
+[filelock:filelock] Lock 123685151141008 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/a/a/9/9/1aa9932b9212cdb6893542de255134343c42cb30ac5a2ec4034eb7bb.lock
+[filelock:filelock] Attempting to release lock 123685151141008 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/a/a/9/9/1aa9932b9212cdb6893542de255134343c42cb30ac5a2ec4034eb7bb.lock
+[filelock:filelock] Lock 123685151141008 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/a/a/9/9/1aa9932b9212cdb6893542de255134343c42cb30ac5a2ec4034eb7bb.lock
+   1: selecting python-multipart (0.0.32)
+Source (PyPI): Getting info for altair (6.2.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/altair/6.2.2/json HTTP/1.1" 200 5171
+[filelock:filelock] Attempting to acquire lock 123685151139664 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/3/4/2/b/7342b9dffa99eacb99c2f234e6cf7841b998e6e0f4d1b987e681b580.lock
+[filelock:filelock] Lock 123685151139664 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/3/4/2/b/7342b9dffa99eacb99c2f234e6cf7841b998e6e0f4d1b987e681b580.lock
+[filelock:filelock] Attempting to release lock 123685151139664 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/3/4/2/b/7342b9dffa99eacb99c2f234e6cf7841b998e6e0f4d1b987e681b580.lock
+[filelock:filelock] Lock 123685151139664 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/7/3/4/2/b/7342b9dffa99eacb99c2f234e6cf7841b998e6e0f4d1b987e681b580.lock
+   1: fact: altair (6.2.2) depends on jinja2 (*)
+   1: fact: altair (6.2.2) depends on jsonschema (>=3.0)
+   1: fact: altair (6.2.2) depends on narwhals (>=2.4.0)
+   1: fact: altair (6.2.2) depends on packaging (*)
+   1: fact: altair (6.2.2) depends on typing-extensions (>=4.12.0)
+   1: selecting altair (6.2.2)
+   1: derived: typing-extensions (>=4.12.0)
+   1: derived: narwhals (>=2.4.0)
+   1: derived: jsonschema (>=3.0)
+   1: derived: jinja2
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/narwhals/ HTTP/1.1" 200 64846
+[filelock:filelock] Attempting to acquire lock 123685151209952 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/2/c/4/b/d2c4b2b07925b23b24c2df1f4d305788e1dfbc96ef47bf4aa54692f3.lock
+[filelock:filelock] Lock 123685151209952 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/2/c/4/b/d2c4b2b07925b23b24c2df1f4d305788e1dfbc96ef47bf4aa54692f3.lock
+[filelock:filelock] Attempting to release lock 123685151209952 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/2/c/4/b/d2c4b2b07925b23b24c2df1f4d305788e1dfbc96ef47bf4aa54692f3.lock
+[filelock:filelock] Lock 123685151209952 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/2/c/4/b/d2c4b2b07925b23b24c2df1f4d305788e1dfbc96ef47bf4aa54692f3.lock
+Source (PyPI): 26 packages found for narwhals >=2.4.0
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/jsonschema/ HTTP/1.1" 200 28781
+[filelock:filelock] Attempting to acquire lock 123685150133232 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/2/c/b/6/82cb6a7ab0f2277a7c78261aeaa1f2c561796b9321bfd8c2937c5fa0.lock
+[filelock:filelock] Lock 123685150133232 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/2/c/b/6/82cb6a7ab0f2277a7c78261aeaa1f2c561796b9321bfd8c2937c5fa0.lock
+[filelock:filelock] Attempting to release lock 123685150133232 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/2/c/b/6/82cb6a7ab0f2277a7c78261aeaa1f2c561796b9321bfd8c2937c5fa0.lock
+[filelock:filelock] Lock 123685150133232 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/2/c/b/6/82cb6a7ab0f2277a7c78261aeaa1f2c561796b9321bfd8c2937c5fa0.lock
+Source (PyPI): 62 packages found for jsonschema >=3.0
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/jinja2/ HTTP/1.1" 200 12557
+[filelock:filelock] Attempting to acquire lock 123685150616432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/5/9/7/6/45976c194ebb9180bf7410d422bcad653ce13bcb64dda0d07d72b09d.lock
+[filelock:filelock] Lock 123685150616432 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/5/9/7/6/45976c194ebb9180bf7410d422bcad653ce13bcb64dda0d07d72b09d.lock
+[filelock:filelock] Attempting to release lock 123685150616432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/5/9/7/6/45976c194ebb9180bf7410d422bcad653ce13bcb64dda0d07d72b09d.lock
+[filelock:filelock] Lock 123685150616432 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/5/9/7/6/45976c194ebb9180bf7410d422bcad653ce13bcb64dda0d07d72b09d.lock
+Source (PyPI): 48 packages found for jinja2 *
+Source (PyPI): Getting info for jsonschema (4.26.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/jsonschema/4.26.0/json HTTP/1.1" 200 3199
+[filelock:filelock] Attempting to acquire lock 123685148791472 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/8/c/1/4/b8c149814b884df29c2894c9cc54f4794c9c7ae8f4b85d1c2a7e67e3.lock
+[filelock:filelock] Lock 123685148791472 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/8/c/1/4/b8c149814b884df29c2894c9cc54f4794c9c7ae8f4b85d1c2a7e67e3.lock
+[filelock:filelock] Attempting to release lock 123685148791472 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/8/c/1/4/b8c149814b884df29c2894c9cc54f4794c9c7ae8f4b85d1c2a7e67e3.lock
+[filelock:filelock] Lock 123685148791472 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/8/c/1/4/b8c149814b884df29c2894c9cc54f4794c9c7ae8f4b85d1c2a7e67e3.lock
+   1: fact: jsonschema (4.26.0) depends on attrs (>=22.2.0)
+   1: fact: jsonschema (4.26.0) depends on jsonschema-specifications (>=2023.03.6)
+   1: fact: jsonschema (4.26.0) depends on referencing (>=0.28.4)
+   1: fact: jsonschema (4.26.0) depends on rpds-py (>=0.25.0)
+   1: selecting jsonschema (4.26.0)
+   1: derived: rpds-py (>=0.25.0)
+   1: derived: referencing (>=0.28.4)
+   1: derived: jsonschema-specifications (>=2023.03.6)
+   1: derived: attrs (>=22.2.0)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/rpds-py/ HTTP/1.1" 200 580543
+[filelock:filelock] Attempting to acquire lock 123685148802368 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/a/a/0/7/4aa072069bf7642ef18e8ec5e146cc9e6531c8776caa3aab04690211.lock
+[filelock:filelock] Lock 123685148802368 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/a/a/0/7/4aa072069bf7642ef18e8ec5e146cc9e6531c8776caa3aab04690211.lock
+[filelock:filelock] Attempting to release lock 123685148802368 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/a/a/0/7/4aa072069bf7642ef18e8ec5e146cc9e6531c8776caa3aab04690211.lock
+[filelock:filelock] Lock 123685148802368 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/a/a/0/7/4aa072069bf7642ef18e8ec5e146cc9e6531c8776caa3aab04690211.lock
+Source (PyPI): 10 packages found for rpds-py >=0.25.0
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/referencing/ HTTP/1.1" 200 28714
+[filelock:filelock] Attempting to acquire lock 123685145472576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/a/3/4/3da34c449f44794ebdf0e0b361350908c05099c46a66a191fda09da4.lock
+[filelock:filelock] Lock 123685145472576 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/a/3/4/3da34c449f44794ebdf0e0b361350908c05099c46a66a191fda09da4.lock
+[filelock:filelock] Attempting to release lock 123685145472576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/a/3/4/3da34c449f44794ebdf0e0b361350908c05099c46a66a191fda09da4.lock
+[filelock:filelock] Lock 123685145472576 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/a/3/4/3da34c449f44794ebdf0e0b361350908c05099c46a66a191fda09da4.lock
+Source (PyPI): 21 packages found for referencing >=0.28.4
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/jsonschema-specifications/ HTTP/1.1" 200 7003
+[filelock:filelock] Attempting to acquire lock 123685145924368 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/1/2/1/1b121906158ba2d12abc2c30cfac9ca37bf57e7f25d46922f9e3a0b2.lock
+[filelock:filelock] Lock 123685145924368 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/1/2/1/1b121906158ba2d12abc2c30cfac9ca37bf57e7f25d46922f9e3a0b2.lock
+[filelock:filelock] Attempting to release lock 123685145924368 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/1/2/1/1b121906158ba2d12abc2c30cfac9ca37bf57e7f25d46922f9e3a0b2.lock
+[filelock:filelock] Lock 123685145924368 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/1/2/1/1b121906158ba2d12abc2c30cfac9ca37bf57e7f25d46922f9e3a0b2.lock
+Source (PyPI): 11 packages found for jsonschema-specifications >=2023.03.6
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/attrs/ HTTP/1.1" 200 10192
+[filelock:filelock] Attempting to acquire lock 123685146068992 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/b/5/2/a/cb52a2d86b549893dbebd3c41cb632b74900e6546f238508e1029e00.lock
+[filelock:filelock] Lock 123685146068992 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/b/5/2/a/cb52a2d86b549893dbebd3c41cb632b74900e6546f238508e1029e00.lock
+[filelock:filelock] Attempting to release lock 123685146068992 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/b/5/2/a/cb52a2d86b549893dbebd3c41cb632b74900e6546f238508e1029e00.lock
+[filelock:filelock] Lock 123685146068992 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/b/5/2/a/cb52a2d86b549893dbebd3c41cb632b74900e6546f238508e1029e00.lock
+Source (PyPI): 11 packages found for attrs >=22.2.0
+Source (PyPI): Getting info for jinja2 (3.1.6) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/jinja2/3.1.6/json HTTP/1.1" 200 2220
+[filelock:filelock] Attempting to acquire lock 123685146220576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/0/e/9/b/b0e9bd5cb1a02bfb1bf7010213f49d2bad145dbdbf331243f75f8e1a.lock
+[filelock:filelock] Lock 123685146220576 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/0/e/9/b/b0e9bd5cb1a02bfb1bf7010213f49d2bad145dbdbf331243f75f8e1a.lock
+[filelock:filelock] Attempting to release lock 123685146220576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/0/e/9/b/b0e9bd5cb1a02bfb1bf7010213f49d2bad145dbdbf331243f75f8e1a.lock
+[filelock:filelock] Lock 123685146220576 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/0/e/9/b/b0e9bd5cb1a02bfb1bf7010213f49d2bad145dbdbf331243f75f8e1a.lock
+   1: fact: jinja2 (3.1.6) depends on MarkupSafe (>=2.0)
+   1: selecting jinja2 (3.1.6)
+   1: derived: MarkupSafe (>=2.0)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/markupsafe/ HTTP/1.1" 200 93651
+[filelock:filelock] Attempting to acquire lock 123685146224320 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/4/5/2/4/9452417670b2e75527d793717779fce5d54e5f21adb3344c273876fa.lock
+[filelock:filelock] Lock 123685146224320 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/4/5/2/4/9452417670b2e75527d793717779fce5d54e5f21adb3344c273876fa.lock
+[filelock:filelock] Attempting to release lock 123685146224320 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/4/5/2/4/9452417670b2e75527d793717779fce5d54e5f21adb3344c273876fa.lock
+[filelock:filelock] Lock 123685146224320 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/4/5/2/4/9452417670b2e75527d793717779fce5d54e5f21adb3344c273876fa.lock
+Source (PyPI): 12 packages found for markupsafe >=2.0
+Source (PyPI): Getting info for narwhals (2.24.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/narwhals/2.24.0/json HTTP/1.1" 200 6359
+[filelock:filelock] Attempting to acquire lock 123685144023872 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/5/d/7/a/c5d7aa48720189dfce558557428f2685505c6d578fa2e99a9e831479.lock
+[filelock:filelock] Lock 123685144023872 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/5/d/7/a/c5d7aa48720189dfce558557428f2685505c6d578fa2e99a9e831479.lock
+[filelock:filelock] Attempting to release lock 123685144023872 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/5/d/7/a/c5d7aa48720189dfce558557428f2685505c6d578fa2e99a9e831479.lock
+[filelock:filelock] Lock 123685144023872 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/5/d/7/a/c5d7aa48720189dfce558557428f2685505c6d578fa2e99a9e831479.lock
+   1: selecting narwhals (2.24.0)
+Source (PyPI): Getting info for referencing (0.37.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/referencing/0.37.0/json HTTP/1.1" 200 1777
+[filelock:filelock] Attempting to acquire lock 123685144068416 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/9/a/a/3d9aab719852a27104f48de75a45807ad9439c9d7c62d1ec5c300466.lock
+[filelock:filelock] Lock 123685144068416 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/9/a/a/3d9aab719852a27104f48de75a45807ad9439c9d7c62d1ec5c300466.lock
+[filelock:filelock] Attempting to release lock 123685144068416 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/9/a/a/3d9aab719852a27104f48de75a45807ad9439c9d7c62d1ec5c300466.lock
+[filelock:filelock] Lock 123685144068416 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/9/a/a/3d9aab719852a27104f48de75a45807ad9439c9d7c62d1ec5c300466.lock
+   1: fact: referencing (0.37.0) depends on attrs (>=22.2.0)
+   1: fact: referencing (0.37.0) depends on rpds-py (>=0.7.0)
+   1: fact: referencing (0.37.0) depends on typing-extensions (>=4.4.0)
+   1: selecting referencing (0.37.0)
+Source (PyPI): Getting info for requests (2.34.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/requests/2.34.2/json HTTP/1.1" 200 2891
+[filelock:filelock] Attempting to acquire lock 123685144072400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/7/d/9/e/c7d9e6dde2008d44d9ea13aaa8331430c5ef0bb4001d56211237eb5b.lock
+[filelock:filelock] Lock 123685144072400 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/7/d/9/e/c7d9e6dde2008d44d9ea13aaa8331430c5ef0bb4001d56211237eb5b.lock
+[filelock:filelock] Attempting to release lock 123685144072400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/7/d/9/e/c7d9e6dde2008d44d9ea13aaa8331430c5ef0bb4001d56211237eb5b.lock
+[filelock:filelock] Lock 123685144072400 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/7/d/9/e/c7d9e6dde2008d44d9ea13aaa8331430c5ef0bb4001d56211237eb5b.lock
+   1: fact: requests (2.34.2) depends on charset_normalizer (>=2,<4)
+   1: fact: requests (2.34.2) depends on idna (>=2.5,<4)
+   1: fact: requests (2.34.2) depends on urllib3 (>=1.26,<3)
+   1: fact: requests (2.34.2) depends on certifi (>=2023.5.7)
+   1: selecting requests (2.34.2)
+   1: derived: certifi (>=2023.5.7)
+   1: derived: urllib3 (>=1.26,<3)
+   1: derived: charset_normalizer (>=2,<4)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/certifi/ HTTP/1.1" 200 19215
+[filelock:filelock] Attempting to acquire lock 123685144081568 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/e/0/7/4be07d3ac353e38d2c9e3a257cad36ee2a758fc88b4cd5f0d479a5a9.lock
+[filelock:filelock] Lock 123685144081568 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/e/0/7/4be07d3ac353e38d2c9e3a257cad36ee2a758fc88b4cd5f0d479a5a9.lock
+[filelock:filelock] Attempting to release lock 123685144081568 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/e/0/7/4be07d3ac353e38d2c9e3a257cad36ee2a758fc88b4cd5f0d479a5a9.lock
+[filelock:filelock] Lock 123685144081568 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/4/b/e/0/7/4be07d3ac353e38d2c9e3a257cad36ee2a758fc88b4cd5f0d479a5a9.lock
+Source (PyPI): 22 packages found for certifi >=2023.5.7
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/urllib3/ HTTP/1.1" 200 25624
+[filelock:filelock] Attempting to acquire lock 123685142328672 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/d/0/e/1/8d0e104919449355aedb55b5b546bb9fd53f0e1a8ca1b082109464e9.lock
+[filelock:filelock] Lock 123685142328672 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/d/0/e/1/8d0e104919449355aedb55b5b546bb9fd53f0e1a8ca1b082109464e9.lock
+[filelock:filelock] Attempting to release lock 123685142328672 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/d/0/e/1/8d0e104919449355aedb55b5b546bb9fd53f0e1a8ca1b082109464e9.lock
+[filelock:filelock] Lock 123685142328672 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/d/0/e/1/8d0e104919449355aedb55b5b546bb9fd53f0e1a8ca1b082109464e9.lock
+Source (PyPI): 40 packages found for urllib3 >=1.26,<3
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/charset-normalizer/ HTTP/1.1" 200 214519
+[filelock:filelock] Attempting to acquire lock 123685142785984 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/b/d/8/9/5bd894eeb3dfe1c8aaee1daecdfb74bbb314293813a730238621f077.lock
+[filelock:filelock] Lock 123685142785984 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/b/d/8/9/5bd894eeb3dfe1c8aaee1daecdfb74bbb314293813a730238621f077.lock
+[filelock:filelock] Attempting to release lock 123685142785984 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/b/d/8/9/5bd894eeb3dfe1c8aaee1daecdfb74bbb314293813a730238621f077.lock
+[filelock:filelock] Lock 123685142785984 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/b/d/8/9/5bd894eeb3dfe1c8aaee1daecdfb74bbb314293813a730238621f077.lock
+Source (PyPI): 31 packages found for charset-normalizer >=2,<4
+Source (PyPI): Getting info for urllib3 (2.7.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/urllib3/2.7.0/json HTTP/1.1" 200 3508
+[filelock:filelock] Attempting to acquire lock 123685129617776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/a/a/1/07aa1b40d576c0a591e3a4411323628a31ce6919773f57fff220fcd4.lock
+[filelock:filelock] Lock 123685129617776 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/a/a/1/07aa1b40d576c0a591e3a4411323628a31ce6919773f57fff220fcd4.lock
+[filelock:filelock] Attempting to release lock 123685129617776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/a/a/1/07aa1b40d576c0a591e3a4411323628a31ce6919773f57fff220fcd4.lock
+[filelock:filelock] Lock 123685129617776 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/a/a/1/07aa1b40d576c0a591e3a4411323628a31ce6919773f57fff220fcd4.lock
+   1: selecting urllib3 (2.7.0)
+Source (PyPI): Getting info for charset-normalizer (3.4.9) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/charset-normalizer/3.4.9/json HTTP/1.1" 200 28993
+[filelock:filelock] Attempting to acquire lock 123685129624496 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/d/9/1/9/0d9191e3cb95c67165a45d7c7ec47ea21b9a42de24b7d7ac5c936e76.lock
+[filelock:filelock] Lock 123685129624496 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/d/9/1/9/0d9191e3cb95c67165a45d7c7ec47ea21b9a42de24b7d7ac5c936e76.lock
+[filelock:filelock] Attempting to release lock 123685129624496 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/d/9/1/9/0d9191e3cb95c67165a45d7c7ec47ea21b9a42de24b7d7ac5c936e76.lock
+[filelock:filelock] Lock 123685129624496 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/d/9/1/9/0d9191e3cb95c67165a45d7c7ec47ea21b9a42de24b7d7ac5c936e76.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/98/2b/f97f1c193fb855c345d678f5077d6926034db0722df74c8f057020e05a25/charset_normalizer-3.4.9-py3-none-any.whl.metadata HTTP/1.1" 200 13964
+[filelock:filelock] Attempting to acquire lock 123685127718432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/7/8/9/3/37893ed4ccfe5bbe28058eae90fb0127a9fd7968147c2dd70b56f9a3.lock
+[filelock:filelock] Lock 123685127718432 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/7/8/9/3/37893ed4ccfe5bbe28058eae90fb0127a9fd7968147c2dd70b56f9a3.lock
+[filelock:filelock] Attempting to release lock 123685127718432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/7/8/9/3/37893ed4ccfe5bbe28058eae90fb0127a9fd7968147c2dd70b56f9a3.lock
+[filelock:filelock] Lock 123685127718432 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/7/8/9/3/37893ed4ccfe5bbe28058eae90fb0127a9fd7968147c2dd70b56f9a3.lock
+   1: selecting charset-normalizer (3.4.9)
+Source (PyPI): Getting info for certifi (2026.7.22) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/certifi/2026.7.22/json HTTP/1.1" 200 1857
+[filelock:filelock] Attempting to acquire lock 123685129627088 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/c/2/8/04c28c9e73ca8494a8a895d6e70488b2da2ffddec8aa64eef65d7c2c.lock
+[filelock:filelock] Lock 123685129627088 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/c/2/8/04c28c9e73ca8494a8a895d6e70488b2da2ffddec8aa64eef65d7c2c.lock
+[filelock:filelock] Attempting to release lock 123685129627088 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/c/2/8/04c28c9e73ca8494a8a895d6e70488b2da2ffddec8aa64eef65d7c2c.lock
+[filelock:filelock] Lock 123685129627088 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/4/c/2/8/04c28c9e73ca8494a8a895d6e70488b2da2ffddec8aa64eef65d7c2c.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl.metadata HTTP/1.1" 200 1003
+[filelock:filelock] Attempting to acquire lock 123685129629344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/6/6/2/cc6625d74966fd723a5bf2c16450d5d92fc300bf538ae394f7885dc0.lock
+[filelock:filelock] Lock 123685129629344 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/6/6/2/cc6625d74966fd723a5bf2c16450d5d92fc300bf538ae394f7885dc0.lock
+[filelock:filelock] Attempting to release lock 123685129629344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/6/6/2/cc6625d74966fd723a5bf2c16450d5d92fc300bf538ae394f7885dc0.lock
+[filelock:filelock] Lock 123685129629344 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/c/6/6/2/cc6625d74966fd723a5bf2c16450d5d92fc300bf538ae394f7885dc0.lock
+   1: selecting certifi (2026.7.22)
+Source (PyPI): Getting info for tenacity (9.1.4) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/tenacity/9.1.4/json HTTP/1.1" 200 1332
+[filelock:filelock] Attempting to acquire lock 123685129628624 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/3/3/6/c/f336c3ab7fbb384a2975ff14a7e12686260c52364b7cc12f1488b0ff.lock
+[filelock:filelock] Lock 123685129628624 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/3/3/6/c/f336c3ab7fbb384a2975ff14a7e12686260c52364b7cc12f1488b0ff.lock
+[filelock:filelock] Attempting to release lock 123685129628624 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/3/3/6/c/f336c3ab7fbb384a2975ff14a7e12686260c52364b7cc12f1488b0ff.lock
+[filelock:filelock] Lock 123685129628624 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/3/3/6/c/f336c3ab7fbb384a2975ff14a7e12686260c52364b7cc12f1488b0ff.lock
+   1: selecting tenacity (9.1.4)
+Source (PyPI): Getting info for websockets (16.1.1) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/websockets/16.1.1/json HTTP/1.1" 200 19544
+[filelock:filelock] Attempting to acquire lock 123685129630400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/4/f/3/3d4f3fc470da9f04b27fe2336adf14fccf1e7aa93e610f79c02673ef.lock
+[filelock:filelock] Lock 123685129630400 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/4/f/3/3d4f3fc470da9f04b27fe2336adf14fccf1e7aa93e610f79c02673ef.lock
+[filelock:filelock] Attempting to release lock 123685129630400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/4/f/3/3d4f3fc470da9f04b27fe2336adf14fccf1e7aa93e610f79c02673ef.lock
+[filelock:filelock] Lock 123685129630400 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/3/d/4/f/3/3d4f3fc470da9f04b27fe2336adf14fccf1e7aa93e610f79c02673ef.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/be/4d/2d0d67834092e354d2b0498f014a41249a89556bc406cf86f3e1557bb463/websockets-16.1.1-py3-none-any.whl.metadata HTTP/1.1" 200 2645
+[filelock:filelock] Attempting to acquire lock 123685127724720 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/a/0/5/4/2a054194d3f364423b4e88541f451163c2153f439617aa772d70775f.lock
+[filelock:filelock] Lock 123685127724720 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/a/0/5/4/2a054194d3f364423b4e88541f451163c2153f439617aa772d70775f.lock
+[filelock:filelock] Attempting to release lock 123685127724720 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/a/0/5/4/2a054194d3f364423b4e88541f451163c2153f439617aa772d70775f.lock
+[filelock:filelock] Lock 123685127724720 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/a/0/5/4/2a054194d3f364423b4e88541f451163c2153f439617aa772d70775f.lock
+   1: selecting websockets (16.1.1)
+Source (PyPI): Getting info for markupsafe (3.0.3) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/markupsafe/3.0.3/json HTTP/1.1" 200 14975
+[filelock:filelock] Attempting to acquire lock 123685129625072 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/a/8/f/4/9a8f4014cf71f4c1b39715427d63cac1bdfac135482976f4ae4ea528.lock
+[filelock:filelock] Lock 123685129625072 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/a/8/f/4/9a8f4014cf71f4c1b39715427d63cac1bdfac135482976f4ae4ea528.lock
+[filelock:filelock] Attempting to release lock 123685129625072 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/a/8/f/4/9a8f4014cf71f4c1b39715427d63cac1bdfac135482976f4ae4ea528.lock
+[filelock:filelock] Lock 123685129625072 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/a/8/f/4/9a8f4014cf71f4c1b39715427d63cac1bdfac135482976f4ae4ea528.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/e8/4b/3541d44f3937ba468b75da9eebcae497dcf67adb65caa16760b0a6807ebb/markupsafe-3.0.3-cp310-cp310-macosx_10_9_x86_64.whl.metadata HTTP/1.1" 200 1272
+[filelock:filelock] Attempting to acquire lock 123685127724960 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/4/6/5/1/c46517df1bc5c9e9485995f46cd35f37d3aa2ddfd9a1653c10f8f1e4.lock
+[filelock:filelock] Lock 123685127724960 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/4/6/5/1/c46517df1bc5c9e9485995f46cd35f37d3aa2ddfd9a1653c10f8f1e4.lock
+[filelock:filelock] Attempting to release lock 123685127724960 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/4/6/5/1/c46517df1bc5c9e9485995f46cd35f37d3aa2ddfd9a1653c10f8f1e4.lock
+[filelock:filelock] Lock 123685127724960 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/4/6/5/1/c46517df1bc5c9e9485995f46cd35f37d3aa2ddfd9a1653c10f8f1e4.lock
+   1: selecting markupsafe (3.0.3)
+Source (PyPI): Getting info for gitdb (4.0.12) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/gitdb/4.0.12/json HTTP/1.1" 200 1300
+[filelock:filelock] Attempting to acquire lock 123685129632656 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/9/2/7/d/b927d3c9e66e523ec275683bb5b7ca2f4db4b1edba2d68c80011eecb.lock
+[filelock:filelock] Lock 123685129632656 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/9/2/7/d/b927d3c9e66e523ec275683bb5b7ca2f4db4b1edba2d68c80011eecb.lock
+[filelock:filelock] Attempting to release lock 123685129632656 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/9/2/7/d/b927d3c9e66e523ec275683bb5b7ca2f4db4b1edba2d68c80011eecb.lock
+[filelock:filelock] Lock 123685129632656 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/9/2/7/d/b927d3c9e66e523ec275683bb5b7ca2f4db4b1edba2d68c80011eecb.lock
+   1: fact: gitdb (4.0.12) depends on smmap (>=3.0.1,<6)
+   1: selecting gitdb (4.0.12)
+   1: derived: smmap (>=3.0.1,<6)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/smmap/ HTTP/1.1" 200 4133
+[filelock:filelock] Attempting to acquire lock 123685127718960 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/b/5/5/e1b55fb53084fd5cce9225f16241fc71d928894827c254f9bf6a38ba.lock
+[filelock:filelock] Lock 123685127718960 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/b/5/5/e1b55fb53084fd5cce9225f16241fc71d928894827c254f9bf6a38ba.lock
+[filelock:filelock] Attempting to release lock 123685127718960 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/b/5/5/e1b55fb53084fd5cce9225f16241fc71d928894827c254f9bf6a38ba.lock
+[filelock:filelock] Lock 123685127718960 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/1/b/5/5/e1b55fb53084fd5cce9225f16241fc71d928894827c254f9bf6a38ba.lock
+Source (PyPI): 9 packages found for smmap >=3.0.1,<6
+Source (PyPI): Getting info for jsonschema-specifications (2025.9.1) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/jsonschema-specifications/2025.9.1/json HTTP/1.1" 200 1781
+[filelock:filelock] Attempting to acquire lock 123685127725200 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/9/2/0/b/5920b8f6d14ca8ea6966efb6d08e55bc4f15404183ac3086852f5510.lock
+[filelock:filelock] Lock 123685127725200 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/9/2/0/b/5920b8f6d14ca8ea6966efb6d08e55bc4f15404183ac3086852f5510.lock
+[filelock:filelock] Attempting to release lock 123685127725200 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/9/2/0/b/5920b8f6d14ca8ea6966efb6d08e55bc4f15404183ac3086852f5510.lock
+[filelock:filelock] Lock 123685127725200 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/9/2/0/b/5920b8f6d14ca8ea6966efb6d08e55bc4f15404183ac3086852f5510.lock
+   1: fact: jsonschema-specifications (2025.9.1) depends on referencing (>=0.31.0)
+   1: selecting jsonschema-specifications (2025.9.1)
+Source (PyPI): Getting info for attrs (26.1.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/attrs/26.1.0/json HTTP/1.1" 200 4339
+[filelock:filelock] Attempting to acquire lock 123685127727840 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/9/b/2/8/99b289e72f1c4aee037bb239d47467d57d1b37809882d0a118cea022.lock
+[filelock:filelock] Lock 123685127727840 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/9/b/2/8/99b289e72f1c4aee037bb239d47467d57d1b37809882d0a118cea022.lock
+[filelock:filelock] Attempting to release lock 123685127727840 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/9/b/2/8/99b289e72f1c4aee037bb239d47467d57d1b37809882d0a118cea022.lock
+[filelock:filelock] Lock 123685127727840 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/9/b/2/8/99b289e72f1c4aee037bb239d47467d57d1b37809882d0a118cea022.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl.metadata HTTP/1.1" 200 3493
+[filelock:filelock] Attempting to acquire lock 123685127729760 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/5/a/d/9/25ad9cf66b37dd8e773bc2962198890086c06a58e68e149798c15d42.lock
+[filelock:filelock] Lock 123685127729760 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/5/a/d/9/25ad9cf66b37dd8e773bc2962198890086c06a58e68e149798c15d42.lock
+[filelock:filelock] Attempting to release lock 123685127729760 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/5/a/d/9/25ad9cf66b37dd8e773bc2962198890086c06a58e68e149798c15d42.lock
+[filelock:filelock] Lock 123685127729760 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/5/a/d/9/25ad9cf66b37dd8e773bc2962198890086c06a58e68e149798c15d42.lock
+   1: selecting attrs (26.1.0)
+Source (PyPI): Getting info for typing-extensions (4.16.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/typing-extensions/4.16.0/json HTTP/1.1" 200 2247
+[filelock:filelock] Attempting to acquire lock 123685127727600 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/6/f/3/d/96f3d6c49d4eafbb7f57c6152e27e07835a36fa7f65b1038f6e1d39d.lock
+[filelock:filelock] Lock 123685127727600 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/6/f/3/d/96f3d6c49d4eafbb7f57c6152e27e07835a36fa7f65b1038f6e1d39d.lock
+[filelock:filelock] Attempting to release lock 123685127727600 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/6/f/3/d/96f3d6c49d4eafbb7f57c6152e27e07835a36fa7f65b1038f6e1d39d.lock
+[filelock:filelock] Lock 123685127727600 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/6/f/3/d/96f3d6c49d4eafbb7f57c6152e27e07835a36fa7f65b1038f6e1d39d.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl.metadata HTTP/1.1" 200 1365
+[filelock:filelock] Attempting to acquire lock 123685127731344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/e/1/c/a/fe1ca1e21c9f20d94b78f2f1ffaa4f52c862765a094b92306e6d0c07.lock
+[filelock:filelock] Lock 123685127731344 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/e/1/c/a/fe1ca1e21c9f20d94b78f2f1ffaa4f52c862765a094b92306e6d0c07.lock
+[filelock:filelock] Attempting to release lock 123685127731344 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/e/1/c/a/fe1ca1e21c9f20d94b78f2f1ffaa4f52c862765a094b92306e6d0c07.lock
+[filelock:filelock] Lock 123685127731344 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/e/1/c/a/fe1ca1e21c9f20d94b78f2f1ffaa4f52c862765a094b92306e6d0c07.lock
+   1: selecting typing-extensions (4.16.0)
+Source (PyPI): Getting info for blinker (1.9.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/blinker/1.9.0/json HTTP/1.1" 200 1685
+[filelock:filelock] Attempting to acquire lock 123685127730432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/6/a/3/1b6a3132560cd60a132463fc10ba98a58e0635eddf977d62131a5f21.lock
+[filelock:filelock] Lock 123685127730432 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/6/a/3/1b6a3132560cd60a132463fc10ba98a58e0635eddf977d62131a5f21.lock
+[filelock:filelock] Attempting to release lock 123685127730432 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/6/a/3/1b6a3132560cd60a132463fc10ba98a58e0635eddf977d62131a5f21.lock
+[filelock:filelock] Lock 123685127730432 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/b/6/a/3/1b6a3132560cd60a132463fc10ba98a58e0635eddf977d62131a5f21.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/10/cb/f2ad4230dc2eb1a74edf38f1a38b9b52277f75bef262d8908e60d957e13c/blinker-1.9.0-py3-none-any.whl.metadata HTTP/1.1" 200 852
+[filelock:filelock] Attempting to acquire lock 123685127731392 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/c/6/c/e/ac6ce078ba7ef544ac1b08e0d360c5de427c1f320e84c250ebf42170.lock
+[filelock:filelock] Lock 123685127731392 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/c/6/c/e/ac6ce078ba7ef544ac1b08e0d360c5de427c1f320e84c250ebf42170.lock
+[filelock:filelock] Attempting to release lock 123685127731392 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/c/6/c/e/ac6ce078ba7ef544ac1b08e0d360c5de427c1f320e84c250ebf42170.lock
+[filelock:filelock] Lock 123685127731392 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/a/c/6/c/e/ac6ce078ba7ef544ac1b08e0d360c5de427c1f320e84c250ebf42170.lock
+   1: selecting blinker (1.9.0)
+Source (PyPI): Getting info for h11 (0.16.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/h11/0.16.0/json HTTP/1.1" 200 4742
+[filelock:filelock] Attempting to acquire lock 123685127722080 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/b/b/4/1/2bb41326b4258694e12907ae1e6b60a014689ad8a6972c4e7b85bde3.lock
+[filelock:filelock] Lock 123685127722080 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/b/b/4/1/2bb41326b4258694e12907ae1e6b60a014689ad8a6972c4e7b85bde3.lock
+[filelock:filelock] Attempting to release lock 123685127722080 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/b/b/4/1/2bb41326b4258694e12907ae1e6b60a014689ad8a6972c4e7b85bde3.lock
+[filelock:filelock] Lock 123685127722080 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/2/b/b/4/1/2bb41326b4258694e12907ae1e6b60a014689ad8a6972c4e7b85bde3.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl.metadata HTTP/1.1" 200 3794
+[filelock:filelock] Attempting to acquire lock 123685128028576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/e/c/f/f/8ecffcc7a3e38674c0b5a8addfcc2c1a5184431d21c3b57c81cc4a6d.lock
+[filelock:filelock] Lock 123685128028576 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/e/c/f/f/8ecffcc7a3e38674c0b5a8addfcc2c1a5184431d21c3b57c81cc4a6d.lock
+[filelock:filelock] Attempting to release lock 123685128028576 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/e/c/f/f/8ecffcc7a3e38674c0b5a8addfcc2c1a5184431d21c3b57c81cc4a6d.lock
+[filelock:filelock] Lock 123685128028576 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/e/c/f/f/8ecffcc7a3e38674c0b5a8addfcc2c1a5184431d21c3b57c81cc4a6d.lock
+   1: selecting h11 (0.16.0)
+Source (PyPI): Getting info for rpds-py (2026.6.3) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/rpds-py/2026.6.3/json HTTP/1.1" 200 19563
+[filelock:filelock] Attempting to acquire lock 123685127731776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/a/9/2/18a92c2c767dfb420072d854e1ce9fcd17394d067e275d35236cdcd8.lock
+[filelock:filelock] Lock 123685127731776 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/a/9/2/18a92c2c767dfb420072d854e1ce9fcd17394d067e275d35236cdcd8.lock
+[filelock:filelock] Attempting to release lock 123685127731776 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/a/9/2/18a92c2c767dfb420072d854e1ce9fcd17394d067e275d35236cdcd8.lock
+[filelock:filelock] Lock 123685127731776 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/a/9/2/18a92c2c767dfb420072d854e1ce9fcd17394d067e275d35236cdcd8.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/94/1f/a2dca5ffdbf1d475ffc4e80e4d5d720ff3a00f691795910116960ee12511/rpds_py-2026.6.3-cp311-cp311-macosx_10_12_x86_64.whl.metadata HTTP/1.1" 200 1715
+[filelock:filelock] Attempting to acquire lock 123685128040816 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/0/6/7/55067ad1701dfb908d1eb4c97e7fa54b92c9f4a5f14ef3c1f9fb6247.lock
+[filelock:filelock] Lock 123685128040816 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/0/6/7/55067ad1701dfb908d1eb4c97e7fa54b92c9f4a5f14ef3c1f9fb6247.lock
+[filelock:filelock] Attempting to release lock 123685128040816 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/0/6/7/55067ad1701dfb908d1eb4c97e7fa54b92c9f4a5f14ef3c1f9fb6247.lock
+[filelock:filelock] Lock 123685128040816 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/0/6/7/55067ad1701dfb908d1eb4c97e7fa54b92c9f4a5f14ef3c1f9fb6247.lock
+   1: selecting rpds-py (2026.6.3)
+Source (PyPI): Getting info for smmap (5.0.3) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/smmap/5.0.3/json HTTP/1.1" 200 2786
+[filelock:filelock] Attempting to acquire lock 123685128029152 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/9/f/c/c/69fcc69ab94ae41444d8275fa0dd0c59409e539784adc04abb66e623.lock
+[filelock:filelock] Lock 123685128029152 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/9/f/c/c/69fcc69ab94ae41444d8275fa0dd0c59409e539784adc04abb66e623.lock
+[filelock:filelock] Attempting to release lock 123685128029152 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/9/f/c/c/69fcc69ab94ae41444d8275fa0dd0c59409e539784adc04abb66e623.lock
+[filelock:filelock] Lock 123685128029152 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/9/f/c/c/69fcc69ab94ae41444d8275fa0dd0c59409e539784adc04abb66e623.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/c1/d4/59e74daffcb57a07668852eeeb6035af9f32cbfd7a1d2511f17d2fe6a738/smmap-5.0.3-py3-none-any.whl.metadata HTTP/1.1" 200 1922
+[filelock:filelock] Attempting to acquire lock 123685128030880 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/9/9/7/a/c997ad25818fc8b60e629c7f0c1e2c90db7a364a6e94863e40b72ad8.lock
+[filelock:filelock] Lock 123685128030880 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/9/9/7/a/c997ad25818fc8b60e629c7f0c1e2c90db7a364a6e94863e40b72ad8.lock
+[filelock:filelock] Attempting to release lock 123685128030880 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/9/9/7/a/c997ad25818fc8b60e629c7f0c1e2c90db7a364a6e94863e40b72ad8.lock
+[filelock:filelock] Lock 123685128030880 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/9/9/7/a/c997ad25818fc8b60e629c7f0c1e2c90db7a364a6e94863e40b72ad8.lock
+   1: selecting smmap (5.0.3)
+Source (PyPI): Getting info for pydeck (0.9.3) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/pydeck/0.9.3/json HTTP/1.1" 200 2688
+[filelock:filelock] Attempting to acquire lock 123685128030112 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/d/4/a/0cd4ab2da1246c5cbe1870914cf4947792af52fe0e5d2f5864ae46a9.lock
+[filelock:filelock] Lock 123685128030112 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/d/4/a/0cd4ab2da1246c5cbe1870914cf4947792af52fe0e5d2f5864ae46a9.lock
+[filelock:filelock] Attempting to release lock 123685128030112 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/d/4/a/0cd4ab2da1246c5cbe1870914cf4947792af52fe0e5d2f5864ae46a9.lock
+[filelock:filelock] Lock 123685128030112 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/c/d/4/a/0cd4ab2da1246c5cbe1870914cf4947792af52fe0e5d2f5864ae46a9.lock
+   1: fact: pydeck (0.9.3) depends on jinja2 (>=2.10.1)
+   1: fact: pydeck (0.9.3) depends on numpy (>=1.16.4)
+   1: selecting pydeck (0.9.3)
+Source (PyPI): Getting info for httptools (0.8.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/httptools/0.8.0/json HTTP/1.1" 200 9724
+[filelock:filelock] Attempting to acquire lock 123685128035248 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/2/e/a/182eaea3cda154d54d6599a013bb4bcee4cffaf445515ff320ad1f84.lock
+[filelock:filelock] Lock 123685128035248 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/2/e/a/182eaea3cda154d54d6599a013bb4bcee4cffaf445515ff320ad1f84.lock
+[filelock:filelock] Attempting to release lock 123685128035248 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/2/e/a/182eaea3cda154d54d6599a013bb4bcee4cffaf445515ff320ad1f84.lock
+[filelock:filelock] Lock 123685128035248 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/1/8/2/e/a/182eaea3cda154d54d6599a013bb4bcee4cffaf445515ff320ad1f84.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/40/b9/be66eb0decd730d89b9c94f930e4b8d87787b05724bb84af98bfd825f72c/httptools-0.8.0-cp310-cp310-macosx_10_9_universal2.whl.metadata HTTP/1.1" 200 1526
+[filelock:filelock] Attempting to acquire lock 123685128042112 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/4/1/e/5541e4e0f055c34150c4e880ce6f2e1fb4d5c82ed2f30a0ff9b6964b.lock
+[filelock:filelock] Lock 123685128042112 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/4/1/e/5541e4e0f055c34150c4e880ce6f2e1fb4d5c82ed2f30a0ff9b6964b.lock
+[filelock:filelock] Attempting to release lock 123685128042112 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/4/1/e/5541e4e0f055c34150c4e880ce6f2e1fb4d5c82ed2f30a0ff9b6964b.lock
+[filelock:filelock] Lock 123685128042112 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/5/5/4/1/e/5541e4e0f055c34150c4e880ce6f2e1fb4d5c82ed2f30a0ff9b6964b.lock
+   1: selecting httptools (0.8.0)
+Source (PyPI): Getting info for python-dateutil (2.9.0.post0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/python-dateutil/2.9.0.post0/json HTTP/1.1" 200 3989
+[filelock:filelock] Attempting to acquire lock 123685128037408 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/a/c/d/9/6acd9bbb37db3335c814dfecc692e8f4027f3fc3bf902ecc4865b95a.lock
+[filelock:filelock] Lock 123685128037408 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/a/c/d/9/6acd9bbb37db3335c814dfecc692e8f4027f3fc3bf902ecc4865b95a.lock
+[filelock:filelock] Attempting to release lock 123685128037408 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/a/c/d/9/6acd9bbb37db3335c814dfecc692e8f4027f3fc3bf902ecc4865b95a.lock
+[filelock:filelock] Lock 123685128037408 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/a/c/d/9/6acd9bbb37db3335c814dfecc692e8f4027f3fc3bf902ecc4865b95a.lock
+   1: fact: python-dateutil (2.9.0.post0) depends on six (>=1.5)
+   1: selecting python-dateutil (2.9.0.post0)
+   1: derived: six (>=1.5)
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /simple/six/ HTTP/1.1" 200 6557
+[filelock:filelock] Attempting to acquire lock 123685128042976 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/0/4/0/0/c0400f4849a16bb7ec1db13ba6d964327b0869995ab53c54f6668654.lock
+[filelock:filelock] Lock 123685128042976 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/0/4/0/0/c0400f4849a16bb7ec1db13ba6d964327b0869995ab53c54f6668654.lock
+[filelock:filelock] Attempting to release lock 123685128042976 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/0/4/0/0/c0400f4849a16bb7ec1db13ba6d964327b0869995ab53c54f6668654.lock
+[filelock:filelock] Lock 123685128042976 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/0/4/0/0/c0400f4849a16bb7ec1db13ba6d964327b0869995ab53c54f6668654.lock
+Source (PyPI): 19 packages found for six >=1.5
+Source (PyPI): Getting info for six (1.17.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/six/1.17.0/json HTTP/1.1" 200 1631
+[filelock:filelock] Attempting to acquire lock 123685128349280 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/c/7/8/d/8c78d4d020a838d0f58cf907ce04e32579dd9252087c6176b550503d.lock
+[filelock:filelock] Lock 123685128349280 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/c/7/8/d/8c78d4d020a838d0f58cf907ce04e32579dd9252087c6176b550503d.lock
+[filelock:filelock] Attempting to release lock 123685128349280 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/c/7/8/d/8c78d4d020a838d0f58cf907ce04e32579dd9252087c6176b550503d.lock
+[filelock:filelock] Lock 123685128349280 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/c/7/8/d/8c78d4d020a838d0f58cf907ce04e32579dd9252087c6176b550503d.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl.metadata HTTP/1.1" 200 775
+[filelock:filelock] Attempting to acquire lock 123685128351152 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/7/8/a/8f78a59c750512c5eff98117526033c3ddca4a99c7d75426a1ad4942.lock
+[filelock:filelock] Lock 123685128351152 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/7/8/a/8f78a59c750512c5eff98117526033c3ddca4a99c7d75426a1ad4942.lock
+[filelock:filelock] Attempting to release lock 123685128351152 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/7/8/a/8f78a59c750512c5eff98117526033c3ddca4a99c7d75426a1ad4942.lock
+[filelock:filelock] Lock 123685128351152 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/8/f/7/8/a/8f78a59c750512c5eff98117526033c3ddca4a99c7d75426a1ad4942.lock
+   1: selecting six (1.17.0)
+Source (PyPI): Getting info for itsdangerous (2.2.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/itsdangerous/2.2.0/json HTTP/1.1" 200 1829
+[filelock:filelock] Attempting to acquire lock 123685128350096 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/f/2/9/2/ff2924f0d01f739534f533aaca28a17f73f913642c41b87da9360e54.lock
+[filelock:filelock] Lock 123685128350096 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/f/2/9/2/ff2924f0d01f739534f533aaca28a17f73f913642c41b87da9360e54.lock
+[filelock:filelock] Attempting to release lock 123685128350096 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/f/2/9/2/ff2924f0d01f739534f533aaca28a17f73f913642c41b87da9360e54.lock
+[filelock:filelock] Lock 123685128350096 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/f/2/9/2/ff2924f0d01f739534f533aaca28a17f73f913642c41b87da9360e54.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl.metadata HTTP/1.1" 200 999
+[filelock:filelock] Attempting to acquire lock 123685128352400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/6/a/5/d/d6a5d0856a7e93554e8be85cae6a61e3c3d38bd36521d22d8c0dc50e.lock
+[filelock:filelock] Lock 123685128352400 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/6/a/5/d/d6a5d0856a7e93554e8be85cae6a61e3c3d38bd36521d22d8c0dc50e.lock
+[filelock:filelock] Attempting to release lock 123685128352400 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/6/a/5/d/d6a5d0856a7e93554e8be85cae6a61e3c3d38bd36521d22d8c0dc50e.lock
+[filelock:filelock] Lock 123685128352400 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/d/6/a/5/d/d6a5d0856a7e93554e8be85cae6a61e3c3d38bd36521d22d8c0dc50e.lock
+   1: selecting itsdangerous (2.2.0)
+Source (PyPI): Getting info for toml (0.10.2) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/toml/0.10.2/json HTTP/1.1" 200 3195
+[filelock:filelock] Attempting to acquire lock 123685128350288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/8/e/6/7/68e6756257c2beba5850d6cede5edbc91d855b6a06088a3643fd2a3d.lock
+[filelock:filelock] Lock 123685128350288 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/8/e/6/7/68e6756257c2beba5850d6cede5edbc91d855b6a06088a3643fd2a3d.lock
+[filelock:filelock] Attempting to release lock 123685128350288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/8/e/6/7/68e6756257c2beba5850d6cede5edbc91d855b6a06088a3643fd2a3d.lock
+[filelock:filelock] Lock 123685128350288 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/6/8/e/6/7/68e6756257c2beba5850d6cede5edbc91d855b6a06088a3643fd2a3d.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl.metadata HTTP/1.1" 200 2315
+[filelock:filelock] Attempting to acquire lock 123685128353840 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/f/6/d/0/cf6d09c92b27459f442bcfd167e1aa1c15cefc3f5865289eae156102.lock
+[filelock:filelock] Lock 123685128353840 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/f/6/d/0/cf6d09c92b27459f442bcfd167e1aa1c15cefc3f5865289eae156102.lock
+[filelock:filelock] Attempting to release lock 123685128353840 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/f/6/d/0/cf6d09c92b27459f442bcfd167e1aa1c15cefc3f5865289eae156102.lock
+[filelock:filelock] Lock 123685128353840 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/c/f/6/d/0/cf6d09c92b27459f442bcfd167e1aa1c15cefc3f5865289eae156102.lock
+   1: selecting toml (0.10.2)
+Source (PyPI): Getting info for colorama (0.4.6) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/colorama/0.4.6/json HTTP/1.1" 200 7429
+[filelock:filelock] Attempting to acquire lock 123685128388880 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/1/f/a/1/f1fa10111568cf3977cbca1285a636edbe346634bc9150a243be83a6.lock
+[filelock:filelock] Lock 123685128388880 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/1/f/a/1/f1fa10111568cf3977cbca1285a636edbe346634bc9150a243be83a6.lock
+[filelock:filelock] Attempting to release lock 123685128388880 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/1/f/a/1/f1fa10111568cf3977cbca1285a636edbe346634bc9150a243be83a6.lock
+[filelock:filelock] Lock 123685128388880 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/f/1/f/a/1/f1fa10111568cf3977cbca1285a636edbe346634bc9150a243be83a6.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl.metadata HTTP/1.1" 200 6494
+[filelock:filelock] Attempting to acquire lock 123685128390656 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/0/b/e/f/90befe1961344473fe1c8272b7c496e26663e2a140fea197487a70a3.lock
+[filelock:filelock] Lock 123685128390656 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/0/b/e/f/90befe1961344473fe1c8272b7c496e26663e2a140fea197487a70a3.lock
+[filelock:filelock] Attempting to release lock 123685128390656 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/0/b/e/f/90befe1961344473fe1c8272b7c496e26663e2a140fea197487a70a3.lock
+[filelock:filelock] Lock 123685128390656 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/9/0/b/e/f/90befe1961344473fe1c8272b7c496e26663e2a140fea197487a70a3.lock
+   1: selecting colorama (0.4.6)
+Source (PyPI): Getting info for tzdata (2026.3) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/tzdata/2026.3/json HTTP/1.1" 200 1526
+[filelock:filelock] Attempting to acquire lock 123685128392288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/e/5/7/8/be5787b436bc4f2d33cf9610222ae71c0846d394f036e23da4e40d23.lock
+[filelock:filelock] Lock 123685128392288 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/e/5/7/8/be5787b436bc4f2d33cf9610222ae71c0846d394f036e23da4e40d23.lock
+[filelock:filelock] Attempting to release lock 123685128392288 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/e/5/7/8/be5787b436bc4f2d33cf9610222ae71c0846d394f036e23da4e40d23.lock
+[filelock:filelock] Lock 123685128392288 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/b/e/5/7/8/be5787b436bc4f2d33cf9610222ae71c0846d394f036e23da4e40d23.lock
+Source (PyPI): No dependencies found, downloading metadata and/or archives
+[urllib3:urllib3.connectionpool] https://files.pythonhosted.org:443 "GET /packages/e5/6d/b53b99a9f2766d095985947a5782f1702cabb129a34f7a802d7197af832f/tzdata-2026.3-py2.py3-none-any.whl.metadata HTTP/1.1" 200 673
+[filelock:filelock] Attempting to acquire lock 123685128394352 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/c/1/6/07c1635264a537aabf43bb5de5656ba905ead619153b47f43ed66070.lock
+[filelock:filelock] Lock 123685128394352 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/c/1/6/07c1635264a537aabf43bb5de5656ba905ead619153b47f43ed66070.lock
+[filelock:filelock] Attempting to release lock 123685128394352 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/c/1/6/07c1635264a537aabf43bb5de5656ba905ead619153b47f43ed66070.lock
+[filelock:filelock] Lock 123685128394352 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/0/7/c/1/6/07c1635264a537aabf43bb5de5656ba905ead619153b47f43ed66070.lock
+   1: selecting tzdata (2026.3)
+Source (PyPI): Getting info for watchdog (6.0.0) from PyPI
+[urllib3:urllib3.connectionpool] https://pypi.org:443 "GET /pypi/watchdog/6.0.0/json HTTP/1.1" 200 17516
+[filelock:filelock] Attempting to acquire lock 123685128391136 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/b/7/1/9/eb719db59f9940d6134adb535c467946b32203484959325da407c321.lock
+[filelock:filelock] Lock 123685128391136 acquired on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/b/7/1/9/eb719db59f9940d6134adb535c467946b32203484959325da407c321.lock
+[filelock:filelock] Attempting to release lock 123685128391136 on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/b/7/1/9/eb719db59f9940d6134adb535c467946b32203484959325da407c321.lock
+[filelock:filelock] Lock 123685128391136 released on /bench/.cache/pypoetry/cache/repositories/PyPI/_http/e/b/7/1/9/eb719db59f9940d6134adb535c467946b32203484959325da407c321.lock
+   1: selecting watchdog (6.0.0)
+   1: Version solving took 1.594 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>, 'tzdata': <Dependency tzdata (<empty>)>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   1: fact: pandas (3.0.5) depends on numpy (>=1.26.0)
+   1: fact: pandas (3.0.5) depends on python-dateutil (>=2.8.2)
+   1: selecting pandas (3.0.5)
+   1: derived: python-dateutil (>=2.8.2)
+Source (PyPI): 3 packages found for python-dateutil >=2.8.2
+   1: selecting pyarrow (24.0.0)
+   1: fact: click (8.4.2) depends on colorama (*)
+   1: selecting click (8.4.2)
+   1: derived: colorama
+Source (PyPI): 43 packages found for colorama *
+   1: selecting packaging (26.2)
+   1: fact: anyio (4.14.2) depends on idna (>=2.8)
+   1: fact: anyio (4.14.2) depends on typing_extensions (>=4.5)
+   1: selecting anyio (4.14.2)
+   1: derived: idna (>=2.8)
+Source (PyPI): 22 packages found for idna >=2.8
+   1: selecting idna (3.18)
+   1: selecting python-multipart (0.0.32)
+   1: fact: altair (6.2.2) depends on jinja2 (*)
+   1: fact: altair (6.2.2) depends on jsonschema (>=3.0)
+   1: fact: altair (6.2.2) depends on narwhals (>=2.4.0)
+   1: fact: altair (6.2.2) depends on packaging (*)
+   1: fact: altair (6.2.2) depends on typing-extensions (>=4.12.0)
+   1: selecting altair (6.2.2)
+   1: derived: typing-extensions (>=4.12.0)
+   1: derived: narwhals (>=2.4.0)
+   1: derived: jsonschema (>=3.0)
+   1: derived: jinja2
+Source (PyPI): 26 packages found for narwhals >=2.4.0
+Source (PyPI): 62 packages found for jsonschema >=3.0
+Source (PyPI): 48 packages found for jinja2 *
+   1: fact: jsonschema (4.26.0) depends on attrs (>=22.2.0)
+   1: fact: jsonschema (4.26.0) depends on jsonschema-specifications (>=2023.03.6)
+   1: fact: jsonschema (4.26.0) depends on referencing (>=0.28.4)
+   1: fact: jsonschema (4.26.0) depends on rpds-py (>=0.25.0)
+   1: selecting jsonschema (4.26.0)
+   1: derived: rpds-py (>=0.25.0)
+   1: derived: referencing (>=0.28.4)
+   1: derived: jsonschema-specifications (>=2023.03.6)
+   1: derived: attrs (>=22.2.0)
+Source (PyPI): 10 packages found for rpds-py >=0.25.0
+Source (PyPI): 21 packages found for referencing >=0.28.4
+Source (PyPI): 11 packages found for jsonschema-specifications >=2023.03.6
+Source (PyPI): 11 packages found for attrs >=22.2.0
+   1: fact: jinja2 (3.1.6) depends on MarkupSafe (>=2.0)
+   1: selecting jinja2 (3.1.6)
+   1: derived: MarkupSafe (>=2.0)
+Source (PyPI): 12 packages found for markupsafe >=2.0
+   1: selecting narwhals (2.24.0)
+   1: fact: referencing (0.37.0) depends on attrs (>=22.2.0)
+   1: fact: referencing (0.37.0) depends on rpds-py (>=0.7.0)
+   1: fact: referencing (0.37.0) depends on typing-extensions (>=4.4.0)
+   1: selecting referencing (0.37.0)
+   1: fact: requests (2.34.2) depends on charset_normalizer (>=2,<4)
+   1: fact: requests (2.34.2) depends on idna (>=2.5,<4)
+   1: fact: requests (2.34.2) depends on urllib3 (>=1.26,<3)
+   1: fact: requests (2.34.2) depends on certifi (>=2023.5.7)
+   1: selecting requests (2.34.2)
+   1: derived: certifi (>=2023.5.7)
+   1: derived: urllib3 (>=1.26,<3)
+   1: derived: charset_normalizer (>=2,<4)
+Source (PyPI): 22 packages found for certifi >=2023.5.7
+Source (PyPI): 40 packages found for urllib3 >=1.26,<3
+Source (PyPI): 31 packages found for charset-normalizer >=2,<4
+   1: selecting urllib3 (2.7.0)
+   1: selecting charset-normalizer (3.4.9)
+   1: selecting certifi (2026.7.22)
+   1: selecting tenacity (9.1.4)
+   1: selecting websockets (16.1.1)
+   1: selecting markupsafe (3.0.3)
+   1: fact: gitdb (4.0.12) depends on smmap (>=3.0.1,<6)
+   1: selecting gitdb (4.0.12)
+   1: derived: smmap (>=3.0.1,<6)
+Source (PyPI): 9 packages found for smmap >=3.0.1,<6
+   1: fact: jsonschema-specifications (2025.9.1) depends on referencing (>=0.31.0)
+   1: selecting jsonschema-specifications (2025.9.1)
+   1: selecting attrs (26.1.0)
+   1: selecting typing-extensions (4.16.0)
+   1: selecting blinker (1.9.0)
+   1: selecting h11 (0.16.0)
+   1: selecting rpds-py (2026.6.3)
+   1: selecting smmap (5.0.3)
+   1: fact: pydeck (0.9.3) depends on jinja2 (>=2.10.1)
+   1: fact: pydeck (0.9.3) depends on numpy (>=1.16.4)
+   1: selecting pydeck (0.9.3)
+   1: selecting httptools (0.8.0)
+   1: fact: python-dateutil (2.9.0.post0) depends on six (>=1.5)
+   1: selecting python-dateutil (2.9.0.post0)
+   1: derived: six (>=1.5)
+Source (PyPI): 19 packages found for six >=1.5
+   1: selecting six (1.17.0)
+   1: selecting itsdangerous (2.2.0)
+   1: selecting toml (0.10.2)
+   1: selecting colorama (0.4.6)
+   1: selecting watchdog (6.0.0)
+   1: Version solving took 0.298 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   0: Duplicate dependencies for tzdata
+   0: Different requirements found for tzdata (*) with markers sys_platform == "win32" or sys_platform == "emscripten" and tzdata (<empty>) with markers sys_platform != "win32" and sys_platform != "emscripten".
+   1: Version solving took 0.053 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>, 'tzdata': <Dependency tzdata>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   1: fact: pandas (3.0.5) depends on numpy (>=2.3.3)
+   1: fact: pandas (3.0.5) depends on python-dateutil (>=2.8.2)
+   1: fact: pandas (3.0.5) depends on tzdata (*)
+   1: selecting pandas (3.0.5)
+   1: derived: tzdata
+   1: derived: python-dateutil (>=2.8.2)
+Source (PyPI): 30 packages found for tzdata *
+Source (PyPI): 3 packages found for python-dateutil >=2.8.2
+   1: selecting pyarrow (24.0.0)
+   1: fact: click (8.4.2) depends on colorama (*)
+   1: selecting click (8.4.2)
+   1: derived: colorama
+Source (PyPI): 43 packages found for colorama *
+   1: selecting packaging (26.2)
+   1: fact: anyio (4.14.2) depends on idna (>=2.8)
+   1: fact: anyio (4.14.2) depends on typing_extensions (>=4.5)
+   1: selecting anyio (4.14.2)
+   1: derived: idna (>=2.8)
+Source (PyPI): 22 packages found for idna >=2.8
+   1: selecting idna (3.18)
+   1: selecting python-multipart (0.0.32)
+   1: fact: altair (6.2.2) depends on jinja2 (*)
+   1: fact: altair (6.2.2) depends on jsonschema (>=3.0)
+   1: fact: altair (6.2.2) depends on narwhals (>=2.4.0)
+   1: fact: altair (6.2.2) depends on packaging (*)
+   1: fact: altair (6.2.2) depends on typing-extensions (>=4.12.0)
+   1: selecting altair (6.2.2)
+   1: derived: typing-extensions (>=4.12.0)
+   1: derived: narwhals (>=2.4.0)
+   1: derived: jsonschema (>=3.0)
+   1: derived: jinja2
+Source (PyPI): 26 packages found for narwhals >=2.4.0
+Source (PyPI): 62 packages found for jsonschema >=3.0
+Source (PyPI): 48 packages found for jinja2 *
+   1: fact: jsonschema (4.26.0) depends on attrs (>=22.2.0)
+   1: fact: jsonschema (4.26.0) depends on jsonschema-specifications (>=2023.03.6)
+   1: fact: jsonschema (4.26.0) depends on referencing (>=0.28.4)
+   1: fact: jsonschema (4.26.0) depends on rpds-py (>=0.25.0)
+   1: selecting jsonschema (4.26.0)
+   1: derived: rpds-py (>=0.25.0)
+   1: derived: referencing (>=0.28.4)
+   1: derived: jsonschema-specifications (>=2023.03.6)
+   1: derived: attrs (>=22.2.0)
+Source (PyPI): 10 packages found for rpds-py >=0.25.0
+Source (PyPI): 21 packages found for referencing >=0.28.4
+Source (PyPI): 11 packages found for jsonschema-specifications >=2023.03.6
+Source (PyPI): 11 packages found for attrs >=22.2.0
+   1: fact: jinja2 (3.1.6) depends on MarkupSafe (>=2.0)
+   1: selecting jinja2 (3.1.6)
+   1: derived: MarkupSafe (>=2.0)
+Source (PyPI): 12 packages found for markupsafe >=2.0
+   1: selecting narwhals (2.24.0)
+   1: fact: referencing (0.37.0) depends on attrs (>=22.2.0)
+   1: fact: referencing (0.37.0) depends on rpds-py (>=0.7.0)
+   1: fact: referencing (0.37.0) depends on typing-extensions (>=4.4.0)
+   1: selecting referencing (0.37.0)
+   1: fact: requests (2.34.2) depends on charset_normalizer (>=2,<4)
+   1: fact: requests (2.34.2) depends on idna (>=2.5,<4)
+   1: fact: requests (2.34.2) depends on urllib3 (>=1.26,<3)
+   1: fact: requests (2.34.2) depends on certifi (>=2023.5.7)
+   1: selecting requests (2.34.2)
+   1: derived: certifi (>=2023.5.7)
+   1: derived: urllib3 (>=1.26,<3)
+   1: derived: charset_normalizer (>=2,<4)
+Source (PyPI): 22 packages found for certifi >=2023.5.7
+Source (PyPI): 40 packages found for urllib3 >=1.26,<3
+Source (PyPI): 31 packages found for charset-normalizer >=2,<4
+   1: selecting urllib3 (2.7.0)
+   1: selecting charset-normalizer (3.4.9)
+   1: selecting certifi (2026.7.22)
+   1: selecting tenacity (9.1.4)
+   1: selecting websockets (16.1.1)
+   1: selecting markupsafe (3.0.3)
+   1: fact: gitdb (4.0.12) depends on smmap (>=3.0.1,<6)
+   1: selecting gitdb (4.0.12)
+   1: derived: smmap (>=3.0.1,<6)
+Source (PyPI): 9 packages found for smmap >=3.0.1,<6
+   1: fact: jsonschema-specifications (2025.9.1) depends on referencing (>=0.31.0)
+   1: selecting jsonschema-specifications (2025.9.1)
+   1: selecting attrs (26.1.0)
+   1: selecting typing-extensions (4.16.0)
+   1: selecting blinker (1.9.0)
+   1: selecting h11 (0.16.0)
+   1: selecting rpds-py (2026.6.3)
+   1: selecting smmap (5.0.3)
+   1: fact: pydeck (0.9.3) depends on jinja2 (>=2.10.1)
+   1: fact: pydeck (0.9.3) depends on numpy (>=1.16.4)
+   1: selecting pydeck (0.9.3)
+   1: selecting httptools (0.8.0)
+   1: fact: python-dateutil (2.9.0.post0) depends on six (>=1.5)
+   1: selecting python-dateutil (2.9.0.post0)
+   1: derived: six (>=1.5)
+Source (PyPI): 19 packages found for six >=1.5
+   1: selecting six (1.17.0)
+   1: selecting itsdangerous (2.2.0)
+   1: selecting toml (0.10.2)
+   1: selecting colorama (0.4.6)
+   1: selecting tzdata (2026.3)
+   1: selecting watchdog (6.0.0)
+   1: Version solving took 0.106 seconds.
+   1: Tried 1 solutions.
+   0: Retrying dependency resolution with the following overrides ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>, 'tzdata': <Dependency tzdata (<empty>)>}}).
+   1: fact: poetry-debug is 0.1.0
+   1: derived: poetry-debug
+   1: fact: poetry-debug depends on streamlit (*)
+   1: selecting poetry-debug (0.1.0)
+   1: derived: streamlit
+Source (PyPI): 244 packages found for streamlit *
+   1: fact: streamlit (1.60.0) depends on altair (>=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7)
+   1: fact: streamlit (1.60.0) depends on blinker (>=1.5.0,<2)
+   1: fact: streamlit (1.60.0) depends on click (>=7.0,<9)
+   1: fact: streamlit (1.60.0) depends on gitpython (>=3.0.7,<3.1.19 || >3.1.19,<4)
+   1: fact: streamlit (1.60.0) depends on numpy (>=1.23,<3)
+   1: fact: streamlit (1.60.0) depends on packaging (>=20)
+   1: fact: streamlit (1.60.0) depends on pandas (>=1.4.0,<4)
+   1: fact: streamlit (1.60.0) depends on pillow (>=7.1.0,<13)
+   1: fact: streamlit (1.60.0) depends on pydeck (>=0.8.0b4,<1)
+   1: fact: streamlit (1.60.0) depends on protobuf (>=3.20,<8)
+   1: fact: streamlit (1.60.0) depends on pyarrow (>=7.0,<25)
+   1: fact: streamlit (1.60.0) depends on requests (>=2.27,<3)
+   1: fact: streamlit (1.60.0) depends on tenacity (>=8.1.0,<10)
+   1: fact: streamlit (1.60.0) depends on toml (>=0.10.1,<2)
+   1: fact: streamlit (1.60.0) depends on typing-extensions (>=4.10.0,<5)
+   1: fact: streamlit (1.60.0) depends on starlette (>=0.40.0,<2)
+   1: fact: streamlit (1.60.0) depends on uvicorn (>=0.30.0,<1)
+   1: fact: streamlit (1.60.0) depends on httptools (>=0.6.3,<1)
+   1: fact: streamlit (1.60.0) depends on anyio (>=4.0.0,<5)
+   1: fact: streamlit (1.60.0) depends on python-multipart (>=0.0.10,<1)
+   1: fact: streamlit (1.60.0) depends on websockets (>=12.0.0,<17)
+   1: fact: streamlit (1.60.0) depends on itsdangerous (>=2.1.2,<3)
+   1: fact: streamlit (1.60.0) depends on watchdog (>=2.1.5,<7)
+   1: selecting streamlit (1.60.0)
+   1: derived: watchdog (>=2.1.5,<7)
+   1: derived: itsdangerous (>=2.1.2,<3)
+   1: derived: websockets (>=12.0.0,<17)
+   1: derived: python-multipart (>=0.0.10,<1)
+   1: derived: anyio (>=4.0.0,<5)
+   1: derived: httptools (>=0.6.3,<1)
+   1: derived: uvicorn (>=0.30.0,<1)
+   1: derived: starlette (>=0.40.0,<2)
+   1: derived: typing-extensions (>=4.10.0,<5)
+   1: derived: toml (>=0.10.1,<2)
+   1: derived: tenacity (>=8.1.0,<10)
+   1: derived: requests (>=2.27,<3)
+   1: derived: pyarrow (>=7.0,<25)
+   1: derived: protobuf (>=3.20,<8)
+   1: derived: pydeck (>=0.8.0b4,<1)
+   1: derived: pillow (>=7.1.0,<13)
+   1: derived: pandas (>=1.4.0,<4)
+   1: derived: packaging (>=20)
+   1: derived: numpy (>=1.23,<3)
+   1: derived: gitpython (>=3.0.7,!=3.1.19,<4)
+   1: derived: click (>=7.0,<9)
+   1: derived: blinker (>=1.5.0,<2)
+   1: derived: altair (>=4.0,!=5.4.0,!=5.4.1,<7)
+Source (PyPI): 18 packages found for watchdog >=2.1.5,<7
+Source (PyPI): 2 packages found for itsdangerous >=2.1.2,<3
+Source (PyPI): 12 packages found for websockets >=12.0.0,<17
+Source (PyPI): 21 packages found for python-multipart >=0.0.10,<1
+Source (PyPI): 22 packages found for anyio >=4.0.0,<5
+Source (PyPI): 4 packages found for httptools >=0.6.3,<1
+Source (PyPI): 36 packages found for uvicorn >=0.30.0,<1
+Source (PyPI): 34 packages found for starlette >=0.40.0,<2
+Source (PyPI): 12 packages found for typing-extensions >=4.10.0,<5
+Source (PyPI): 2 packages found for toml >=0.10.1,<2
+Source (PyPI): 14 packages found for tenacity >=8.1.0,<10
+Source (PyPI): 17 packages found for requests >=2.27,<3
+Source (PyPI): 28 packages found for pyarrow >=7.0,<25
+Source (PyPI): 78 packages found for protobuf >=3.20,<8
+Source (PyPI): 5 packages found for pydeck >=0.8.0b4,<1
+Source (PyPI): 37 packages found for pillow >=7.1.0,<13
+Source (PyPI): 31 packages found for pandas >=1.4.0,<4
+Source (PyPI): 24 packages found for packaging >=20
+Source (PyPI): 47 packages found for numpy >=1.23,<3
+Source (PyPI): 51 packages found for gitpython >=3.0.7,<3.1.19 || >3.1.19,<4
+Source (PyPI): 27 packages found for click >=7.0,<9
+Source (PyPI): 10 packages found for blinker >=1.5.0,<2
+Source (PyPI): 18 packages found for altair >=4.0,<5.4.0 || >5.4.0,<5.4.1 || >5.4.1,<7
+   1: selecting protobuf (7.35.1)
+   1: fact: gitpython (3.1.57) depends on gitdb (>=4.0.1,<5)
+   1: selecting gitpython (3.1.57)
+   1: derived: gitdb (>=4.0.1,<5)
+Source (PyPI): 11 packages found for gitdb >=4.0.1,<5
+   1: selecting numpy (2.5.1)
+   1: selecting pillow (12.3.0)
+   1: fact: uvicorn (0.51.0) depends on click (>=7.0)
+   1: fact: uvicorn (0.51.0) depends on h11 (>=0.8)
+   1: selecting uvicorn (0.51.0)
+   1: derived: h11 (>=0.8)
+Source (PyPI): 10 packages found for h11 >=0.8
+   1: fact: starlette (1.3.1) depends on anyio (>=3.6.2,<5)
+   1: fact: starlette (1.3.1) depends on typing-extensions (>=4.10.0)
+   1: selecting starlette (1.3.1)
+   1: fact: pandas (3.0.5) depends on numpy (>=2.3.3)
+   1: fact: pandas (3.0.5) depends on python-dateutil (>=2.8.2)
+   1: selecting pandas (3.0.5)
+   1: derived: python-dateutil (>=2.8.2)
+Source (PyPI): 3 packages found for python-dateutil >=2.8.2
+   1: selecting pyarrow (24.0.0)
+   1: fact: click (8.4.2) depends on colorama (*)
+   1: selecting click (8.4.2)
+   1: derived: colorama
+Source (PyPI): 43 packages found for colorama *
+   1: selecting packaging (26.2)
+   1: fact: anyio (4.14.2) depends on idna (>=2.8)
+   1: fact: anyio (4.14.2) depends on typing_extensions (>=4.5)
+   1: selecting anyio (4.14.2)
+   1: derived: idna (>=2.8)
+Source (PyPI): 22 packages found for idna >=2.8
+   1: selecting idna (3.18)
+   1: selecting python-multipart (0.0.32)
+   1: fact: altair (6.2.2) depends on jinja2 (*)
+   1: fact: altair (6.2.2) depends on jsonschema (>=3.0)
+   1: fact: altair (6.2.2) depends on narwhals (>=2.4.0)
+   1: fact: altair (6.2.2) depends on packaging (*)
+   1: fact: altair (6.2.2) depends on typing-extensions (>=4.12.0)
+   1: selecting altair (6.2.2)
+   1: derived: typing-extensions (>=4.12.0)
+   1: derived: narwhals (>=2.4.0)
+   1: derived: jsonschema (>=3.0)
+   1: derived: jinja2
+Source (PyPI): 26 packages found for narwhals >=2.4.0
+Source (PyPI): 62 packages found for jsonschema >=3.0
+Source (PyPI): 48 packages found for jinja2 *
+   1: fact: jsonschema (4.26.0) depends on attrs (>=22.2.0)
+   1: fact: jsonschema (4.26.0) depends on jsonschema-specifications (>=2023.03.6)
+   1: fact: jsonschema (4.26.0) depends on referencing (>=0.28.4)
+   1: fact: jsonschema (4.26.0) depends on rpds-py (>=0.25.0)
+   1: selecting jsonschema (4.26.0)
+   1: derived: rpds-py (>=0.25.0)
+   1: derived: referencing (>=0.28.4)
+   1: derived: jsonschema-specifications (>=2023.03.6)
+   1: derived: attrs (>=22.2.0)
+Source (PyPI): 10 packages found for rpds-py >=0.25.0
+Source (PyPI): 21 packages found for referencing >=0.28.4
+Source (PyPI): 11 packages found for jsonschema-specifications >=2023.03.6
+Source (PyPI): 11 packages found for attrs >=22.2.0
+   1: fact: jinja2 (3.1.6) depends on MarkupSafe (>=2.0)
+   1: selecting jinja2 (3.1.6)
+   1: derived: MarkupSafe (>=2.0)
+Source (PyPI): 12 packages found for markupsafe >=2.0
+   1: selecting narwhals (2.24.0)
+   1: fact: referencing (0.37.0) depends on attrs (>=22.2.0)
+   1: fact: referencing (0.37.0) depends on rpds-py (>=0.7.0)
+   1: fact: referencing (0.37.0) depends on typing-extensions (>=4.4.0)
+   1: selecting referencing (0.37.0)
+   1: fact: requests (2.34.2) depends on charset_normalizer (>=2,<4)
+   1: fact: requests (2.34.2) depends on idna (>=2.5,<4)
+   1: fact: requests (2.34.2) depends on urllib3 (>=1.26,<3)
+   1: fact: requests (2.34.2) depends on certifi (>=2023.5.7)
+   1: selecting requests (2.34.2)
+   1: derived: certifi (>=2023.5.7)
+   1: derived: urllib3 (>=1.26,<3)
+   1: derived: charset_normalizer (>=2,<4)
+Source (PyPI): 22 packages found for certifi >=2023.5.7
+Source (PyPI): 40 packages found for urllib3 >=1.26,<3
+Source (PyPI): 31 packages found for charset-normalizer >=2,<4
+   1: selecting urllib3 (2.7.0)
+   1: selecting charset-normalizer (3.4.9)
+   1: selecting certifi (2026.7.22)
+   1: selecting tenacity (9.1.4)
+   1: selecting websockets (16.1.1)
+   1: selecting markupsafe (3.0.3)
+   1: fact: gitdb (4.0.12) depends on smmap (>=3.0.1,<6)
+   1: selecting gitdb (4.0.12)
+   1: derived: smmap (>=3.0.1,<6)
+Source (PyPI): 9 packages found for smmap >=3.0.1,<6
+   1: fact: jsonschema-specifications (2025.9.1) depends on referencing (>=0.31.0)
+   1: selecting jsonschema-specifications (2025.9.1)
+   1: selecting attrs (26.1.0)
+   1: selecting typing-extensions (4.16.0)
+   1: selecting blinker (1.9.0)
+   1: selecting h11 (0.16.0)
+   1: selecting rpds-py (2026.6.3)
+   1: selecting smmap (5.0.3)
+   1: fact: pydeck (0.9.3) depends on jinja2 (>=2.10.1)
+   1: fact: pydeck (0.9.3) depends on numpy (>=1.16.4)
+   1: selecting pydeck (0.9.3)
+   1: selecting httptools (0.8.0)
+   1: fact: python-dateutil (2.9.0.post0) depends on six (>=1.5)
+   1: selecting python-dateutil (2.9.0.post0)
+   1: derived: six (>=1.5)
+Source (PyPI): 19 packages found for six >=1.5
+   1: selecting six (1.17.0)
+   1: selecting itsdangerous (2.2.0)
+   1: selecting toml (0.10.2)
+   1: selecting colorama (0.4.6)
+   1: selecting watchdog (6.0.0)
+   1: Version solving took 0.095 seconds.
+   1: Tried 1 solutions.
+   0: Complete version solving took 3.778 seconds with 6 overrides
+   0: Resolved with overrides: ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>}}), ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>, 'tzdata': <Dependency tzdata>}}), ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=1.26.0)>, 'tzdata': <Dependency tzdata (<empty>)>}}), ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>}}), ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>, 'tzdata': <Dependency tzdata>}}), ({Package('pandas', '3.0.5'): {'numpy': <Dependency numpy (>=2.3.3)>, 'tzdata': <Dependency tzdata (<empty>)>}})
+
+Writing lock file

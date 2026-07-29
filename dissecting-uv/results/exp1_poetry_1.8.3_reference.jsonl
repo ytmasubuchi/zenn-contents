@@ -1,0 +1,6 @@
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "cold", "run": 0, "lock_sec": 4.905, "install_sec": 6.284, "total_sec": 11.189}
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "cold", "run": 1, "lock_sec": 6.929, "install_sec": 6.418, "total_sec": 13.348}
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "cold", "run": 2, "lock_sec": 4.818, "install_sec": 6.473, "total_sec": 11.291}
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "warm", "run": 0, "lock_sec": 3.644, "install_sec": 4.299, "total_sec": 7.943}
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "warm", "run": 1, "lock_sec": 3.647, "install_sec": 4.153, "total_sec": 7.799}
+{"tool": "poetry", "poetry_version": "1.8.3", "condition": "warm", "run": 2, "lock_sec": 3.736, "install_sec": 4.303, "total_sec": 8.039}

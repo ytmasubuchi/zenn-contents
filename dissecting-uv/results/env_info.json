@@ -1,0 +1,13 @@
+{
+  "experiment_datetime_utc": "2026-07-28T10:32:16Z",
+  "python_version": "Python 3.12.13",
+  "pip_version": "pip 25.0.1 from /usr/local/lib/python3.12/site-packages/pip (python 3.12)",
+  "poetry_version": "Poetry (version 2.4.1)",
+  "uv_version": "uv 0.11.32 (x86_64-unknown-linux-gnu)",
+  "os_release": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.6\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+  "kernel_uname": "Linux f8964e60f9ac 6.17.0-1025-oem #25-Ubuntu SMP PREEMPT_DYNAMIC Fri May 29 12:11:29 UTC 2026 x86_64 GNU/Linux",
+  "base_image": "python:3.12-slim",
+  "docker_client_version_on_host": "29.2.1",
+  "poetry_version_note": "Dockerfileで誤って--version 1.8.3を公式インストーラに指定していたため初回計測は1.8.3だった。--versionオプションを外し、インストーラのデフォルト(最新安定版)である2.4.1へ更新して再計測した。1.8.3の主要数値は参考値としてresults配下に残している。",
+  "update_datetime_utc": "2026-07-28T10:42:00Z"
+}

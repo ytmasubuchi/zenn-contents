@@ -1,0 +1,9 @@
+target wheel: https://files.pythonhosted.org/packages/2f/69/7a1984df015d01875c9ac79bfda7c31492cc94f81a2625303ce4707188e5/streamlit-1.60.0-py3-none-any.whl
+wheel total size (HEAD): 10419153 bytes
+  [range-request #1] bytes=10419131-10419152 (22 bytes, 0.016s)
+  [range-request #2] bytes=10419111-10419130 (20 bytes, 0.029s)
+  [range-request #3] bytes=10330346-10419130 (88785 bytes, 0.014s)
+found metadata entry: streamlit-1.60.0.dist-info/METADATA
+  [range-request #4] bytes=10278694-10278723 (30 bytes, 0.014s)
+  [range-request #5] bytes=10278724-10278758 (35 bytes, 0.018s)
+  [range-request #6] bytes=10278759-10282521 (3763 bytes, 0.012s)
