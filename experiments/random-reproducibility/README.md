@@ -258,87 +258,189 @@ E8として実測を追加した。
   (同じ「TF32」でも matmul 経路と cuDNN 経路でデフォルトが違う。
   `torch.backends.cudnn.benchmark` / `torch.backends.cudnn.deterministic`
   のデフォルトはいずれも `False`)。
-- **重要な制約**: このホストのGPUは常駐の vLLM サーバとVRAMを共有しており、
-  実験開始時点で 24564 MiB 中 23768 MiB が使用済み、空きはわずか **305 MiB**
-  だった。既存プロセスは一切停止せず、この空きVRAMの範囲内で実験する方針
-  で臨んだ。
 
-### 実測結果: GPU実験はすべてCUDA OOMでブロックされた
+### 実行の経緯: 1回目はVRAM枯渇でブロック、2回目に成功
 
-結論から言うと、E8a〜E8dのGPU計算を伴う測定は**1つも成功しなかった**。
-原因はドライバやツールキットの不整合ではなく、**空きVRAMが少なすぎて
-CUDAコンテキストそのものが作れない**という、実行前に確認した通りの
-資源枯渇だった。
+このホストのGPUは当初、常駐の vLLM サーバとVRAMを共有しており、1回目の
+実験開始時点では 24564 MiB 中 23768 MiB が使用済みで空きはわずか
+**305 MiB** だった。既存プロセスは一切停止せず様子を見た結果、この回では
+E8a〜E8dのGPU計算を伴う測定は1つも成功せず、すべて `RuntimeError: CUDA
+error: out of memory` で終わった(原因はドライバ不整合ではなく、CUDAコンテ
+キストそのものが作れないという資源枯渇であることを、PyTorchを使わない素の
+CUDA Cプログラムでも同じ `cudaErrorMemoryAllocation` が出ることまで確認し
+て裏づけた)。この1回目の記録は `results/e8_environment_probe.json` に
+「HISTORICAL / SUPERSEDED」として残している。
 
-根拠(`results/e8_environment_probe.json` に詳細を記録):
+その後、vLLMサーバが停止しVRAMが解放された(空き約23.5GB)ため、**同じ
+スクリプト・同じ `run_gpu.sh` をそのまま再実行し、E8a〜E8eすべてで実際の
+GPU計算による実測データを取得できた。** 以下はその2回目(成功した回)の
+結果。
 
-1. PyTorchを使わない素のCUDA Cプログラム(`nvidia/cuda:13.0.0-devel`
-   イメージでビルド)で `cudaSetDevice(0)` → `cudaMemGetInfo` →
-   `cudaMalloc(1MB)` を実行しても、**`cudaSetDevice` の時点で
-   `cudaErrorMemoryAllocation`(code=2, "out of memory")** が返る。
-   3回試行してすべて同じ結果。PyTorch固有の問題ではなく、CUDAドライバの
-   レベルで新規コンテキストを作る余地がないことが確認できた。
-2. PyTorch側でも、`torch.cuda.is_available()` は `True` を返す(デバイスの
-   可視性を見るだけなので軽量)一方、`torch.zeros(1, device='cuda')`
-   のような **1要素だけのテンソル確保ですら** `RuntimeError: CUDA error:
-   out of memory` になる。`torch.cuda.is_available() == True` は
-   「GPU計算が実際に走る」ことの十分条件ではない、という実務上の教訓。
-3. `run_with_fallback`(`scripts/_common.py`)により、512×512 → 128×128 →
-   32×32 → 8×8(matmulの場合)のようにサイズを段階的に下げて再試行したが、
-   最小サイズでも同一のエラーで失敗した。テンソルサイズの問題ではなく、
-   コンテキスト生成そのものが通らない以上、どれだけ小さくしても解決しない。
+### E8a: GPU反復再現性(デフォルト設定)
 
-この失敗自体は3コンテナ×2設定(E8a/E8b)すべてで完全に再現した
-(`results/e8a_compare_1v2.json` / `e8a_compare_1v3.json` /
-`e8b_compare_1v2.json` / `e8b_compare_1v3.json`: いずれも `n_mismatches: 0`
-― エラーメッセージ文字列まで含めて全項目が一致)。つまり**「失敗する」
-という結果自体は完全に再現性があった**。
+`e8a_gpu_repeat.py` を3つの独立コンテナで実行し `compare.py` で比較
+(`results/e8a_compare_1v2.json` / `e8a_compare_1v3.json`)。
 
-一方で、CUDAコンテキストや確保を必要としない軽量なメタデータ取得
-(GPU名、compute capability、cuDNNバージョン、TF32/cudnn.benchmark/
-cudnn.deterministic の各デフォルト値、`nvidia-smi` 経由のVRAM使用量)は
-すべてのJSON (`results/e8a_run*.json` 等の `metadata.gpu`) に正しく記録
-できている。
+**ビット単位で完全一致した項目**(3コンテナとも):
+- `torch.manual_seed(42)` 後の CUDA Philox `rand`/`randn`
+- 512×512 float32 matmul(cuBLAS)― NVIDIAのcuBLAS再現性規定
+  (「同一ツールキット・同一アーキ・同一SM数なら実行ごとにビット単位で
+  同じ結果」)が実測でも成立
+- Conv2d の forward出力、weight勾定(`grad_weight`)
+- MLP学習(50ステップ)の loss曲線・最終パラメータ
+- `embedding_bag(mode='sum')` の forward、backward(`weight.grad`)
 
-### 実行できなかった項目
+**不一致だった項目(誤差スケールは `results/e8_ulp_diff.json` で実測)**:
+- **Conv2d の `grad_input`(入力側の勾配、backward-data)**:
+  49152要素中 **6048要素(12.3%)** / **5513要素(11.2%)** が不一致
+  (run1 vs run2 / run1 vs run3)。`max_abs_diff ≈ 1.19×10⁻⁷`
+  (float32のマシンエプシロン相当)、`max_rel_diff ≈ 1.10×10⁻⁴`、
+  `max_ulp_diff = 1024`。forward出力とweight勾配はビット完全一致した
+  のに、**backward-dataだけが `cudnn.benchmark=False` でも非決定的**
+  だった ― これは記事本文が触れていない粒度の知見(cuDNNの
+  「アルゴリズム選択」を止めても、選ばれたアルゴリズム自体が
+  atomicAdd等で非決定的なケースがあることの実例)。
+- **`index_add_` / `scatter_add_`(atomicAdd系)**: 16要素の出力すべてが
+  不一致(16/16、run1 vs run3のscatter_addのみ15/16)。
+  `index_add_`: `max_abs_diff ≈ 0.00122`(run1v2)/`0.00200`(run1v3)、
+  `max_rel_diff ≈ 6.2×10⁻⁵`/`1.9×10⁻⁴`、`max_ulp_diff = 691`/`2101`。
+  `scatter_add_`: `max_abs_diff ≈ 0.00293`/`0.00238`、
+  `max_rel_diff ≈ 9.0×10⁻⁵`/`5.3×10⁻⁵`、`max_ulp_diff = 1003`/`585`。
+- **同一プロセス内20回反復**: 1コンテナ内で同じ `index_add_`/
+  `scatter_add_` を(同じidx/valsテンソルに対し)20回繰り出したところ、
+  **20回すべてが異なるハッシュ**(`index_add_unique_count: 20`,
+  `scatter_add_unique_count: 20`)。コンテナを再起動すらせず、
+  同一プロセス・同一入力・ループの中だけで結果が毎回変わるという、
+  記事7章の理論(atomicAddの加算順序はスケジューリング依存)を
+  最も直接的に裏づける実測結果。
+- **`cumsum`**: 100万要素中 **469601〜505019要素(約47〜50%)** が不一致。
+  `max_abs_diff ≈ 2.44×10⁻⁴`、`max_rel_diff` は最大 **0.289**、
+  `max_ulp_diff` は最大 **4,554,752**(!)― これはPyTorchの公式ドキュメント
+  (`use_deterministic_algorithms`のdocstring)が明記する「`torch.cumsum()`
+  はCUDA上のfloating pointで非決定的」という記述と正確に一致する。
 
-- E8a: CUDA上のPhilox rand/randn、512×512 matmul(cuBLAS)、Conv2d
-  forward/backward(cuDNN)、MLP学習、`index_add_`/`scatter_add_` の
-  atomicAdd非決定性(同一プロセス内20回反復)、`embedding_bag`、`cumsum`
-  ― すべてCUDA OOMで未実行(エラーメッセージは記録済み)。
-- E8b: 上記と同じ測定を `use_deterministic_algorithms(True)` +
-  `CUBLAS_WORKSPACE_CONFIG=:4096:8` で試みたが、同じくCUDA OOMで未実行。
-  そのため「`index_add_` のCUDA実装がdeterministicモードでエラーを送出
-  するか」という記事の主張自体は、**この環境では検証できなかった**
-  (エラーは出たが、それはOOMであってdeterminism起因のエラーではない)。
-- E8c: CPU側の値(`torch.rand`、512×512 matmul、MLP学習)は正常に取得
-  できたが、GPU側がすべてOOMのため比較不能。
-- E8d: TF32のデフォルト値そのものは記録できたが、on/offでの実際の行列積
-  比較・誤差実測はGPU側がOOMのため不可能。
-- E8e: 上記の理由により、diffを取る生データが存在せず
-  (`results/e8_ulp_diff.json` は全項目 `"reason": "insufficient_data"`)。
+### E8b: 決定的モード(`use_deterministic_algorithms(True)` + `CUBLAS_WORKSPACE_CONFIG=:4096:8`)
+
+同じ測定を決定的モードで3コンテナ実行(`results/e8b_compare_1v2.json` /
+`e8b_compare_1v3.json`)。**比較可能な全項目でn_mismatches: 0**(E8aで
+不一致だったConv2d `grad_input`・`index_add_`・`scatter_add_`も含め、
+決定的モードでは3コンテナ間で完全に一致した)。
+
+演算ごとの挙動(`e8b_run*.json` の `status` フィールド):
+
+| 演算 | 決定的モードでの挙動 |
+|---|---|
+| Philox rand/randn | `ok`(問題なく決定的) |
+| 512×512 matmul | `ok` |
+| Conv2d forward/backward | `ok`(E8aで揺れていた`grad_input`も含め決定的に) |
+| MLP学習(50 step) | `ok` |
+| `index_add_` | `ok` ― **エラーにはならず、決定的な実装に自動的に差し替わった** |
+| `scatter_add_` | `ok` ― 同上 |
+| `embedding_bag`(forward/backward, mode='sum') | `ok` |
+| `cumsum` | **`error_no_deterministic_impl`** ― `RuntimeError: cumsum_cuda_kernel does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True)'. ...` |
+
+**この結果は記事7章の記述の一部を修正する必要があることを示している。**
+記事は「`index_add_` のCUDA実装は`use_deterministic_algorithms(True)`で
+エラーを送出する」と記載しているが、これは**torch 2.5.1では成立しない**。
+`torch.use_deterministic_algorithms` 自身のdocstring(torch 2.5.1)を確認
+すると、`torch.index_add()` と `torch.Tensor.scatter_add_()` は「エラーに
+なる演算」ではなく「**決定的アルゴリズムに自動的に切り替わる演算**」の
+リストに明記されている。今回の実測(エラーではなく`ok`、かつ3コンテナで
+完全一致)はこのdocstringの記述と一致する。一方、実際にエラーを送出する
+のは `torch.cumsum()`(floating point dtypeでCUDA実行時)であり、これも
+docstringの「エラーになる演算」リストと一致する。つまり記事の主張の
+骨格(「PyTorchは非決定的演算をエラーで止める場合がある」)自体は正しい
+が、**エラーになる具体例として挙げた演算(`index_add_`)は現行バージョン
+では該当しない** ― 挙げるべきは `cumsum` などのほう。
+
+### E8c: CPU vs GPU(同一シード・同一入力)
+
+`e8c_cpu_vs_gpu.py`(`results/e8c_cpu_vs_gpu.json`、diff統計は
+`results/e8_ulp_diff.json` の `e8c_cpu_vs_gpu`)。
+
+- **`torch.rand`(CPU vs CUDA, 同じ`manual_seed(42)`)**: 完全不一致
+  (1000/1000要素)。CPUとCUDAのデフォルト生成器は別実装・別ストリームな
+  ので予想どおり。値はほぼ無関係(`max_abs_diff ≈ 0.988`、
+  `max_rel_diff ≈ 0.999`、`max_ulp_diff ≈ 79,308,352`)。
+- **512×512 matmul(同一入力、CPU BLAS vs cuBLAS)**: 262144要素中
+  **235051要素(89.7%)** が不一致。`max_abs_diff ≈ 6.10×10⁻⁵`、
+  `max_rel_diff ≈ 2.57%`、`max_ulp_diff = 225280`。CPUとGPUで積算順序・
+  実装が異なるための差で、記事6章のBLAS非結合性の議論がアーキ内でも
+  CPU⇔GPU間でそのまま成立する実例。
+- **MLP学習(同一初期パラメータ、50ステップ、CPU vs GPU)**:
+  `final_loss_hex` は CPU `0x1.d28ca20000000p+1` / GPU
+  `0x1.d28ca40000000p+1` ― 下位マンティサのみ異なる。最終パラメータは
+  193要素中 **47要素(24.4%)** が不一致だが、差はごく小さい
+  (`max_abs_diff ≈ 5.96×10⁻⁸`、`max_rel_diff ≈ 3.72×10⁻⁷`、
+  **`max_ulp_diff = 5`**)。**matmul単体では89.7%・大きな相対誤差で
+  不一致だったのに対し、50ステップの学習を経た最終パラメータは
+  わずか5ULPしか離れなかった** ― 誤差が必ずしも単純に蓄積・拡大する
+  わけではない一例。
+
+### E8d: TF32 有効/無効の影響
+
+`e8d_tf32.py`(`results/e8d_tf32.json`、diff統計は
+`results/e8_ulp_diff.json` の `e8d_tf32_off_vs_on`)。同一入力の512×512
+matmulをTF32無効(`allow_tf32=False`、両フラグとも)と有効
+(`allow_tf32=True`)で計算し比較。両方とも `scale_used: 512`(フル
+サイズ)で成功、`hashes_compared_at_same_scale: true`。
+
+- `hashes_match: false`(TF32 on/offでハッシュが変わる)
+- 262144要素中 **262127要素(99.99%)** が不一致
+- `max_abs_diff ≈ 0.0296`、`mean_abs_diff ≈ 0.00531`
+- `max_rel_diff ≈ 1.90`(190%。ゼロに近い要素で符号や桁が変わるケース)
+- `max_ulp_diff ≈ 2,003,220,992`(約20億。ゼロ近傍要素のULP距離は
+  実用上の精度差の指標にならないほど巨大化する典型例)
+
+**TF32は「わずかな精度低下」で済む場合もあれば、512深さの累積行列積では
+平均絶対誤差が0.005・最大絶対誤差が0.03に達する**ことが実測できた。
+「TF32はほぼ無視できる精度低下」という単純化は、蓄積演算の深さによって
+成立しないことがある、という定量的な裏づけ。
+
+### E8eでわかったこと(まとめ)
+
+`results/e8_ulp_diff.json` は E8a/E8b の反復ペア、E8cのCPU-GPU比較、
+E8dのTF32比較すべてについて、上記の誤差スケール(最大絶対差・最大相対
+差・最大ULP差)を実測値として記録している。数値は上記の各節に転記済み。
 
 ### 予想外だった点(記事の素材として)
 
-1. **「GPUドライバの不整合」だった当初の障壁が解消しても、別の障壁
-   (VRAM枯渇)に置き換わっただけで、結局GPU実験は今回も実行できなかっ
-   た。** GPU上の再現性の議論以前に、「共有GPU環境ではそもそも実験が
-   走らない」という、地味だが実務でよく遭遇する制約こそが最初のハード
-   ルだった、という点は理論編には出てこない実測ならではの発見。
+1. **1回目の試行では、GPUドライバ不整合という当初の障壁が解消しても、
+   別の障壁(VRAM枯渇)に置き換わっただけで実験が1つも走らなかった。**
+   GPU上の再現性の議論以前に、「共有GPU環境ではそもそも実験が走らない」
+   という、地味だが実務でよく遭遇する制約こそが最初のハードルだった、
+   という点は理論編には出てこない実測ならではの発見(詳細は
+   `results/e8_environment_probe.json`)。
 2. **`torch.cuda.is_available()` が `True` を返しても実際にGPU計算が
-   できるとは限らない。** 空きVRAMが極端に少ないと、デバイスの可視性
-   チェックは通るのに、最小の1要素テンソル確保でもCUDAコンテキスト生成
-   自体が失敗する。ヘルスチェックとして `is_available()` だけを見るのは
-   不十分。
-3. **TF32のデフォルト値は `torch.backends.cuda.matmul.allow_tf32`
-   (`False`)と `torch.backends.cudnn.allow_tf32`(`True`)で異なる**
-   (torch 2.5.1実測)。「TF32は既定でオンだったかオフだったか」という
-   問いに単一の答えはなく、経路(cuBLAS matmul経由かcuDNN経由か)ごとに
-   確認する必要がある。
-4. **失敗そのものが完全に再現した。** 3つの独立したコンテナで、同じ
-   エラーメッセージ文字列まで含めてビット単位で一致(`n_mismatches: 0`)
-   ― 「常に同じ理由で失敗する」こと自体も一種の再現性であり、
-   `compare.py` の仕組みがそのまま使えた。
+   できるとは限らない。** 1回目の試行では、空きVRAMが極端に少ないと、
+   デバイスの可視性チェックは通るのに、最小の1要素テンソル確保でも
+   CUDAコンテキスト生成自体が失敗した。ヘルスチェックとして
+   `is_available()` だけを見るのは不十分。
+3. **記事本文の「`index_add_`のCUDA実装はdeterministicモードでエラー
+   を送出する」という記述は、torch 2.5.1では成立しない。** 実際に
+   エラーになったのは `cumsum` であり、`index_add_`/`scatter_add_`
+   は決定的な実装に自動的に差し替わって成功した(torch自身の
+   `use_deterministic_algorithms` docstringに明記されている区分と一致)。
+   記事の該当箇所は具体例の差し替えが必要。
+4. **atomicAdd系の非決定性は、コンテナを再起動せず同一プロセス内で
+   同じ演算を20回繰り返すだけで直接観測できた**(20回すべてが異なる
+   ハッシュ)。「別マシン/別コンテナでないと再現しない類の非決定性」
+   ではなく、その場で・何度でも起きる非決定性であることが確認できた。
+5. **cuDNNの `cudnn.benchmark=False` はアルゴリズム選択の揺れは止める
+   が、選ばれたアルゴリズムそのものの非決定性(Conv2dのbackward-data
+   のみ)は止めない。** forward出力とweight勾配はビット完全一致した
+   のに、入力側の勾配だけが3コンテナ間で12%前後不一致になった。
+   `use_deterministic_algorithms(True)` を追加することで初めて解消
+   した。
+6. **TF32の影響は「わずかな精度低下」で済まないことがある。** 512×512
+   の行列積では平均絶対誤差0.005・最大絶対誤差0.03・最大相対誤差190%
+   に達し、ほぼ全要素(99.99%)が変化した。
+7. **CPU⇔GPUの生の演算(matmul)は89.7%の要素・最大2.6%の相対誤差で
+   不一致だったが、そこから50ステップ学習した最終パラメータの差は
+   わずか5ULPだった。** 誤差が「使えば使うほど拡大する」だけではない
+   ことの実例で、記事7章「それでもGPUで再現させたいとき」の議論に
+   「どのレベルの出力を比較するかで、再現性の評価は大きく変わる」と
+   いう注意点を補強する材料になる。
 
 ## 予想外だった結果
 
@@ -384,9 +486,12 @@ cudnn.deterministic の各デフォルト値、`nvidia-smi` 経由のVRAM使用�
   完走し `results/` に実測JSONが残っている。
 - GPU実験(E8系)は、当初(この節を最初に書いた時点)はホストのGPUドライバ
   不整合により実行対象外だった。後日、別ホストでGPUが使える環境が用意され
-  スクリプト自体は実装・実行したが、**そのホストのGPUが常駐の別プロセス
-  (vLLM)とVRAMを共有しており空きVRAMが約305MiBしかなかったため、CUDA
-  コンテキストの生成自体が失敗し、GPU計算を伴う測定はすべて未実行に終わっ
-  た**。詳細・根拠は「GPU実験(E8系)」の節および
-  `results/e8_environment_probe.json` を参照。GPUメタデータ(GPU名・
-  cuDNNバージョン・TF32デフォルト値など)自体は正常に取得できている。
+  スクリプト自体は実装したが、1回目の実行時はそのホストのGPUが常駐の別
+  プロセス(vLLM)とVRAMを共有しており空きVRAMが約305MiBしかなかったため、
+  CUDAコンテキストの生成自体が失敗し、GPU計算を伴う測定はすべて未実行に
+  終わった(この1回目の記録は `results/e8_environment_probe.json` に
+  「HISTORICAL / SUPERSEDED」として残している)。
+- その後 vLLM が停止してVRAMが解放され(空き約23.5GB)、**同じスクリプトを
+  再実行したところ E8a〜E8e すべてで実際のGPU計算による実測データが取得
+  できた。** E1〜E6・E8a〜E8e とも現時点で実行できなかった項目はない。
+  詳細・実測数値は「GPU実験(E8系)」の節を参照。

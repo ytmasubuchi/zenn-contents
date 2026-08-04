@@ -3,7 +3,7 @@
   "file_a": "/work/results/e8a_run1.json",
   "file_b": "/work/results/e8a_run3.json",
   "metadata_a": {
-    "hostname": "cd536756cb27",
+    "hostname": "9eb8cea28fcd",
     "platform_machine": "x86_64",
     "platform_system": "Linux",
     "platform_release": "6.8.0-124-generic",
@@ -36,11 +36,11 @@
         8,
         9
       ],
-      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 1170 MiB, 22903 MiB, 24564 MiB"
     }
   },
   "metadata_b": {
-    "hostname": "086037daf9a4",
+    "hostname": "94c192de1d68",
     "platform_machine": "x86_64",
     "platform_system": "Linux",
     "platform_release": "6.8.0-124-generic",
@@ -73,62 +73,282 @@
         8,
         9
       ],
-      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 1170 MiB, 22903 MiB, 24564 MiB"
     }
   },
-  "n_matches": 48,
-  "n_mismatches": 0,
+  "n_matches": 57,
+  "n_mismatches": 42,
   "matches": [
-    "atomic_add_repeat.error_message",
-    "atomic_add_repeat.error_type",
-    "atomic_add_repeat.scales_tried[0]",
-    "atomic_add_repeat.scales_tried[1]",
-    "atomic_add_repeat.scales_tried[2]",
-    "atomic_add_repeat.scales_tried[3]",
-    "atomic_add_repeat.status",
-    "conv_forward_backward.error_message",
-    "conv_forward_backward.error_type",
+    "conv_forward_backward.batch",
+    "conv_forward_backward.cudnn_benchmark_effective",
+    "conv_forward_backward.grad_weight_sha256",
+    "conv_forward_backward.output_sha256",
+    "conv_forward_backward.scale_used",
     "conv_forward_backward.scales_tried[0]",
-    "conv_forward_backward.scales_tried[1]",
-    "conv_forward_backward.scales_tried[2]",
     "conv_forward_backward.status",
-    "cumsum.error_message",
-    "cumsum.error_type",
+    "cumsum.n",
+    "cumsum.scale_used",
     "cumsum.scales_tried[0]",
-    "cumsum.scales_tried[1]",
-    "cumsum.scales_tried[2]",
     "cumsum.status",
-    "embedding_bag.error_message",
-    "embedding_bag.error_type",
-    "embedding_bag.scales_tried[0]",
-    "embedding_bag.scales_tried[1]",
-    "embedding_bag.scales_tried[2]",
-    "embedding_bag.status",
+    "embedding_bag_backward.embedding_bag_grad_weight_sha256",
+    "embedding_bag_backward.n_indices",
+    "embedding_bag_backward.scale_used",
+    "embedding_bag_backward.scales_tried[0]",
+    "embedding_bag_backward.status",
+    "embedding_bag_forward.embedding_bag_sum_sha256",
+    "embedding_bag_forward.n_indices",
+    "embedding_bag_forward.scale_used",
+    "embedding_bag_forward.scales_tried[0]",
+    "embedding_bag_forward.status",
     "experiment",
-    "matmul_512.error_message",
-    "matmul_512.error_type",
+    "index_add_repeat.index_add_unique_count",
+    "index_add_repeat.n_indices",
+    "index_add_repeat.out_size",
+    "index_add_repeat.repeats",
+    "index_add_repeat.scale_used",
+    "index_add_repeat.scales_tried[0]",
+    "index_add_repeat.status",
+    "matmul_512.matmul_sha256",
+    "matmul_512.scale_used",
     "matmul_512.scales_tried[0]",
-    "matmul_512.scales_tried[1]",
-    "matmul_512.scales_tried[2]",
-    "matmul_512.scales_tried[3]",
+    "matmul_512.shape[0]",
+    "matmul_512.shape[1]",
     "matmul_512.status",
-    "mlp_train.error_message",
-    "mlp_train.error_type",
+    "mlp_train.final_loss_hex",
+    "mlp_train.final_params_sha256",
+    "mlp_train.loss_curve_sha256",
+    "mlp_train.n_samples",
+    "mlp_train.scale_used",
     "mlp_train.scales_tried[0]",
-    "mlp_train.scales_tried[1]",
-    "mlp_train.scales_tried[2]",
     "mlp_train.status",
     "note",
-    "philox_streams.error_message",
-    "philox_streams.error_type",
+    "philox_streams.n",
+    "philox_streams.rand_sha256",
+    "philox_streams.randn_sha256",
+    "philox_streams.scale_used",
     "philox_streams.scales_tried[0]",
-    "philox_streams.scales_tried[1]",
-    "philox_streams.scales_tried[2]",
-    "philox_streams.scales_tried[3]",
     "philox_streams.status",
+    "scatter_add_repeat.n_indices",
+    "scatter_add_repeat.out_size",
+    "scatter_add_repeat.repeats",
+    "scatter_add_repeat.scale_used",
+    "scatter_add_repeat.scales_tried[0]",
+    "scatter_add_repeat.scatter_add_unique_count",
+    "scatter_add_repeat.status",
     "seed"
   ],
-  "mismatches": [],
+  "mismatches": [
+    {
+      "key": "conv_forward_backward.grad_input_sha256",
+      "a": "e954cc2b59e718cf20c0ddb5cf7a4ccc713c02b5cf7f0f54007fdb520cff80c1",
+      "b": "34bb48aceebe3a050e502db9e9338b5862c7a53a80042189dddbd2e4f18be961"
+    },
+    {
+      "key": "cumsum.cumsum_sha256",
+      "a": "c492b00fd9b9353a95e7b9b3a33f403fea05ad01f593420627f7af8faa448b17",
+      "b": "d1308702ebe1e809a895aec9a700141b748ecc13760d94e8af1bff793a745abe"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[0]",
+      "a": "2e9a4c98141ecbb6fa41139f0a4a64ed9e6ddce73cb95fffdedf1a9c51e27b07",
+      "b": "dd14784e72e1903a879a86a3b2b60fede6afe5d955eeb2c01a01c1bebcde7c8e"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[10]",
+      "a": "9715c79ebb9ba4e7534fad79e1352acc6a2380c63529ff1182a2954075fb5e21",
+      "b": "0264b91f2cb487670e39a2a139bd0d0926a97926da29b42d7ba0dfd3de51f52c"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[11]",
+      "a": "6d9bd07cc8b6e5480e27ab2bc84f2631394b8214d470cf32c85e205099855fbc",
+      "b": "d6e48d7d52b76fd3154343a056cbb8d49ba81e5ce1d17d87bd504effebe5d43a"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[12]",
+      "a": "c9ade279d4a3ef23995c8a20b292e15b7a862c24bc643a313f135e67d2d8f502",
+      "b": "f35ac4d91406adff507a852cec2bda7cd03e5d2bd04e8f8fe78d2f03db5bccd9"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[13]",
+      "a": "15be17252fe72820826b65bd827ab3499377aae55d5c54a706310efe9466879e",
+      "b": "e084668bfe6e1de8b4d8f2401b8b3f71b9ef9947c91335eeaf445869e7adc22b"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[14]",
+      "a": "75902b1139ed12e9aeebaf9e211d86dcb1c4373de442413b590818b9ba4cc488",
+      "b": "a7bfa7f98e83be28cdc2eb086a4138dcf19ff7aea312b1d6000c7fbe92276c9d"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[15]",
+      "a": "c5e46d980770215d729995e5ba397f6d44a3169d2a15aeeb95580f774421265b",
+      "b": "06f4410474239bd28c20569a462ba7b118a5d48e4c27b6968ef1a07576266c14"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[16]",
+      "a": "e5665c12d32f03ab2d0910c97edd9fc42ec89bb43112dec959eee7c53bee0de6",
+      "b": "aa9f815a5ec45edf4b14467d70e3a5a371699df67a6dce664caad95b78a82f30"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[17]",
+      "a": "09659a60e89b2c92c19c2cac3b0868cde4940d7e5eb5ef1de39b776f06fe96db",
+      "b": "6808e6b9a47310090dbb16898d4f9f527b5e9a8eee838f36abf811cae16e2b4b"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[18]",
+      "a": "b24f5904dace68cdf24fc594cd90e2eaa4dbc50e56edeecf81f1e9ee16a447f3",
+      "b": "2e14a3f8e40f68c254a31d35032cefd3aff1d1118eef35904f1e3afd4b524137"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[19]",
+      "a": "cb4dea7d76532aaaa38b57038ff97f1f735eb1772ca5e0e31abff9e9a68426f5",
+      "b": "5af20eb1f3737dd28b0b96cd4a2058a8c3188f95e78a74b4c412ff80dc7169eb"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[1]",
+      "a": "debb5036db256fe5222d4ba6b27ffe224b0333083e9c2cbfac14e1ab49767acc",
+      "b": "53ef1f6922c98cc3be5cc960973487a5e9d084cc47490bf20a1925b6e04986f9"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[2]",
+      "a": "35a5e765b351e4df0c1dcd9d005a16cdff804c4592b056cede4726d836e4b370",
+      "b": "04193049a6f25d53f0176bb254221d16e0e254c50e816574d010ed7c5116284a"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[3]",
+      "a": "b83c36c6919c0df03a8d329dc0e808965180593c44a8f1b15f6bfa1d4fd895cd",
+      "b": "9e6894db38c41e079be8f9e4fef5a9d3247839d2661e740bea397e7edca5bf48"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[4]",
+      "a": "ea6cad260dcf176c4b475ff7e1a01b65ecb255154f9aa1ecbde73a4c81932917",
+      "b": "dbc44c1d4d697a9335ac036e4bf9ac3b14f232796fc59e766bfde5cf3216cd33"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[5]",
+      "a": "6cf37662d7b0cc8540ac17c2114e9407ee35d8089eb0bfffc89f23a33ddf406f",
+      "b": "e73e781630ca74ea7016919d372a2f153471da64aad76773a3a137c9566fc13a"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[6]",
+      "a": "9f36d7cf0a56e75ea942fee0f5d0a5f5ccff4fa9c867fa266f11478d67249096",
+      "b": "8aff21efd2906d8c15f2bae85ea48c5e2c4a9ac3997b538cd17c92cb74a7d5f5"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[7]",
+      "a": "780b55d061a8e1566b1d8e4b96399eaf819cf47931951752bfefee7f0c7c7bfa",
+      "b": "47285fa592e2a84a66eb539402c0df77e951d0598dd0193f4bb633aee1440751"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[8]",
+      "a": "81511ac4666de24ed20c68abb3f050b306b8ab6a5e53d12ddfdf43047da5c010",
+      "b": "f81680a1f74827b131902fb030b003ecb2eaeacd13fb23f4aa34fca8898c2111"
+    },
+    {
+      "key": "index_add_repeat.index_add_hashes[9]",
+      "a": "766094d5f564f06751245ba3529884bdc6a02cc1ed59345932c5cf202370d0e8",
+      "b": "82cebd65d99266f93be0d6c5d68649373d6a3cb6e0c5727d82939e7a7e2cf31c"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[0]",
+      "a": "f171faf92819aafaec9a504f2fd19e05f9aea36119ec4906f562f63f698a4e4a",
+      "b": "92b08c6315826bc0bdc9f7a2f70c63457905c693bf759a19c2138803478a4af1"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[10]",
+      "a": "2f6087f92da7fb134899f2ef02554e73a6a2836d00f86e96558945f850a1994a",
+      "b": "3909ed1a0d1738774a7aeee5521f80b9a43e8c57b9a090a33e61b2c85d420846"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[11]",
+      "a": "09c0b08ac0b3e484fd2ca55988c487ea32cbf9273ed4cabd701488bc5b9232c1",
+      "b": "71e2b028e535ac0555a46aae227e04ff320124eece8c2e7746402b86c72734b9"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[12]",
+      "a": "bd6e8906a3f885ea953c76c93be5f38c5359a73bd79742d1375a59092f9a2445",
+      "b": "c074d0ed263da7cd27bf45a1647fb4ab282284570b92cfa867637119327b0231"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[13]",
+      "a": "7eabb978b88016ff7a1aa4365ab38ef078288af06449784c7ba6d86dd2191873",
+      "b": "942aae8bd2a630f00cb6111507a7ab534ab8265bbdcfe09276cc4ea3e3920615"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[14]",
+      "a": "94cbd0318bd2b7387c5ddf78837de79c02c44bfd7214893c292d26578a217c01",
+      "b": "d9e8a37db03c65ea2f0ad1241f5948b4bcc41569430725044242fa8f270642c4"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[15]",
+      "a": "c405075d74d2d289301d78979f763be5840e39cdb20bc5b03caaf2fc3c218364",
+      "b": "0e1b6bdd3a3ca1bed5cfbc9fc785ca5e2b3c18f5b106252d1ef37f6ff3f2a7d3"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[16]",
+      "a": "605c2fbb9f9896ea5d043189f6e802b0d36144ebd920b3e6cc6b9017436d3d66",
+      "b": "ba5b3277431650c6b4f9b8b94be3574e9f54919b8a8127e263b4d10894c8701c"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[17]",
+      "a": "1b851a88959eb3dbec98da9906d3dcca609fd420721e01c78224fd5b8c9a4c57",
+      "b": "5d669b3dc9d8ec1124dae2b1c8d76b4bd4040ccf7e78c9a76a27c04c75b53395"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[18]",
+      "a": "7177bb90f023b480a60e4ff565ad686df1131402f37214215a0e927d64a3dd93",
+      "b": "dc8c3504192678fe3bed064fae5933de7fbd49e2c15d2e533b91802f6abd32a5"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[19]",
+      "a": "0be057445672be83eabcc53aef9b3e9d87d599a3aadfc21ddc7bd962439cc6ef",
+      "b": "ad21ebab728382f72abf0a8b9b774485f01cc41c40f7ff0f77864df81fc0fbb6"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[1]",
+      "a": "073998f80b08f99b73cf20e0ec083dde442bdb490cd8a4b85b8d2b9154edddd6",
+      "b": "7d3a6ae30a7028a56b3772515e93d200700ce9c4c05cf0fc737bcc0489b44d19"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[2]",
+      "a": "9fac5df6595c8fb75fa9aea2b923d1b385fdf6c673e5898205e505715253d4c2",
+      "b": "035009e185347e92d5957093c768d335909bcf3c80f20f5a7edbfd00bb45be23"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[3]",
+      "a": "0f9e58bf3c9bdb6487bf8649de76dfd05ea8a2aeab4a4c00a4add8f0394354b8",
+      "b": "e9119945092a9e13436c6c485763aaa69fddb0013db25e787a8c601275d417f3"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[4]",
+      "a": "183b5797e8507d66f0945f0df6b5dac2f51293dac4bdb7e0a17154eade8f5305",
+      "b": "b39578c9f75bdb70129c58c05e96826755385fa2612b028404827c3f36b6c707"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[5]",
+      "a": "8736302080862b4813134a6b8c2b074a06cbc1d8b0485b6603e2a7294752af11",
+      "b": "aa7b20f3b835924f4b1ec434257e28f455a2dd865754e6f54e99a3bc3f309ce0"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[6]",
+      "a": "daffcd44f7dd5bdb4c1e37bbbadc517c6dabb5ed7b986d394a1e63160e2654f4",
+      "b": "2fe09d04cab94224d2a2f7febce0b9f4d1ac204b6019b7cd4592e1e33cd77910"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[7]",
+      "a": "e9fa2fcefef81ca699bf1073e76ce049a3309a266a7834374b77db6f715950b1",
+      "b": "2bd609b6a3793b01478b4d5ed85d6d682977e438192fc36c67f7bcb5f9564b3b"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[8]",
+      "a": "5f8d373296ec36c38637480617b5fdb74aace64d4b248dc76d2da22adf5fec67",
+      "b": "64445989ce7b5d0a4af9579e4e25d80eb667020c9381b7ce11909b9383a155dc"
+    },
+    {
+      "key": "scatter_add_repeat.scatter_add_hashes[9]",
+      "a": "d68f7af90a5c5b6d29cf9a8c917f35f0768e23a9969f66e720da0902a77502e7",
+      "b": "c9d66acab6f2771c8fb69aad563b5e04c083b6c32007bc17caaba85f83045e76"
+    }
+  ],
   "only_in_a": [],
   "only_in_b": []
 }

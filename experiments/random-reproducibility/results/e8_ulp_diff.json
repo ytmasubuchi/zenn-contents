@@ -4,220 +4,438 @@
   "e8a_gpu_repeat_default": {
     "run1_vs_run2": {
       "philox_rand": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "philox_randn": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "matmul_512": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 262144,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_output": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 131072,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_input": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 49152,
+        "n_mismatch": 6048,
+        "mismatch_fraction": 0.123046875,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "max_rel_diff": 0.00010984484415762735,
+        "max_ulp_diff": 1024,
+        "worst_element": {
+          "index": 7185,
+          "a_hex": "0x1.1c76000000000p-12",
+          "b_hex": "0x1.1c7e000000000p-12",
+          "abs_diff": 2.9802322387695312e-08
+        }
       },
       "conv_grad_weight": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 216,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_loss_curve": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float64",
+        "n_total": 50,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_params": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 193,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_index_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 16,
+        "mismatch_fraction": 1.0,
+        "max_abs_diff": 0.001220703125,
+        "max_rel_diff": 6.220063693092156e-05,
+        "max_ulp_diff": 691,
+        "worst_element": {
+          "index": 15,
+          "a_hex": "-0x1.5301500000000p+3",
+          "b_hex": "-0x1.5306b60000000p+3",
+          "abs_diff": 0.0006589889526367188
+        }
       },
       "atomic_scatter_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 16,
+        "mismatch_fraction": 1.0,
+        "max_abs_diff": 0.0029296875,
+        "max_rel_diff": 9.02782071918158e-05,
+        "max_ulp_diff": 1003,
+        "worst_element": {
+          "index": 15,
+          "a_hex": "-0x1.5305d40000000p+3",
+          "b_hex": "-0x1.530daa0000000p+3",
+          "abs_diff": 0.0009565353393554688
+        }
       },
       "embedding_bag_sum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 8,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
+      },
+      "embedding_bag_grad_weight": {
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 128,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "cumsum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000000,
+        "n_mismatch": 505019,
+        "mismatch_fraction": 0.505019,
+        "max_abs_diff": 0.000244140625,
+        "max_rel_diff": 0.2888086642599278,
+        "max_ulp_diff": 4554752,
+        "worst_element": {
+          "index": 425175,
+          "a_hex": "-0x1.1500000000000p-13",
+          "b_hex": "-0x1.8a00000000000p-14",
+          "abs_diff": 3.814697265625e-05
+        }
       }
     },
     "run1_vs_run3": {
       "philox_rand": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "philox_randn": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "matmul_512": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 262144,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_output": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 131072,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_input": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 49152,
+        "n_mismatch": 5513,
+        "mismatch_fraction": 0.11216227213541667,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "max_rel_diff": 0.00010984484415762735,
+        "max_ulp_diff": 1024,
+        "worst_element": {
+          "index": 10241,
+          "a_hex": "0x1.1c76000000000p-12",
+          "b_hex": "0x1.1c7e000000000p-12",
+          "abs_diff": 2.9802322387695312e-08
+        }
       },
       "conv_grad_weight": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 216,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_loss_curve": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float64",
+        "n_total": 50,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_params": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 193,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_index_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 16,
+        "mismatch_fraction": 1.0,
+        "max_abs_diff": 0.0020036697387695312,
+        "max_rel_diff": 0.00018909834112782714,
+        "max_ulp_diff": 2101,
+        "worst_element": {
+          "index": 15,
+          "a_hex": "-0x1.5301500000000p+3",
+          "b_hex": "-0x1.5311ba0000000p+3",
+          "abs_diff": 0.0020036697387695312
+        }
       },
       "atomic_scatter_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 15,
+        "mismatch_fraction": 0.9375,
+        "max_abs_diff": 0.00238037109375,
+        "max_rel_diff": 5.265676797438775e-05,
+        "max_ulp_diff": 585,
+        "worst_element": {
+          "index": 15,
+          "a_hex": "-0x1.5305d40000000p+3",
+          "b_hex": "-0x1.530a660000000p+3",
+          "abs_diff": 0.0005578994750976562
+        }
       },
       "embedding_bag_sum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 8,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
+      },
+      "embedding_bag_grad_weight": {
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 128,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "cumsum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000000,
+        "n_mismatch": 469601,
+        "mismatch_fraction": 0.469601,
+        "max_abs_diff": 0.000244140625,
+        "max_rel_diff": 0.23104693140794225,
+        "max_ulp_diff": 3506176,
+        "worst_element": {
+          "index": 425175,
+          "a_hex": "-0x1.1500000000000p-13",
+          "b_hex": "-0x1.aa00000000000p-14",
+          "abs_diff": 3.0517578125e-05
+        }
       }
     }
   },
   "e8b_gpu_deterministic": {
     "run1_vs_run2": {
       "philox_rand": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "philox_randn": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "matmul_512": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 262144,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_output": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 131072,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_input": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 49152,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_weight": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 216,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_loss_curve": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float64",
+        "n_total": 50,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_params": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 193,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_index_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_scatter_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "embedding_bag_sum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 8,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
+      },
+      "embedding_bag_grad_weight": {
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 128,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "cumsum": {
         "comparable": false,
@@ -228,70 +446,124 @@
     },
     "run1_vs_run3": {
       "philox_rand": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "philox_randn": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 1000,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "matmul_512": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 262144,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_output": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 131072,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_input": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 49152,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "conv_grad_weight": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 216,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_loss_curve": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float64",
+        "n_total": 50,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "mlp_params": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 193,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_index_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "atomic_scatter_add_last": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 16,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "embedding_bag_sum": {
-        "comparable": false,
-        "reason": "insufficient_data",
-        "present_in_a": false,
-        "present_in_b": false
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 8,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
+      },
+      "embedding_bag_grad_weight": {
+        "comparable": true,
+        "dtype": "float32",
+        "n_total": 128,
+        "n_mismatch": 0,
+        "mismatch_fraction": 0.0,
+        "max_abs_diff": 0.0,
+        "max_rel_diff": 0.0,
+        "max_ulp_diff": 0
       },
       "cumsum": {
         "comparable": false,
@@ -303,20 +575,68 @@
   },
   "e8c_cpu_vs_gpu": {
     "rand_stream": {
-      "comparable": false,
-      "reason": "insufficient_data"
+      "comparable": true,
+      "dtype": "float32",
+      "n_total": 1000,
+      "n_mismatch": 1000,
+      "mismatch_fraction": 1.0,
+      "max_abs_diff": 0.9884620308876038,
+      "max_rel_diff": 0.998592346900754,
+      "max_ulp_diff": 79308352,
+      "worst_element": {
+        "index": 884,
+        "a_hex": "0x1.a06bde0000000p-1",
+        "b_hex": "0x1.2c1f5e0000000p-10",
+        "abs_diff": 0.8121780847432092
+      }
     },
     "matmul": {
-      "comparable": false,
-      "reason": "insufficient_data"
+      "comparable": true,
+      "dtype": "float32",
+      "n_total": 262144,
+      "n_mismatch": 235051,
+      "mismatch_fraction": 0.8966484069824219,
+      "max_abs_diff": 6.103515625e-05,
+      "max_rel_diff": 0.025749063670411985,
+      "max_ulp_diff": 225280,
+      "worst_element": {
+        "index": 180319,
+        "a_hex": "-0x1.0420000000000p-12",
+        "b_hex": "-0x1.0b00000000000p-12",
+        "abs_diff": 6.556510925292969e-06
+      }
     },
     "mlp_params": {
-      "comparable": false,
-      "reason": "insufficient_data"
+      "comparable": true,
+      "dtype": "float32",
+      "n_total": 193,
+      "n_mismatch": 47,
+      "mismatch_fraction": 0.24352331606217617,
+      "max_abs_diff": 5.960464477539063e-08,
+      "max_rel_diff": 3.719623693110215e-07,
+      "max_ulp_diff": 5,
+      "worst_element": {
+        "index": 122,
+        "a_hex": "-0x1.da97bc0000000p-9",
+        "b_hex": "-0x1.da97b20000000p-9",
+        "abs_diff": 1.1641532182693481e-09
+      }
     }
   },
   "e8d_tf32_off_vs_on": {
-    "comparable": false,
-    "reason": "insufficient_data"
+    "comparable": true,
+    "dtype": "float32",
+    "n_total": 262144,
+    "n_mismatch": 262127,
+    "mismatch_fraction": 0.9999351501464844,
+    "max_abs_diff": 0.029628753662109375,
+    "max_rel_diff": 1.9013964577656677,
+    "max_ulp_diff": 2003220992,
+    "worst_element": {
+      "index": 32802,
+      "a_hex": "0x1.081a000000000p-7",
+      "b_hex": "-0x1.c55a000000000p-9",
+      "abs_diff": 0.011518537998199463
+    }
   }
 }

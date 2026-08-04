@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "hostname": "cd536756cb27",
+    "hostname": "9eb8cea28fcd",
     "platform_machine": "x86_64",
     "platform_system": "Linux",
     "platform_release": "6.8.0-124-generic",
@@ -33,83 +33,148 @@
         8,
         9
       ],
-      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 1170 MiB, 22903 MiB, 24564 MiB"
     }
   },
   "experiment": "E8a_gpu_repeat_default",
   "seed": 42,
   "note": "Default (non-deterministic) PyTorch CUDA settings: use_deterministic_algorithms not called, CUBLAS_WORKSPACE_CONFIG not set, cudnn.benchmark left at its library default.",
   "philox_streams": {
-    "status": "error_cuda_oom",
+    "status": "ok",
+    "scale_used": 1000,
     "scales_tried": [
-      1000,
-      100,
-      10,
-      1
-    ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
-  },
-  "matmul_512": {
-    "status": "error_cuda_oom",
-    "scales_tried": [
-      512,
-      128,
-      32,
-      8
-    ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
-  },
-  "conv_forward_backward": {
-    "status": "error_cuda_oom",
-    "scales_tried": [
-      16,
-      4,
-      1
-    ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
-  },
-  "mlp_train": {
-    "status": "error_cuda_oom",
-    "scales_tried": [
-      200,
-      50,
-      10
-    ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
-  },
-  "atomic_add_repeat": {
-    "status": "error_cuda_oom",
-    "scales_tried": [
-      1000000,
-      100000,
-      10000,
       1000
     ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    "n": 1000,
+    "rand_sha256": "8e6320a15267a3e52708dff30b18673e381399e3443ed7d51c4a0243fde850b1",
+    "randn_sha256": "564150dfea7a589330c41951d4a35143169ccc6a886014893f449907b6e58f58"
   },
-  "embedding_bag": {
-    "status": "error_cuda_oom",
+  "matmul_512": {
+    "status": "ok",
+    "scale_used": 512,
     "scales_tried": [
-      1000000,
-      10000,
-      100
+      512
     ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    "shape": [
+      512,
+      512
+    ],
+    "matmul_sha256": "0e13e65a78c16453d7494bd69787420d4b201cd33b0f43823339c6704db852a8"
+  },
+  "conv_forward_backward": {
+    "status": "ok",
+    "scale_used": 16,
+    "scales_tried": [
+      16
+    ],
+    "batch": 16,
+    "cudnn_benchmark_effective": false,
+    "output_sha256": "0d2ebd617b4edcada0ff5bc4d2982db9c0858c0f2a912bb424054e5ba4e40148",
+    "grad_input_sha256": "e954cc2b59e718cf20c0ddb5cf7a4ccc713c02b5cf7f0f54007fdb520cff80c1",
+    "grad_weight_sha256": "d44ff1d8573fd456a62f70c02a5b1e3e4fb67c9cbec794f203946405932b91a3"
+  },
+  "mlp_train": {
+    "status": "ok",
+    "scale_used": 200,
+    "scales_tried": [
+      200
+    ],
+    "n_samples": 200,
+    "final_loss_hex": "0x1.d28ca40000000p+1",
+    "loss_curve_sha256": "b9a4ed98956fc5b5ee11a3c27565461c061cc236b284be68a802a1f07d871e9a",
+    "final_params_sha256": "8d2f8dcb72998274f89bb7156bec60c18116702e097421c018ea8648ab986f46"
+  },
+  "index_add_repeat": {
+    "status": "ok",
+    "scale_used": 1000000,
+    "scales_tried": [
+      1000000
+    ],
+    "n_indices": 1000000,
+    "out_size": 16,
+    "repeats": 20,
+    "index_add_hashes": [
+      "2e9a4c98141ecbb6fa41139f0a4a64ed9e6ddce73cb95fffdedf1a9c51e27b07",
+      "debb5036db256fe5222d4ba6b27ffe224b0333083e9c2cbfac14e1ab49767acc",
+      "35a5e765b351e4df0c1dcd9d005a16cdff804c4592b056cede4726d836e4b370",
+      "b83c36c6919c0df03a8d329dc0e808965180593c44a8f1b15f6bfa1d4fd895cd",
+      "ea6cad260dcf176c4b475ff7e1a01b65ecb255154f9aa1ecbde73a4c81932917",
+      "6cf37662d7b0cc8540ac17c2114e9407ee35d8089eb0bfffc89f23a33ddf406f",
+      "9f36d7cf0a56e75ea942fee0f5d0a5f5ccff4fa9c867fa266f11478d67249096",
+      "780b55d061a8e1566b1d8e4b96399eaf819cf47931951752bfefee7f0c7c7bfa",
+      "81511ac4666de24ed20c68abb3f050b306b8ab6a5e53d12ddfdf43047da5c010",
+      "766094d5f564f06751245ba3529884bdc6a02cc1ed59345932c5cf202370d0e8",
+      "9715c79ebb9ba4e7534fad79e1352acc6a2380c63529ff1182a2954075fb5e21",
+      "6d9bd07cc8b6e5480e27ab2bc84f2631394b8214d470cf32c85e205099855fbc",
+      "c9ade279d4a3ef23995c8a20b292e15b7a862c24bc643a313f135e67d2d8f502",
+      "15be17252fe72820826b65bd827ab3499377aae55d5c54a706310efe9466879e",
+      "75902b1139ed12e9aeebaf9e211d86dcb1c4373de442413b590818b9ba4cc488",
+      "c5e46d980770215d729995e5ba397f6d44a3169d2a15aeeb95580f774421265b",
+      "e5665c12d32f03ab2d0910c97edd9fc42ec89bb43112dec959eee7c53bee0de6",
+      "09659a60e89b2c92c19c2cac3b0868cde4940d7e5eb5ef1de39b776f06fe96db",
+      "b24f5904dace68cdf24fc594cd90e2eaa4dbc50e56edeecf81f1e9ee16a447f3",
+      "cb4dea7d76532aaaa38b57038ff97f1f735eb1772ca5e0e31abff9e9a68426f5"
+    ],
+    "index_add_unique_count": 20
+  },
+  "scatter_add_repeat": {
+    "status": "ok",
+    "scale_used": 1000000,
+    "scales_tried": [
+      1000000
+    ],
+    "n_indices": 1000000,
+    "out_size": 16,
+    "repeats": 20,
+    "scatter_add_hashes": [
+      "f171faf92819aafaec9a504f2fd19e05f9aea36119ec4906f562f63f698a4e4a",
+      "073998f80b08f99b73cf20e0ec083dde442bdb490cd8a4b85b8d2b9154edddd6",
+      "9fac5df6595c8fb75fa9aea2b923d1b385fdf6c673e5898205e505715253d4c2",
+      "0f9e58bf3c9bdb6487bf8649de76dfd05ea8a2aeab4a4c00a4add8f0394354b8",
+      "183b5797e8507d66f0945f0df6b5dac2f51293dac4bdb7e0a17154eade8f5305",
+      "8736302080862b4813134a6b8c2b074a06cbc1d8b0485b6603e2a7294752af11",
+      "daffcd44f7dd5bdb4c1e37bbbadc517c6dabb5ed7b986d394a1e63160e2654f4",
+      "e9fa2fcefef81ca699bf1073e76ce049a3309a266a7834374b77db6f715950b1",
+      "5f8d373296ec36c38637480617b5fdb74aace64d4b248dc76d2da22adf5fec67",
+      "d68f7af90a5c5b6d29cf9a8c917f35f0768e23a9969f66e720da0902a77502e7",
+      "2f6087f92da7fb134899f2ef02554e73a6a2836d00f86e96558945f850a1994a",
+      "09c0b08ac0b3e484fd2ca55988c487ea32cbf9273ed4cabd701488bc5b9232c1",
+      "bd6e8906a3f885ea953c76c93be5f38c5359a73bd79742d1375a59092f9a2445",
+      "7eabb978b88016ff7a1aa4365ab38ef078288af06449784c7ba6d86dd2191873",
+      "94cbd0318bd2b7387c5ddf78837de79c02c44bfd7214893c292d26578a217c01",
+      "c405075d74d2d289301d78979f763be5840e39cdb20bc5b03caaf2fc3c218364",
+      "605c2fbb9f9896ea5d043189f6e802b0d36144ebd920b3e6cc6b9017436d3d66",
+      "1b851a88959eb3dbec98da9906d3dcca609fd420721e01c78224fd5b8c9a4c57",
+      "7177bb90f023b480a60e4ff565ad686df1131402f37214215a0e927d64a3dd93",
+      "0be057445672be83eabcc53aef9b3e9d87d599a3aadfc21ddc7bd962439cc6ef"
+    ],
+    "scatter_add_unique_count": 20
+  },
+  "embedding_bag_forward": {
+    "status": "ok",
+    "scale_used": 1000000,
+    "scales_tried": [
+      1000000
+    ],
+    "n_indices": 1000000,
+    "embedding_bag_sum_sha256": "b2c3ea4e54d0484e1040328a0f374ef69b757c83f2086d1eada558edddb16b14"
+  },
+  "embedding_bag_backward": {
+    "status": "ok",
+    "scale_used": 1000000,
+    "scales_tried": [
+      1000000
+    ],
+    "n_indices": 1000000,
+    "embedding_bag_grad_weight_sha256": "f91923c556dc98cb9efcd5eb136e65c92e83379942beb2fb684b7c164933c830"
   },
   "cumsum": {
-    "status": "error_cuda_oom",
+    "status": "ok",
+    "scale_used": 1000000,
     "scales_tried": [
-      1000000,
-      10000,
-      100
+      1000000
     ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    "n": 1000000,
+    "cumsum_sha256": "c492b00fd9b9353a95e7b9b3a33f403fea05ad01f593420627f7af8faa448b17"
   }
 }

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "hostname": "5c33ef9d3b7a",
+    "hostname": "e6a76e9773c3",
     "platform_machine": "x86_64",
     "platform_system": "Linux",
     "platform_release": "6.8.0-124-generic",
@@ -33,7 +33,7 @@
         8,
         9
       ],
-      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 1018 MiB, 23055 MiB, 24564 MiB"
     }
   },
   "experiment": "E8d_tf32",
@@ -43,27 +43,37 @@
     "tf32_cudnn_default": true
   },
   "tf32_off": {
-    "status": "error_cuda_oom",
+    "status": "ok",
+    "scale_used": 512,
     "scales_tried": [
-      512,
-      128,
-      32,
-      8
+      512
     ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    "allow_tf32": false,
+    "shape": [
+      512,
+      512
+    ],
+    "matmul_sha256": "40f9f77be96e2fdd34ea1d986061eb1039cb1b7758e2b11ffb3299fb606d3d1f"
   },
   "tf32_on": {
-    "status": "error_cuda_oom",
+    "status": "ok",
+    "scale_used": 512,
     "scales_tried": [
-      512,
-      128,
-      32,
-      8
+      512
     ],
-    "error_type": "RuntimeError",
-    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    "allow_tf32": true,
+    "shape": [
+      512,
+      512
+    ],
+    "matmul_sha256": "2a0069bdbb1c3331da9113617c53fdfa118e33c8d1af64230cb14ff9d063c20e"
   },
+  "hashes_compared_at_same_scale": true,
   "hashes_match": false,
-  "diff_tf32_off_vs_on": null
+  "diff_tf32_off_vs_on": {
+    "n": 262144,
+    "max_abs_diff": 0.029628753662109375,
+    "max_rel_diff": 1.9013964577656677,
+    "mean_abs_diff": 0.005311235576641593
+  }
 }

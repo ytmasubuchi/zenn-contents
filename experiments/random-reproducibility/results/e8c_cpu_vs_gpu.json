@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "hostname": "50ac3b1b7cea",
+    "hostname": "bc02dd67eda6",
     "platform_machine": "x86_64",
     "platform_system": "Linux",
     "platform_release": "6.8.0-124-generic",
@@ -33,7 +33,7 @@
         8,
         9
       ],
-      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 1086 MiB, 22987 MiB, 24564 MiB"
     }
   },
   "experiment": "E8c_cpu_vs_gpu",
@@ -42,15 +42,12 @@
     "n": 1000,
     "cpu_sha256": "80ff065ee30ad7acb95600ff85f860554eef3d2696f85c54fb49b43a318947c7",
     "gpu_attempt": {
-      "status": "error_cuda_oom",
+      "status": "ok",
+      "scale_used": 1000,
       "scales_tried": [
-        1000,
-        100,
-        10,
-        1
+        1000
       ],
-      "error_type": "RuntimeError",
-      "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+      "gpu_sha256": "8e6320a15267a3e52708dff30b18673e381399e3443ed7d51c4a0243fde850b1"
     },
     "match": false
   },
@@ -61,15 +58,12 @@
     ],
     "cpu_sha256": "9e2de44b6e3e760549c6f2e622af1c4d3c95314ee4ce6068301b58564f2da0b0",
     "gpu_attempt": {
-      "status": "error_cuda_oom",
+      "status": "ok",
+      "scale_used": 512,
       "scales_tried": [
-        512,
-        128,
-        32,
-        8
+        512
       ],
-      "error_type": "RuntimeError",
-      "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+      "gpu_sha256": "40f9f77be96e2fdd34ea1d986061eb1039cb1b7758e2b11ffb3299fb606d3d1f"
     },
     "match": false
   },
@@ -80,14 +74,15 @@
       "final_params_sha256": "4ab6adda712c4caec68f8999155e4ef71a5ddcff2913164f12a88cb7b9e981f9"
     },
     "gpu_attempt": {
-      "status": "error_cuda_oom",
+      "status": "ok",
+      "scale_used": 200,
       "scales_tried": [
-        200,
-        50,
-        10
+        200
       ],
-      "error_type": "RuntimeError",
-      "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+      "n_samples": 200,
+      "final_loss_hex": "0x1.d28ca40000000p+1",
+      "loss_curve_sha256": "b9a4ed98956fc5b5ee11a3c27565461c061cc236b284be68a802a1f07d871e9a",
+      "final_params_sha256": "8d2f8dcb72998274f89bb7156bec60c18116702e097421c018ea8648ab986f46"
     },
     "loss_curve_match": false,
     "final_params_match": false

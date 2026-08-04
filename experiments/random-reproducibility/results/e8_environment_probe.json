@@ -1,6 +1,7 @@
 {
   "label": "E8_environment_probe",
-  "note": "Not one of the compare.py-driven experiments; a standalone record of the root-cause investigation into why every E8a-E8d GPU measurement failed with a CUDA OOM, done before writing/running the E8 scripts proper. Kept here so the article author has the exact evidence (not just a paraphrase) without having to re-run diagnostics.",
+  "status": "HISTORICAL / SUPERSEDED -- captured 2026-08-04 19:07 JST, while this host's GPU was still occupied by a resident vLLM server (~23.8/24.5 GB VRAM used, ~305 MiB free). The GPU was freed shortly afterward (vLLM stopped, ~23.5 GB became free) and E8a-E8e were successfully re-run against real GPU compute -- see e8a_run*.json / e8b_run*.json / e8c_cpu_vs_gpu.json / e8d_tf32.json / e8_ulp_diff.json for the current, successful results, and the README's 'GPU実験(E8系)' section for the analysis. This file is kept purely as a record of that first (blocked) attempt and the root-cause investigation into it -- it does NOT describe the current state of the GPU or the current experiment results.",
+  "note": "Not one of the compare.py-driven experiments; a standalone record of the root-cause investigation into why every E8a-E8d GPU measurement failed with a CUDA OOM at the time, done before the GPU was freed. Kept here so the article author has the exact evidence (not just a paraphrase) without having to re-run diagnostics, and so the 'GPU実験がVRAM枯渇でブロックされた' episode itself remains documented as part of the experiment history.",
   "host_nvidia_smi": {
     "command": "nvidia-smi --query-gpu=memory.used,memory.free,memory.total --format=csv",
     "result_mib": "used=23768, free=305, total=24564",
