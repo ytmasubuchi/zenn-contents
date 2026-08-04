@@ -14,7 +14,21 @@ on the PyTorch docs, that `index_add_`'s CUDA implementation raises a
 RuntimeError under `use_deterministic_algorithms(True)` rather than
 silently returning a (possibly non-reproducible) result. This script is
 what actually checks that claim on torch==2.5.1 for every op we probe, not
-just index_add_: `_common.run_with_fallback` labels each measurement's
+just index_add_.
+
+`index_add_` and `scatter_add_` are measured as two independent items
+(`index_add_repeat` / `scatter_add_repeat`), and `embedding_bag`'s forward
+and backward are likewise measured as two independent items
+(`embedding_bag_forward` / `embedding_bag_backward`), each wrapped in its
+own `run_with_fallback` call. This matters specifically under this
+script's deterministic mode: if `index_add_` raises first, bundling it
+with `scatter_add_` in one measurement would make it impossible to
+observe whether `scatter_add_` also errors, silently switches to a
+deterministic implementation, or does something else entirely -- the
+per-op split makes each op's outcome directly visible in the result JSON
+regardless of what any other op did.
+
+`_common.run_with_fallback` labels each measurement's
 outcome as
   - "ok"                         -> ran under the deterministic path
   - "error_no_deterministic_impl" -> raised, message mentions determinism
@@ -36,13 +50,15 @@ os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 from _common import emit, run_with_fallback
 from e8a_gpu_repeat import (
     SEED,
-    atomic_add_repeat,
     conv_forward_backward,
     cumsum_demo,
-    embedding_bag_demo,
+    embedding_bag_backward,
+    embedding_bag_forward,
+    index_add_repeat,
     matmul,
     mlp_train,
     philox_streams,
+    scatter_add_repeat,
 )
 
 
@@ -76,12 +92,19 @@ def main():
             lambda b: conv_forward_backward(b, npz_store), [16, 4, 1]
         ),
         "mlp_train": run_with_fallback(lambda n: mlp_train(n, npz_store), [200, 50, 10]),
-        "atomic_add_repeat": run_with_fallback(
-            lambda n: atomic_add_repeat(n, npz_store=npz_store),
+        "index_add_repeat": run_with_fallback(
+            lambda n: index_add_repeat(n, npz_store=npz_store),
             [1_000_000, 100_000, 10_000, 1_000],
         ),
-        "embedding_bag": run_with_fallback(
-            lambda n: embedding_bag_demo(n, npz_store=npz_store), [1_000_000, 10_000, 100]
+        "scatter_add_repeat": run_with_fallback(
+            lambda n: scatter_add_repeat(n, npz_store=npz_store),
+            [1_000_000, 100_000, 10_000, 1_000],
+        ),
+        "embedding_bag_forward": run_with_fallback(
+            lambda n: embedding_bag_forward(n, npz_store=npz_store), [1_000_000, 10_000, 100]
+        ),
+        "embedding_bag_backward": run_with_fallback(
+            lambda n: embedding_bag_backward(n, npz_store=npz_store), [1_000_000, 10_000, 100]
         ),
         "cumsum": run_with_fallback(
             lambda n: cumsum_demo(n, npz_store=npz_store), [1_000_000, 10_000, 100]

@@ -105,6 +105,13 @@ def compare_key(npz_a, npz_b, key: str) -> dict:
 
 # Keys captured by e8a_gpu_repeat.py / e8b_gpu_deterministic.py, shared
 # between both since they use the identical measurement functions.
+# atomic_index_add_last / atomic_scatter_add_last come from the
+# index_add_repeat / scatter_add_repeat measurements (split from a single
+# atomic_add_repeat measurement so index_add_'s and scatter_add_'s outcomes
+# under deterministic mode are observable independently); embedding_bag_sum
+# is the embedding_bag_forward output, embedding_bag_grad_weight is the
+# weight.grad from embedding_bag_backward (added because PyTorch's
+# nondeterminism docs for embedding_bag concern backward, not forward).
 E8AB_KEYS = [
     "philox_rand",
     "philox_randn",
@@ -117,6 +124,7 @@ E8AB_KEYS = [
     "atomic_index_add_last",
     "atomic_scatter_add_last",
     "embedding_bag_sum",
+    "embedding_bag_grad_weight",
     "cumsum",
 ]
 
