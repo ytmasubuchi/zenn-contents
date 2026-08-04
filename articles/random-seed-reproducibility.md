@@ -91,8 +91,22 @@ X4 = (5×12 + 1) mod 16 = 13
 誰がどの電卓で計算しても、この列は同じになります。
 整数の四則演算に「機種による誤差」はないからです。
 
+正確には、実務のPRNGは32bitや64bitの固定長整数で、桁あふれ(オーバーフロー)を起こしながら計算しています。
+このラップアラウンドの挙動は「2の補数表現」を採用したCPUなら完全に一致し、x86・ARMを含む今日の主要CPUは例外なくこの方式です。
+なのでここでの「機種による誤差はない」は、無限精度の整数演算の話ではなく、固定長・2の補数という現実のCPUがほぼ普遍的に採用している前提の上に立っています。
+
 この一点が、この記事全体を貫く柱になります。
 **PRNGは整数演算だから、環境が変わっても同じ列を吐く。**
+
+これは特定のライブラリが約束している話ではなく、整数演算の性質そのものから導かれる**数学的必然**です。
+この記事では、この後もずっと「一致する」という結果に出会いますが、その一致には性質の違う3種類があります。
+
+- **数学的必然**: 演算の定義そのものから、環境によらず結果が一意に決まるもの(整数演算、IEEE 754が規定する加減乗除・平方根など)
+- **仕様・ポリシーとして保証**: 開発元が「今後もこの挙動を変えない」と明文で約束しているもの(Python `random` の互換シーダー保証、NumPy `RandomState` の凍結ポリシーなど)
+- **たまたま(非保証)**: 誰も約束していないが、今のバージョン・今の実装がそうなっているだけのもの(超越関数やBLAS、機械学習モデルの学習結果の多くがここに入ります)
+
+同じ「一致」でも、1番目と2番目は今後も安心して頼れますが、3番目はライブラリの些細なアップデート1つで裏切られます。
+どの一致がどの分類に属するか、以降の章で逐一見ていきます。
 
 ### 実務で使われているPRNG
 
@@ -144,6 +158,10 @@ $2^{53}$ での割り算は、浮動小数点の世界では指数部をずら�
 比較の方法にはこだわりました。
 `print` した値の見た目ではなく、生成した値のビット表現(float64の生バイト列)をSHA256でハッシュ化して比べます。
 「小数第7位まで同じだから同じ」ではなく、1ビットも違わないことを確認します。
+
+この方法には1つ前提があります。
+生バイト列を比較する以上、両環境のエンディアン(バイト順序)が一致していることが必要です。
+今回比較するx86_64とARM64は、いずれもLinux上ではリトルエンディアンなので問題になりませんが、もし一方がビッグエンディアン環境なら、数値としては同じでも生バイト列は一致せず、この方法は偽陰性(実際は一致しているのに「不一致」と判定してしまう)を返します。
 
 対象は次の4系統+scikit-learnです。
 
@@ -199,8 +217,10 @@ DSあるあるの筆頭です。
 環境変数で `PYTHONHASHSEED=0` を設定して同じコードを3回実行すると、`hash("hello")` は3回とも `-2096571579003691106` で一致し、`set` 経由の順序も固定されました。
 ただし本質的な対処は「順序が欲しいところで `set` に頼らない」、つまり `sorted()` を挟むことです。
 
-なお `dict` はPython 3.7以降、挿入順の保持が言語仕様で保証されているので、この問題の影響は受けません。
+なお `dict` はPython 3.7以降、挿入順の保持が言語仕様で保証されているので、この問題の影響は受けません[^dictorder]。
 順序が暴れるのは `set` です。
+
+[^dictorder]: "the insertion-order preservation nature of dict objects has been declared to be an official part of the Python language spec." https://docs.python.org/3/whatsnew/3.7.html#summary-release-highlights リファレンス側にも "Changed in version 3.7: Dictionary order is guaranteed to be insertion order. This behavior was an implementation detail of CPython from 3.6." とあります。 https://docs.python.org/3/library/stdtypes.html#dict
 
 ## 3. レイヤー1: コンテナを作り直す
 
@@ -241,8 +261,10 @@ Pythonやライブラリのバージョンが違う2つのイメージで、同�
 **NumPyは、APIによって約束が正反対**です。
 ここがこの章の肝です。
 
-古いAPIの `np.random.seed()` / `RandomState` は、ストリーム互換性(同じシード→同じ列)を凍結保証しています。
+古いAPIの `np.random.seed()` / `RandomState` は、ストリーム互換性(同じシード→同じ列)を凍結保証しています[^rs-compat]。
 バグ修正以外で列が変わることはありません。
+
+[^rs-compat]: NumPy公式ドキュメント。"A fixed bit generator using a fixed seed and a fixed series of calls to 'RandomState' methods using the same parameters will always produce the same results up to roundoff error except when the values were incorrect. RandomState is effectively frozen and will only receive updates that are required by changes in the internals of Numpy." https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState 同趣旨の記述は https://numpy.org/doc/stable/reference/random/compatibility.html にもあります。
 
 一方、新しいAPIの `np.random.default_rng()` / `Generator` は、バージョン間のストリーム互換を原則として保証しないと宣言しています。
 NEP 19という公式の意思決定文書に、理由ごと書かれています[^nep19]。
@@ -322,11 +344,16 @@ QEMUはARMの命令をソフトウェアで再実装したものですし、数�
 
 まず生のPRNG出力です。
 
-- MT19937の整数列・一様乱数・正規乱数: **一致**
-- PCG64の整数列・一様乱数・正規乱数: **一致**
+- MT19937の整数列・一様乱数: **一致**
+- PCG64の整数列・一様乱数: **一致**
+- MT19937・PCG64の正規乱数(標準正規分布への変換後): **一致**
 
-1章の理屈どおり、整数演算のPRNGはアーキテクチャが変わってもビット単位で一致しました。
-浮動小数点への変換後も、正規分布に変換した後も一致です。
+1章の理屈どおり、整数列と一様乱数はアーキテクチャが変わってもビット単位で一致しました。
+整数演算とビット操作だけで完結しているので、これは**数学的必然**です。
+
+正規乱数への変換は話が別です。
+Ziggurat法などの実装は、対数や平方根といった超越関数を経由する分岐を持つため、原理的には後述する「非保証」の土俵にいます。
+今回はたまたま両アーキで一致しましたが、これは4章で見たNumPyのバージョン間互換性の話(正規乱数の一致に保証はない、NEP 19の例外は `integers()`・`random()`・`bytes()` の3メソッドのみ)と同じ理由で、**たまたまの一致**だと考えるべきです。
 
 ### 壊れ始めるのは「乱数を使った、その先の計算」
 
@@ -350,16 +377,24 @@ QEMUはARMの命令をソフトウェアで再実装したものですし、数�
 一致と不一致が入り混じった、見事にまだらな結果です。
 このまだら模様には、ちゃんと理屈があります。
 
+先に断っておきたいことがあります。
+この表の「一致」は一枚岩ではありません。
+`np.sin`・`np.sum`・RandomForestとLogisticRegressionの予測クラス・PyTorch MLPの最終loss値が「一致」なのは、規格や公式ポリシーが約束しているからではなく、今回試したバージョン・この規模のデータの実装がたまたまそうなっていたに過ぎません。
+NumPyやPyTorchのマイナーバージョンが1つ上がるだけで、これらの一致は崩れうる**たまたまの一致**です。
+表内で確実に頼れるのは、後述する加減乗除・平方根の**数学的必然**による一致だけです。
+
 浮動小数点の演算は、実は2種類に分かれています。
 
 **規格が結果まで決めている演算**: 加減乗除と平方根。
 IEEE 754という規格が「数学的に正しい値に最も近い浮動小数点値を返せ」と決めているので、規格準拠ならどのCPUでも同じビットが出ます[^ieee]。
+これは**数学的必然**です。規格が結果そのものを一意に定めている以上、実装の裁量が入り込む余地がありません。
 
-[^ieee]: https://docs.nvidia.com/cuda/floating-point/index.html
+[^ieee]: https://docs.nvidia.com/cuda/floating-point/index.html IEEE 754本文自体は有料(IEEE Store)ですが、規格の要求内容は次の2つの資料でも直接確認できます。IEEE標準委員会自身のページ("the IEEE standard requires that each result be rounded correctly to the precision of the destination into which it will be placed" https://grouper.ieee.org/groups/msc/ANSI_IEEE-Std-754-2019/background/addendum.html )と、Goldbergの古典的な解説論文("It gives an algorithm for addition, subtraction, multiplication, division and square root, and requires that implementations produce the same result as that algorithm." https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html )。
 
 **規格が結果を決めていない演算**: sin, exp, log などの超越関数。
 正しい丸めを常に保証するのは計算コストが高すぎるため(テーブルメーカーのジレンマ)、規格は要求していません。
 そのため各実装は「誤差は何ULP以内」という保証に留め、最後の1ビットは実装ごとに違ってよいことになっています。
+一致するかどうかは実装次第、つまり**たまたま(非保証)**です。
 
 実測で `np.sin` は一致して `np.exp` は不一致だったのは、この「実装ごとの自由」が関数単位で効くからです。
 同じ超越関数でも、たまたま両アーキで同じ結果になる実装経路を通るものもあれば、SIMD版の実装に分岐して違う結果になるものもあります。
@@ -401,6 +436,11 @@ RandomForestは予測クラスが一致したのに、`feature_importances_` は
 再現性の検証をpredictだけでやると、内部の差を見逃すということです。
 なお学習データの生成(`make_classification`)にも行列積が絡むため、差がデータ生成と学習のどちらの段階で入ったかまでは、今回は切り分けていません。
 
+ただし「予測は頑丈」という言い方には限定が要ります。
+今回のデータセットでは決定境界から十分離れたサンプルが多かったからこそ、下位ビットの差で予測が動かなかっただけです。
+決定境界のすぐ近くにサンプルがあれば、1ULP相当の差でも予測クラスは反転しえます。
+predictの一致もまた、規格やポリシーが保証しているわけではない**たまたま(非保証)**の一致です。
+
 もっと意地悪な例もあります。
 PyTorchのMLPは、50ステップのloss曲線も最終パラメータも不一致なのに、最終ステップのloss値だけがぴったり一致しました。
 学習の途中経過は毎ステップ違う道を歩いたのに、最後の1点だけ同じ値に着地したのです。
@@ -411,9 +451,10 @@ lossはfloat32精度のスカラー1個なので、収束後の微小な差が�
 
 ### レイヤー3のまとめ
 
-- 乱数の生成: **アーキテクチャをまたいでも一致する**(整数演算だから)
-- 加減乗除だけの計算: 一致する(IEEE 754が結果まで規定)
-- 超越関数・BLAS・学習を含む計算: **一致したりしなかったりする。しかも事前に予測できない**
+- 乱数の生成(整数列・一様乱数): **アーキテクチャをまたいでも一致する**(整数演算だから。数学的必然)
+- 正規乱数への変換: 一致した。ただし超越関数を経由するため保証はない(たまたま)
+- 加減乗除・平方根だけの計算: 一致する(IEEE 754が結果まで規定。数学的必然)
+- 超越関数・BLAS・学習を含む計算: **一致したりしなかったりする。しかも事前に予測できない**(たまたま・非保証)
 
 「シードを固定したのに違うマシンで結果が変わった」の犯人は、乱数ではありません。
 乱数は無実です。
@@ -506,8 +547,9 @@ atomicAddは「同時に足しても壊れない」ことは保証しますが�
 順番はその瞬間のスケジューリング次第で、実行ごとに変わります。
 浮動小数点の足し算は順序で結果が変わるので、出力もビット単位で揺れます。
 
-`scatter_add` や `embedding_bag` の逆伝播など、多くの演算がこれに該当します。
-PyTorch公式は「これらの関数の非決定性を回避する簡単な方法は現時点でない」とまで書いています[^torchrepro]。
+`scatter_add` や `index_add` のように、複数のスレッドが同じ出力位置へ同時に書き込みうる集約系の演算の多くが、この構図に当てはまります。
+実際、`torch.use_deterministic_algorithms(True)` を有効にすると、`index_add_` のCUDA実装は結果を返す代わりにエラーを送出して停止します[^torchrepro]。
+「非決定的な演算を黙って実行させるより、エラーで止めて気づかせる」というのが、この手の演算に対するPyTorchの基本方針です。
 
 ### それでもGPUで再現させたいとき
 
@@ -520,6 +562,10 @@ torch.backends.cudnn.benchmark = False
 # + 環境変数 CUBLAS_WORKSPACE_CONFIG=:4096:8
 ```
 
+`CUBLAS_WORKSPACE_CONFIG` はPyTorch側の作法ではなく、NVIDIA公式のcuBLASドキュメントが再現性確保のために要求している設定です[^cublas]。
+
+[^cublas]: "By design, all cuBLAS API routines from a given toolkit version, generate the same bit-wise results at every run when executed on GPUs with the same architecture and the same number of SMs. However, bit-wise reproducibility is not guaranteed across toolkit versions... To avoid this effect user can... set a debug environment variable CUBLAS_WORKSPACE_CONFIG to :16:8... or :4096:8..." https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility
+
 ただし、これで手に入る再現性には明確な範囲があります。
 **同じGPU機種・同じCUDA/cuDNN/PyTorchバージョンの中だけ**です。
 A100で固定した結果はA100でしか再現せず、H100に載せ替えれば変わりえます。
@@ -528,14 +574,16 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 ## 8. まとめ: 再現性の階層表
 
 実測と理論を、1枚の表にまとめます。
+表を読むときの軸は1つです。
+「一致」は**数学的必然**・**仕様やポリシーとしての保証**・**たまたま(非保証)**のどれかに分かれ、前の2つは今後も安心して頼れますが、最後の1つは次のマイナーバージョンアップで平然と裏切られます。
 
 | 変えるもの | 乱数列(PRNG出力) | 浮動小数点計算・学習結果 |
 |---|---|---|
-| 同一環境でプロセス再実行 | 一致(実測) | 一致(実測) |
-| コンテナ再作成(同一イメージ) | 一致(実測) | 一致(実測) |
-| イメージ/ライブラリバージョン | RandomStateは保証あり。Generatorは非保証(実測では一致) | 非保証。実測ではRFは一致、LRの係数は不一致 |
-| CPUアーキテクチャ | 一致(実測。整数演算だから) | **まだらに不一致**(超越関数・BLAS・学習過程) |
-| スレッド数・並列度 | 一致(生成器を分ければ) | 変わりうるが、変わらないこともある(実測では一致) |
+| 同一環境でプロセス再実行 | 一致(実測・数学的必然) | 一致(実測・数学的必然。同一バイナリに同一入力なら当然一致) |
+| コンテナ再作成(同一イメージ) | 一致(実測・数学的必然) | 一致(実測・数学的必然) |
+| イメージ/ライブラリバージョン | RandomStateはポリシーとして保証。Generatorは非保証(実測ではたまたま一致) | 非保証。実測ではRFはたまたま一致、LRの係数は不一致 |
+| CPUアーキテクチャ | 整数列・一様乱数は数学的必然で一致。正規乱数はたまたま一致 | 加減乗除・sqrtは数学的必然で一致。それ以外(超越関数・BLAS・学習過程)は**まだらに不一致**——一致した項目(`np.sin`・`np.sum`・predictなど)もすべてたまたまで保証はない |
+| スレッド数・並列度 | 一致(生成器を分ければ設計上の必然) | 非保証。今回の規模ではたまたま一致したが、配列サイズやBLAS実装次第で変わりうる |
 | GPU機種・CUDAバージョン | — | 非保証(公式が明言) |
 
 この表から、実務の指針が素直に導けます。
@@ -549,6 +597,7 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 5. CPUアーキテクチャをまたぐビット一致は、原理的に狙わない
 6. GPUなら `use_deterministic_algorithms(True)` を入れ、GPU機種もバージョンも固定する
 7. 再現性の検証は複数指標で行う。最終lossの1点比較は、今回の実測のように偶然一致で騙される
+8. 「一致した」を見たら、それが数学的必然・ポリシーとしての保証・たまたまの一致のどれなのかを切り分ける。前者2つには頼ってよいが、たまたまの一致に依存する運用は、次のバージョンアップやデータ規模の変化で静かに壊れる
 
 **そして最後に、問い直す側の視点**
 
@@ -561,11 +610,18 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 ## 参考文献
 
 - Python公式ドキュメント `random`: https://docs.python.org/3/library/random.html
+- Python公式ドキュメント `dict`(挿入順保証): https://docs.python.org/3/library/stdtypes.html#dict
+- What's New in Python 3.7(dict挿入順が言語仕様に): https://docs.python.org/3/whatsnew/3.7.html#summary-release-highlights
 - NEP 19 — Random number generator policy: https://numpy.org/neps/nep-0019-rng-policy.html
 - NumPy Bit Generators: https://numpy.org/doc/stable/reference/random/bit_generators/index.html
+- NumPy `RandomState` Compatibility Guarantee: https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState
+- NumPy Random Compatibility Policy: https://numpy.org/doc/stable/reference/random/compatibility.html
 - scikit-learn Common pitfalls (Controlling randomness): https://scikit-learn.org/stable/common_pitfalls.html
 - PyTorch Reproducibility: https://docs.pytorch.org/docs/stable/notes/randomness.html
 - NVIDIA Floating Point and IEEE 754: https://docs.nvidia.com/cuda/floating-point/index.html
+- IEEE 754-2019 Addendum(規格委員会公式ページ): https://grouper.ieee.org/groups/msc/ANSI_IEEE-Std-754-2019/background/addendum.html
+- Goldberg, "What Every Computer Scientist Should Know About Floating-Point Arithmetic": https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+- NVIDIA cuBLAS Results Reproducibility: https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility
 - Matsumoto & Nishimura (1998), Mersenne Twister
 - O'Neill (2014), PCG
 - Salmon et al. (2011), Parallel Random Numbers: As Easy as 1, 2, 3
