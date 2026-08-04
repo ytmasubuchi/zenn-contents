@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "hostname": "42a4f0c471fa",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.11.15",
+    "python_implementation": "CPython",
+    "numpy_version": "1.26.4",
+    "scipy_version": "1.11.4",
+    "sklearn_version": "1.3.2",
+    "torch_version": "not-installed",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E4_version_stream",
+  "seed": 42,
+  "n": 2000,
+  "numpy_randomstate_mt19937_raw": {
+    "raw_uint32_sha256": "92422429953d45cce5eec0c316b305b8e9a022342827a4b57458ee03830076a3",
+    "uniform_float64_sha256": "04fa4051a646d43dcfc2339c11b8046ce4b9b87ea833ec0d265ec9e0f072150d",
+    "normal_float64_sha256": "e59e6094e2bb21610b085b073612397d091982f6e3beef373dcc8913153cffe0"
+  },
+  "numpy_generator_pcg64_raw": {
+    "raw_int64_sha256": "507e57ffffa6aded16cef605a68b8b2c97dd00ddfc1b6394a13ed41b613131bd",
+    "uniform_float64_sha256": "3550a4edf85b5378c16ca94b26a7580fd630cf2f6fcc61421cba0ed673c826a1",
+    "normal_float64_sha256": "dea19196a398c03c6d5445bb2e2b12c351b8855c076afebe0c95ba4032f1e89c"
+  },
+  "sklearn": {
+    "sklearn_version": "1.3.2",
+    "random_forest": {
+      "predictions_sha256": "bb6b4a0cebb91a248a2e2d1069897c5290cdde2dd84c9d37b30f6fd638c3e658",
+      "feature_importances_sha256": "8bf4d454c741e913be330d44cbfc6e6ae0e286b7c987e4d711259f5569bdfa4e"
+    },
+    "logistic_regression": {
+      "predictions_sha256": "1df54b27591cad21b15cf92f848092fe219a6c0b20f768b9feaefc9c5f360304",
+      "coef_sha256": "2a679acf26fbbc35d6e9603cd1e09471935ad4ab086ac78ac5f82a0d2c8de918"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+[project]
+name = "random-reproducibility"
+version = "0.1.0"
+description = "Experiments backing the article: how far does Python DS/ML random-number reproducibility actually go?"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy==2.1.3",
+    "scipy==1.14.1",
+    "scikit-learn==1.5.2",
+    "torch==2.5.1",
+    "threadpoolctl>=3.5.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[tool.uv]
+package = false

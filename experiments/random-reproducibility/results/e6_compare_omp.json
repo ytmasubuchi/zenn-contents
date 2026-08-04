@@ -1,0 +1,97 @@
+{
+  "label": "E6_omp1_vs_omp8",
+  "file_a": "/work/results/e6_omp1.json",
+  "file_b": "/work/results/e6_omp8.json",
+  "metadata_a": {
+    "hostname": "47ba37c41194",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "metadata_b": {
+    "hostname": "bfd07c566e7d",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": "8",
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "n_matches": 34,
+  "n_mismatches": 2,
+  "matches": [
+    "blas_threads.matmul_sha256",
+    "blas_threads.mkl_num_threads_env",
+    "blas_threads.openblas_num_threads_env",
+    "blas_threads.sum_hex",
+    "blas_threads.threadpool_info[0].architecture",
+    "blas_threads.threadpool_info[0].filepath",
+    "blas_threads.threadpool_info[0].internal_api",
+    "blas_threads.threadpool_info[0].prefix",
+    "blas_threads.threadpool_info[0].threading_layer",
+    "blas_threads.threadpool_info[0].user_api",
+    "blas_threads.threadpool_info[0].version",
+    "cpu_count",
+    "experiment",
+    "non_associativity.large_array.forward_sum_hex",
+    "non_associativity.large_array.forward_vs_naive_differ",
+    "non_associativity.large_array.forward_vs_reversed_differ",
+    "non_associativity.large_array.naive_sequential_sum_hex",
+    "non_associativity.large_array.reversed_sum_hex",
+    "non_associativity.large_array.shuffled_sum_hex",
+    "non_associativity.minimal_3_value_example.(a+b)+c",
+    "non_associativity.minimal_3_value_example.a",
+    "non_associativity.minimal_3_value_example.a+(b+c)",
+    "non_associativity.minimal_3_value_example.b",
+    "non_associativity.minimal_3_value_example.c",
+    "non_associativity.minimal_3_value_example.differ",
+    "seed",
+    "sklearn_njobs.feature_importances_match",
+    "sklearn_njobs.n_jobs_1.feature_importances_sha256",
+    "sklearn_njobs.n_jobs_1.predictions_sha256",
+    "sklearn_njobs.n_jobs_minus1.feature_importances_sha256",
+    "sklearn_njobs.n_jobs_minus1.predictions_sha256",
+    "sklearn_njobs.predictions_match",
+    "torch_threads.threads_1_sha256",
+    "torch_threads.threads_8_sha256"
+  ],
+  "mismatches": [
+    {
+      "key": "blas_threads.omp_num_threads_env",
+      "a": "1",
+      "b": "8"
+    },
+    {
+      "key": "blas_threads.threadpool_info[0].num_threads",
+      "a": 1,
+      "b": 8
+    }
+  ],
+  "only_in_a": [],
+  "only_in_b": []
+}

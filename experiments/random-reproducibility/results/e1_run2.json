@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "hostname": "5e0fd0d7be00",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E1_baseline_reproducibility",
+  "seed": 42,
+  "n": 1000,
+  "streams": {
+    "stdlib_random": "3b11628ae832e546784ae1f81350968b96c82646658ba3c710fd123a8a7ce855",
+    "numpy_randomstate_mt19937": {
+      "float_sha256": "b3826bcc79486f1bb6f6dc03df34252953a7bb2f334c5906c9ac056b2fc71a1c",
+      "int_sha256": "27ee248468a83dd08bcc94c1c3dcd0af15d3327d5df23a881a7493c47c4b3e75"
+    },
+    "numpy_global_seed_legacy": "b3826bcc79486f1bb6f6dc03df34252953a7bb2f334c5906c9ac056b2fc71a1c",
+    "numpy_generator_pcg64": {
+      "float_sha256": "f4168ec2b00929aa7703605aea323e47cfdc21474c98b7c0bac3cdc1c4cbb17c",
+      "int_sha256": "d57be3439e8005da6b1f9404aa1e6b2e3493843782a94e5a5d58a645fb4999f0"
+    },
+    "torch_cpu": {
+      "float_sha256": "3c32285b450a7e7cf4f58e279269c5f7a550b3a93375c46f90c673df6a223f98",
+      "int_sha256": "2658815e4cc55882d7fa0bc2ee1bfc00eec48c019d39754772761aecf3e53e59"
+    }
+  },
+  "sklearn": {
+    "train_test_split_sha256": "daf7364507f56ab841407d3fda5bb8cb61eb981a0e9b9072452d7ef93bed122e",
+    "predictions_sha256": "bb6b4a0cebb91a248a2e2d1069897c5290cdde2dd84c9d37b30f6fd638c3e658",
+    "predict_proba_sha256": "ee18e8698c86c58d96c6bdc77224f21c101a4db5c796963287a034d1dc5ca340",
+    "feature_importances_sha256": "8bf4d454c741e913be330d44cbfc6e6ae0e286b7c987e4d711259f5569bdfa4e"
+  }
+}
