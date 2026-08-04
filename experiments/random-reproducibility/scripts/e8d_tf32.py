@@ -94,7 +94,14 @@ def main():
     )
 
     both_ok = off_attempt.get("status") == "ok" and on_attempt.get("status") == "ok"
-    hashes_match = both_ok and off_attempt["matmul_sha256"] == on_attempt["matmul_sha256"]
+    # Only compare hashes when both attempts actually ran at the SAME size:
+    # if e.g. tf32_off succeeded at 512 but tf32_on fell back to 128, their
+    # hashes trivially differ and False would fake a "TF32 changed the
+    # result" finding. hashes_match is null when not comparable.
+    same_scale = both_ok and off_attempt.get("scale_used") == on_attempt.get("scale_used")
+    hashes_match = (
+        (off_attempt["matmul_sha256"] == on_attempt["matmul_sha256"]) if same_scale else None
+    )
     diff = None
     if both_ok and "e8d_matmul_tf32_off" in npz_store and "e8d_matmul_tf32_on" in npz_store:
         diff = diff_stats_f32(npz_store["e8d_matmul_tf32_off"], npz_store["e8d_matmul_tf32_on"])
@@ -105,6 +112,7 @@ def main():
         "tf32_defaults": defaults,
         "tf32_off": off_attempt,
         "tf32_on": on_attempt,
+        "hashes_compared_at_same_scale": same_scale,
         "hashes_match": hashes_match,
         "diff_tf32_off_vs_on": diff,
     }

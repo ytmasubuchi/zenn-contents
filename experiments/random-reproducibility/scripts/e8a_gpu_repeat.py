@@ -1,8 +1,8 @@
 """E8a: GPU reproducibility under repeated runs, default (non-deterministic)
 PyTorch settings -- i.e. NOT calling torch.use_deterministic_algorithms(),
 NOT setting CUBLAS_WORKSPACE_CONFIG. cudnn.benchmark is left at whatever
-torch's own default is (recorded in metadata.gpu.cudnn_benchmark_default,
-not overridden here).
+torch's own default is (recorded in
+metadata.gpu.cudnn_benchmark_at_metadata_collection, not overridden here).
 
 Run this identical script 3x, each in a *fresh container*, and diff the
 JSON with compare.py -- mirrors E1/E3 but on CUDA instead of CPU.

@@ -52,13 +52,17 @@ def rand_stream_probe(npz_store: dict):
         return {"gpu_sha256": gpu_hash}
 
     gpu_attempt = run_with_fallback(gpu_side, [1000, 100, 10, 1])
+    # The CPU reference is always full-size (n=1000). If the GPU side only
+    # succeeded at a smaller fallback size, its hash trivially differs from
+    # the CPU hash, so reporting False would fake a CPU-vs-GPU mismatch --
+    # report null ("not comparable") instead. gpu_attempt.scale_used records
+    # which size actually ran.
+    ran_full = gpu_attempt.get("status") == "ok" and gpu_attempt.get("scale_used") == 1000
     return {
         "n": 1000,
         "cpu_sha256": cpu_hash,
         "gpu_attempt": gpu_attempt,
-        "match": (
-            gpu_attempt.get("status") == "ok" and gpu_attempt.get("gpu_sha256") == cpu_hash
-        ),
+        "match": (gpu_attempt.get("gpu_sha256") == cpu_hash) if ran_full else None,
     }
 
 
@@ -86,13 +90,14 @@ def matmul_probe(npz_store: dict):
         return {"gpu_sha256": gpu_hash}
 
     gpu_attempt = run_with_fallback(gpu_side, [size, 128, 32, 8])
+    # Same null-when-fallback rule as rand_stream_probe: the CPU hash is of
+    # the full 512x512 product, so only a full-size GPU run is comparable.
+    ran_full = gpu_attempt.get("status") == "ok" and gpu_attempt.get("scale_used") == size
     return {
         "shape": [size, size],
         "cpu_sha256": cpu_hash,
         "gpu_attempt": gpu_attempt,
-        "match": (
-            gpu_attempt.get("status") == "ok" and gpu_attempt.get("gpu_sha256") == cpu_hash
-        ),
+        "match": (gpu_attempt.get("gpu_sha256") == cpu_hash) if ran_full else None,
     }
 
 
@@ -172,16 +177,22 @@ def mlp_probe(npz_store: dict):
         return out
 
     gpu_attempt = run_with_fallback(gpu_side, [200, 50, 10])
+    # Same null-when-fallback rule: the CPU model was trained on all 200
+    # samples, so a GPU run that fell back to fewer samples trained on
+    # different data -- its loss curve / params are not comparable.
+    ran_full = gpu_attempt.get("status") == "ok" and gpu_attempt.get("scale_used") == 200
     return {
         "cpu": cpu_result,
         "gpu_attempt": gpu_attempt,
         "loss_curve_match": (
-            gpu_attempt.get("status") == "ok"
-            and gpu_attempt.get("loss_curve_sha256") == cpu_result["loss_curve_sha256"]
+            (gpu_attempt.get("loss_curve_sha256") == cpu_result["loss_curve_sha256"])
+            if ran_full
+            else None
         ),
         "final_params_match": (
-            gpu_attempt.get("status") == "ok"
-            and gpu_attempt.get("final_params_sha256") == cpu_result["final_params_sha256"]
+            (gpu_attempt.get("final_params_sha256") == cpu_result["final_params_sha256"])
+            if ran_full
+            else None
         ),
     }
 
