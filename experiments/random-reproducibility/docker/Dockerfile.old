@@ -1,0 +1,13 @@
+# "old" image for E4: an older, still-fixed library stack on the same
+# architecture as Dockerfile.base, to see whether raw PRNG streams and
+# sklearn model outputs survive a library-version jump.
+FROM python:3.11-slim
+
+RUN pip install --no-cache-dir \
+    numpy==1.26.4 \
+    scipy==1.11.4 \
+    scikit-learn==1.3.2 \
+    threadpoolctl==3.5.0 \
+    --index-url https://pypi.org/simple
+
+WORKDIR /work

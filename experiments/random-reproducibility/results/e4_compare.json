@@ -1,0 +1,75 @@
+{
+  "label": "E4_old_vs_new",
+  "file_a": "/work/results/e4_old.json",
+  "file_b": "/work/results/e4_new.json",
+  "metadata_a": {
+    "hostname": "42a4f0c471fa",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.11.15",
+    "python_implementation": "CPython",
+    "numpy_version": "1.26.4",
+    "scipy_version": "1.11.4",
+    "sklearn_version": "1.3.2",
+    "torch_version": "not-installed",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "metadata_b": {
+    "hostname": "dbd5566f809c",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "n_matches": 12,
+  "n_mismatches": 2,
+  "matches": [
+    "experiment",
+    "n",
+    "numpy_generator_pcg64_raw.normal_float64_sha256",
+    "numpy_generator_pcg64_raw.raw_int64_sha256",
+    "numpy_generator_pcg64_raw.uniform_float64_sha256",
+    "numpy_randomstate_mt19937_raw.normal_float64_sha256",
+    "numpy_randomstate_mt19937_raw.raw_uint32_sha256",
+    "numpy_randomstate_mt19937_raw.uniform_float64_sha256",
+    "seed",
+    "sklearn.logistic_regression.predictions_sha256",
+    "sklearn.random_forest.feature_importances_sha256",
+    "sklearn.random_forest.predictions_sha256"
+  ],
+  "mismatches": [
+    {
+      "key": "sklearn.logistic_regression.coef_sha256",
+      "a": "2a679acf26fbbc35d6e9603cd1e09471935ad4ab086ac78ac5f82a0d2c8de918",
+      "b": "3f1a8bb43da7a54d956afe08e21002c0f54813cf349f255ffb56f8d03bf0f706"
+    },
+    {
+      "key": "sklearn.sklearn_version",
+      "a": "1.3.2",
+      "b": "1.5.2"
+    }
+  ],
+  "only_in_a": [],
+  "only_in_b": []
+}

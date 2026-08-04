@@ -1,0 +1,67 @@
+{
+  "label": "E1_run1_vs_run2",
+  "file_a": "/work/results/e1_run1.json",
+  "file_b": "/work/results/e1_run2.json",
+  "metadata_a": {
+    "hostname": "0e4013190e61",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "metadata_b": {
+    "hostname": "5e0fd0d7be00",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "n_matches": 15,
+  "n_mismatches": 0,
+  "matches": [
+    "experiment",
+    "n",
+    "seed",
+    "sklearn.feature_importances_sha256",
+    "sklearn.predict_proba_sha256",
+    "sklearn.predictions_sha256",
+    "sklearn.train_test_split_sha256",
+    "streams.numpy_generator_pcg64.float_sha256",
+    "streams.numpy_generator_pcg64.int_sha256",
+    "streams.numpy_global_seed_legacy",
+    "streams.numpy_randomstate_mt19937.float_sha256",
+    "streams.numpy_randomstate_mt19937.int_sha256",
+    "streams.stdlib_random",
+    "streams.torch_cpu.float_sha256",
+    "streams.torch_cpu.int_sha256"
+  ],
+  "mismatches": [],
+  "only_in_a": [],
+  "only_in_b": []
+}

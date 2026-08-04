@@ -1,0 +1,104 @@
+{
+  "label": "E5_amd64_vs_arm64",
+  "file_a": "/work/results/e5_amd64.json",
+  "file_b": "/work/results/e5_arm64.json",
+  "metadata_a": {
+    "hostname": "95f0d4a3193e",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "metadata_b": {
+    "hostname": "0d1aaccc0ed4",
+    "platform_machine": "aarch64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "n_matches": 16,
+  "n_mismatches": 7,
+  "matches": [
+    "experiment",
+    "float_math_ops.big_array_sum_hex",
+    "float_math_ops.big_array_sum_sha256",
+    "float_math_ops.sin_sha256",
+    "raw_prng_streams.generator_pcg64.int_sha256",
+    "raw_prng_streams.generator_pcg64.normal_sha256",
+    "raw_prng_streams.generator_pcg64.uniform_sha256",
+    "raw_prng_streams.randomstate_mt19937.int_sha256",
+    "raw_prng_streams.randomstate_mt19937.normal_sha256",
+    "raw_prng_streams.randomstate_mt19937.uniform_sha256",
+    "seed",
+    "sklearn.logistic_regression.predictions_sha256",
+    "sklearn.random_forest.predictions_sha256",
+    "sklearn.sklearn_version",
+    "torch_mlp.final_loss_hex",
+    "torch_mlp.num_threads"
+  ],
+  "mismatches": [
+    {
+      "key": "float_math_ops.exp_sha256",
+      "a": "f8c95512f38077d297cd851caa9b34fc7fe91b8d2ea532435f09d2e6c58a25bb",
+      "b": "aeb86ef50034569bc5475118b9a068206d13d4a2876f07850097e636149783b7"
+    },
+    {
+      "key": "float_math_ops.matmul_sha256",
+      "a": "9090c679debc2e3b58359a06864d593b966544c262da155d6774138a21e8c14d",
+      "b": "432a635c681d1c8e7a05b5221bd1a9ac545b77eed572598f3c0f83b3cb6f6b22"
+    },
+    {
+      "key": "sklearn.logistic_regression.coef_sha256",
+      "a": "3f1a8bb43da7a54d956afe08e21002c0f54813cf349f255ffb56f8d03bf0f706",
+      "b": "2a6d086949db38f62f83ff4d770b03d7027c7536fabbae73afe278884483ea09"
+    },
+    {
+      "key": "sklearn.random_forest.feature_importances_sha256",
+      "a": "8bf4d454c741e913be330d44cbfc6e6ae0e286b7c987e4d711259f5569bdfa4e",
+      "b": "e04451dc4f7227db20a84e8ec9c3623691e4f55f49d9081de1f482be357bdb7b"
+    },
+    {
+      "key": "torch_mlp.final_params_sha256",
+      "a": "ad69c41424b599e70203416e5dadc0e064c33a97ade5aa25a0dbe67e850dac5d",
+      "b": "3da5e0d620fa57344c89f5e8eb10ad908e0e966a39252ed0aa5faf44b3554729"
+    },
+    {
+      "key": "torch_mlp.loss_curve_sha256",
+      "a": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f",
+      "b": "5f74a30589dc7d3f4e743cd008a9548791dad5f3f0a79a6405d829d0d64932c4"
+    },
+    {
+      "key": "torch_mlp.torch_version",
+      "a": "2.5.1+cpu",
+      "b": "2.5.1"
+    }
+  ],
+  "only_in_a": [],
+  "only_in_b": []
+}

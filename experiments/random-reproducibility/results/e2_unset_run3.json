@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "hostname": "f657c23bd625",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E2_pythonhashseed",
+  "pythonhashseed_env": null,
+  "hash_of_strings": {
+    "hello": 449626946617816297,
+    "world": -6996192793054059674,
+    "reproducibility": -8238234272135899563,
+    "seed": -7782193378592337176,
+    "pandas": 6067997319386516353,
+    "numpy": -4861025205859958766
+  },
+  "set_ordering_demo": {
+    "original_order": [
+      "age",
+      "income",
+      "region",
+      "tenure_months",
+      "num_purchases",
+      "avg_basket_size",
+      "is_churned",
+      "signup_channel",
+      "device_type",
+      "last_login_days"
+    ],
+    "order_after_set_roundtrip": [
+      "income",
+      "age",
+      "region",
+      "tenure_months",
+      "device_type",
+      "num_purchases",
+      "signup_channel",
+      "last_login_days",
+      "is_churned",
+      "avg_basket_size"
+    ],
+    "order_matches_original": false,
+    "order_sha256": "a0a34d953b335b5298334692259401a3dc52a362f846b5bd5da3a3e0670c8be2"
+  }
+}
