@@ -1,0 +1,322 @@
+{
+  "label": "E8e_ulp_diff",
+  "note": "diff statistics (max abs/rel/ULP) for E8a/E8b repeated-run pairs, E8c CPU-vs-GPU pairs, and E8d TF32-off-vs-on pairs. 'insufficient_data' means the corresponding GPU measurement never produced output in one or both runs being compared (most likely: every fallback size still hit a CUDA OOM).",
+  "e8a_gpu_repeat_default": {
+    "run1_vs_run2": {
+      "philox_rand": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "philox_randn": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "matmul_512": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_output": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_input": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_weight": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_loss_curve": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_params": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_index_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_scatter_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "embedding_bag_sum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "cumsum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      }
+    },
+    "run1_vs_run3": {
+      "philox_rand": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "philox_randn": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "matmul_512": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_output": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_input": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_weight": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_loss_curve": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_params": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_index_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_scatter_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "embedding_bag_sum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "cumsum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      }
+    }
+  },
+  "e8b_gpu_deterministic": {
+    "run1_vs_run2": {
+      "philox_rand": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "philox_randn": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "matmul_512": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_output": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_input": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_weight": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_loss_curve": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_params": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_index_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_scatter_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "embedding_bag_sum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "cumsum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      }
+    },
+    "run1_vs_run3": {
+      "philox_rand": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "philox_randn": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "matmul_512": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_output": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_input": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "conv_grad_weight": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_loss_curve": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "mlp_params": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_index_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "atomic_scatter_add_last": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "embedding_bag_sum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      },
+      "cumsum": {
+        "comparable": false,
+        "reason": "insufficient_data",
+        "present_in_a": false,
+        "present_in_b": false
+      }
+    }
+  },
+  "e8c_cpu_vs_gpu": {
+    "rand_stream": {
+      "comparable": false,
+      "reason": "insufficient_data"
+    },
+    "matmul": {
+      "comparable": false,
+      "reason": "insufficient_data"
+    },
+    "mlp_params": {
+      "comparable": false,
+      "reason": "insufficient_data"
+    }
+  },
+  "e8d_tf32_off_vs_on": {
+    "comparable": false,
+    "reason": "insufficient_data"
+  }
+}

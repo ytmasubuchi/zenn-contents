@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "hostname": "086037daf9a4",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.8.0-124-generic",
+    "platform_processor": "x86_64",
+    "python_version": "3.11.10",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.2",
+    "scipy_version": "not-installed",
+    "sklearn_version": "not-installed",
+    "torch_version": "2.5.1+cu124",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "CUBLAS_WORKSPACE_CONFIG": null
+    },
+    "in_container": true,
+    "gpu": {
+      "cuda_available": true,
+      "cuda_runtime_version_torch": "12.4",
+      "cudnn_version": 90100,
+      "tf32_matmul_allow_at_metadata_collection": false,
+      "tf32_cudnn_allow_at_metadata_collection": true,
+      "cudnn_benchmark_at_metadata_collection": false,
+      "cudnn_deterministic_at_metadata_collection": false,
+      "device_count": 1,
+      "device_name": "NVIDIA GeForce RTX 4090",
+      "device_capability": [
+        8,
+        9
+      ],
+      "nvidia_smi_query": "NVIDIA GeForce RTX 4090, 580.173.02, 23768 MiB, 305 MiB, 24564 MiB"
+    }
+  },
+  "experiment": "E8a_gpu_repeat_default",
+  "seed": 42,
+  "note": "Default (non-deterministic) PyTorch CUDA settings: use_deterministic_algorithms not called, CUBLAS_WORKSPACE_CONFIG not set, cudnn.benchmark left at its library default.",
+  "philox_streams": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      1000,
+      100,
+      10,
+      1
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "matmul_512": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      512,
+      128,
+      32,
+      8
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "conv_forward_backward": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      16,
+      4,
+      1
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "mlp_train": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      200,
+      50,
+      10
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "atomic_add_repeat": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      1000000,
+      100000,
+      10000,
+      1000
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "embedding_bag": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      1000000,
+      10000,
+      100
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  },
+  "cumsum": {
+    "status": "error_cuda_oom",
+    "scales_tried": [
+      1000000,
+      10000,
+      100
+    ],
+    "error_type": "RuntimeError",
+    "error_message": "CUDA error: out of memory\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+  }
+}

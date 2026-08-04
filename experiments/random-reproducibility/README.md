@@ -31,7 +31,10 @@ Python の DS/ML における乱数の再現性は「どのレイヤーまで」
 - QEMU/binfmt: `tonistiigi/binfmt --install arm64` を実行してホストに
   arm64 の binfmt_misc ハンドラを登録済み。以後 `docker run --platform
   linux/arm64` / `docker build --platform linux/arm64` が動作する。
-- GPU 実験は対象外(ドライバ不整合のため未実施)。
+- E1〜E6(CPU実験)の時点では GPU 実験は対象外だった(ホストのGPUドライバ
+  不整合のため未実施)。後日、別ホストで GPU (NVIDIA RTX 4090) が使える
+  環境が用意されたため、E8 として GPU 実験を追加した。詳細は
+  「GPU実験(E8系)」の節を参照。
 
 ## 実験マトリクス
 
@@ -43,6 +46,16 @@ Python の DS/ML における乱数の再現性は「どのレイヤーまで」
 | E4 | 同一アーキ・異なるライブラリバージョン | old image (py3.11+numpy1.26+sklearn1.3) vs new/base image (py3.12+numpy2.1+sklearn1.5) | `scripts/e4_version_stream.py` |
 | E5 | 異アーキ (x86_64 vs arm64 via QEMU) | base image を `--platform linux/amd64` と `linux/arm64` で実行 | `scripts/e5_arch_compare.py` |
 | E6 | 並列・スレッドによる非決定性 | `OMP_NUM_THREADS=1` vs `8`、torch thread数、sklearn `n_jobs` | `scripts/e6_parallel_nondeterminism.py` |
+
+GPU実験(E8系、CUDA環境のみで実行、詳細は下の節):
+
+| # | 内容 | 比較対象 | スクリプト |
+|---|------|----------|-----------|
+| E8a | GPU反復再現性(デフォルト設定) | 同一イメージを3回 `docker run --gpus all` | `scripts/e8a_gpu_repeat.py` |
+| E8b | GPU反復再現性(`use_deterministic_algorithms(True)` + `CUBLAS_WORKSPACE_CONFIG`) | E8aと同じ測定を決定的モードで3回 | `scripts/e8b_gpu_deterministic.py` |
+| E8c | CPU vs GPU(同一シード・同一入力) | 同一プロセス内でCPU側とGPU側を計算し比較 | `scripts/e8c_cpu_vs_gpu.py` |
+| E8d | TF32 有効/無効の影響 | 同一入力の行列積をTF32 on/offで計算し比較 | `scripts/e8d_tf32.py` |
+| E8e | E8a〜E8dの不一致項目のULP/絶対誤差/相対誤差 | E7と同形式のdiff計算 | `scripts/e8e_ulp_diff.py` |
 
 厳密比較のルール: すべての乱数列・モデル出力は
 `numpy.ndarray.astype(np.float64).tobytes()` (または int dtype) の生バイト列を
@@ -68,8 +81,14 @@ experiments/random-reproducibility/
 │   ├── e2_hashseed.py       E2
 │   ├── e4_version_stream.py E4
 │   ├── e5_arch_compare.py   E5
-│   └── e6_parallel_nondeterminism.py E6
-├── run_all.sh              全実験を実行し results/ に保存する
+│   ├── e6_parallel_nondeterminism.py E6
+│   ├── e8a_gpu_repeat.py    E8a(デフォルト設定でのGPU反復再現性)
+│   ├── e8b_gpu_deterministic.py E8b(deterministicモードでのGPU反復再現性)
+│   ├── e8c_cpu_vs_gpu.py    E8c(CPU vs GPU比較)
+│   ├── e8d_tf32.py          E8d(TF32有効/無効の影響)
+│   └── e8e_ulp_diff.py      E8e(E8a〜E8dの不一致項目のULP/誤差diff)
+├── run_all.sh              CPU実験(E1〜E6)を実行し results/ に保存する
+├── run_gpu.sh              GPU実験(E8系)を実行し results/ に保存する(`docker run --gpus all` が必要)
 └── results/                 実測結果(JSON)。本リポジトリに実際にコミットされた実測データ
 ```
 
@@ -93,6 +112,18 @@ cd experiments/random-reproducibility
 docker run --rm -v "$PWD":/work -w /work python:3.12-slim \
   bash -c "pip install -q uv==0.5.11 && uv lock"
 ```
+
+GPU実験(E8系)を再現する場合は、NVIDIA GPU + `nvidia-container-runtime` が
+使えるホストで以下を実行する(`docker run --gpus all` が必要。ホストの
+デフォルト runtime が `runc` のままでも `--gpus all` を明示すれば動く):
+
+```bash
+docker pull pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+cd experiments/random-reproducibility
+./run_gpu.sh
+```
+
+`results/e8*.json` と `results/e8_raw/` (ULP diff用の生配列 `.npz`) が出力される。
 
 ## 実測結果サマリ
 
@@ -206,6 +237,109 @@ QEMU(arm64 エミュレーション)でのフルスクリプト実行は約100�
   `feature_importances_` ともに完全一致 ― 各木に決定的にシードが配布され
   る実装のため、想定どおり再現した。
 
+## GPU実験(E8系)
+
+記事本文の7章「GPUの世界(理論編)」は、執筆時にGPUが使えず公式ドキュメント
+の裏どりのみだった。後日、別ホストで実機のGPUが使える環境が用意されたため、
+E8として実測を追加した。
+
+### 検証環境
+
+- GPU: NVIDIA GeForce RTX 4090(Ada Lovelace, compute capability 8.9)
+- ドライバ: 580.173.02(`nvidia-smi` 表示の CUDA Version: 13.0)
+- Docker: nvidia runtime あり(デフォルト runtime は `runc` のため、すべての
+  `docker run` に `--gpus all` を明示)
+- イメージ: `pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime`
+  (torch 2.5.1+cu124、CPU実験と同じ torch メジャー/マイナーバージョン)
+- コンテナ内で確認できた値: `torch.version.cuda = "12.4"`、
+  `torch.backends.cudnn.version() = 90100`(cuDNN 9.1.0)、
+  `torch.backends.cuda.matmul.allow_tf32` のデフォルトは **`False`**、
+  `torch.backends.cudnn.allow_tf32` のデフォルトは **`True`**
+  (同じ「TF32」でも matmul 経路と cuDNN 経路でデフォルトが違う。
+  `torch.backends.cudnn.benchmark` / `torch.backends.cudnn.deterministic`
+  のデフォルトはいずれも `False`)。
+- **重要な制約**: このホストのGPUは常駐の vLLM サーバとVRAMを共有しており、
+  実験開始時点で 24564 MiB 中 23768 MiB が使用済み、空きはわずか **305 MiB**
+  だった。既存プロセスは一切停止せず、この空きVRAMの範囲内で実験する方針
+  で臨んだ。
+
+### 実測結果: GPU実験はすべてCUDA OOMでブロックされた
+
+結論から言うと、E8a〜E8dのGPU計算を伴う測定は**1つも成功しなかった**。
+原因はドライバやツールキットの不整合ではなく、**空きVRAMが少なすぎて
+CUDAコンテキストそのものが作れない**という、実行前に確認した通りの
+資源枯渇だった。
+
+根拠(`results/e8_environment_probe.json` に詳細を記録):
+
+1. PyTorchを使わない素のCUDA Cプログラム(`nvidia/cuda:13.0.0-devel`
+   イメージでビルド)で `cudaSetDevice(0)` → `cudaMemGetInfo` →
+   `cudaMalloc(1MB)` を実行しても、**`cudaSetDevice` の時点で
+   `cudaErrorMemoryAllocation`(code=2, "out of memory")** が返る。
+   3回試行してすべて同じ結果。PyTorch固有の問題ではなく、CUDAドライバの
+   レベルで新規コンテキストを作る余地がないことが確認できた。
+2. PyTorch側でも、`torch.cuda.is_available()` は `True` を返す(デバイスの
+   可視性を見るだけなので軽量)一方、`torch.zeros(1, device='cuda')`
+   のような **1要素だけのテンソル確保ですら** `RuntimeError: CUDA error:
+   out of memory` になる。`torch.cuda.is_available() == True` は
+   「GPU計算が実際に走る」ことの十分条件ではない、という実務上の教訓。
+3. `run_with_fallback`(`scripts/_common.py`)により、512×512 → 128×128 →
+   32×32 → 8×8(matmulの場合)のようにサイズを段階的に下げて再試行したが、
+   最小サイズでも同一のエラーで失敗した。テンソルサイズの問題ではなく、
+   コンテキスト生成そのものが通らない以上、どれだけ小さくしても解決しない。
+
+この失敗自体は3コンテナ×2設定(E8a/E8b)すべてで完全に再現した
+(`results/e8a_compare_1v2.json` / `e8a_compare_1v3.json` /
+`e8b_compare_1v2.json` / `e8b_compare_1v3.json`: いずれも `n_mismatches: 0`
+― エラーメッセージ文字列まで含めて全項目が一致)。つまり**「失敗する」
+という結果自体は完全に再現性があった**。
+
+一方で、CUDAコンテキストや確保を必要としない軽量なメタデータ取得
+(GPU名、compute capability、cuDNNバージョン、TF32/cudnn.benchmark/
+cudnn.deterministic の各デフォルト値、`nvidia-smi` 経由のVRAM使用量)は
+すべてのJSON (`results/e8a_run*.json` 等の `metadata.gpu`) に正しく記録
+できている。
+
+### 実行できなかった項目
+
+- E8a: CUDA上のPhilox rand/randn、512×512 matmul(cuBLAS)、Conv2d
+  forward/backward(cuDNN)、MLP学習、`index_add_`/`scatter_add_` の
+  atomicAdd非決定性(同一プロセス内20回反復)、`embedding_bag`、`cumsum`
+  ― すべてCUDA OOMで未実行(エラーメッセージは記録済み)。
+- E8b: 上記と同じ測定を `use_deterministic_algorithms(True)` +
+  `CUBLAS_WORKSPACE_CONFIG=:4096:8` で試みたが、同じくCUDA OOMで未実行。
+  そのため「`index_add_` のCUDA実装がdeterministicモードでエラーを送出
+  するか」という記事の主張自体は、**この環境では検証できなかった**
+  (エラーは出たが、それはOOMであってdeterminism起因のエラーではない)。
+- E8c: CPU側の値(`torch.rand`、512×512 matmul、MLP学習)は正常に取得
+  できたが、GPU側がすべてOOMのため比較不能。
+- E8d: TF32のデフォルト値そのものは記録できたが、on/offでの実際の行列積
+  比較・誤差実測はGPU側がOOMのため不可能。
+- E8e: 上記の理由により、diffを取る生データが存在せず
+  (`results/e8_ulp_diff.json` は全項目 `"reason": "insufficient_data"`)。
+
+### 予想外だった点(記事の素材として)
+
+1. **「GPUドライバの不整合」だった当初の障壁が解消しても、別の障壁
+   (VRAM枯渇)に置き換わっただけで、結局GPU実験は今回も実行できなかっ
+   た。** GPU上の再現性の議論以前に、「共有GPU環境ではそもそも実験が
+   走らない」という、地味だが実務でよく遭遇する制約こそが最初のハード
+   ルだった、という点は理論編には出てこない実測ならではの発見。
+2. **`torch.cuda.is_available()` が `True` を返しても実際にGPU計算が
+   できるとは限らない。** 空きVRAMが極端に少ないと、デバイスの可視性
+   チェックは通るのに、最小の1要素テンソル確保でもCUDAコンテキスト生成
+   自体が失敗する。ヘルスチェックとして `is_available()` だけを見るのは
+   不十分。
+3. **TF32のデフォルト値は `torch.backends.cuda.matmul.allow_tf32`
+   (`False`)と `torch.backends.cudnn.allow_tf32`(`True`)で異なる**
+   (torch 2.5.1実測)。「TF32は既定でオンだったかオフだったか」という
+   問いに単一の答えはなく、経路(cuBLAS matmul経由かcuDNN経由か)ごとに
+   確認する必要がある。
+4. **失敗そのものが完全に再現した。** 3つの独立したコンテナで、同じ
+   エラーメッセージ文字列まで含めてビット単位で一致(`n_mismatches: 0`)
+   ― 「常に同じ理由で失敗する」こと自体も一種の再現性であり、
+   `compare.py` の仕組みがそのまま使えた。
+
 ## 予想外だった結果
 
 1. **E4: RandomForest がバージョンを跨いで完全一致した。**
@@ -246,7 +380,13 @@ QEMU(arm64 エミュレーション)でのフルスクリプト実行は約100�
 
 ## 実行できなかった項目・理由
 
-- GPU 関連の実験はすべて対象外(ホストのGPUドライバ不整合により実行不可、
-  タスク要件でも明示的に除外)。
-- 上記以外はすべて実行済み。E5 (arm64/QEMU) を含め、E1〜E6 すべてが完走し
-  `results/` に実測JSONが残っている。
+- E1〜E6(CPU実験)はすべて実行済み。E5 (arm64/QEMU) を含め、E1〜E6 すべてが
+  完走し `results/` に実測JSONが残っている。
+- GPU実験(E8系)は、当初(この節を最初に書いた時点)はホストのGPUドライバ
+  不整合により実行対象外だった。後日、別ホストでGPUが使える環境が用意され
+  スクリプト自体は実装・実行したが、**そのホストのGPUが常駐の別プロセス
+  (vLLM)とVRAMを共有しており空きVRAMが約305MiBしかなかったため、CUDA
+  コンテキストの生成自体が失敗し、GPU計算を伴う測定はすべて未実行に終わっ
+  た**。詳細・根拠は「GPU実験(E8系)」の節および
+  `results/e8_environment_probe.json` を参照。GPUメタデータ(GPU名・
+  cuDNNバージョン・TF32デフォルト値など)自体は正常に取得できている。

@@ -79,11 +79,21 @@ def get_gpu_metadata() -> dict:
         info["cudnn_version"] = torch.backends.cudnn.version()
     except Exception as e:
         info["cudnn_version_error"] = str(e)
+    # NOTE: these reflect the flags' values *at the moment emit() is
+    # called* (typically end-of-script), not necessarily torch's untouched
+    # library default -- e8b/e8d deliberately flip some of these mid-script
+    # (use_deterministic_algorithms, TF32 on/off comparisons), so by the
+    # time this runs the flag may already have been mutated. Scripts that
+    # need the *pristine* default (e.g. e8d_tf32.py) capture it explicitly
+    # near the top of main(), before any mutation, into their own
+    # top-level result fields -- treat those as authoritative, and this
+    # metadata block as "what the flag happened to be set to when the
+    # process finished".
     try:
-        info["tf32_matmul_default"] = torch.backends.cuda.matmul.allow_tf32
-        info["tf32_cudnn_default"] = torch.backends.cudnn.allow_tf32
-        info["cudnn_benchmark_default"] = torch.backends.cudnn.benchmark
-        info["cudnn_deterministic_default"] = torch.backends.cudnn.deterministic
+        info["tf32_matmul_allow_at_metadata_collection"] = torch.backends.cuda.matmul.allow_tf32
+        info["tf32_cudnn_allow_at_metadata_collection"] = torch.backends.cudnn.allow_tf32
+        info["cudnn_benchmark_at_metadata_collection"] = torch.backends.cudnn.benchmark
+        info["cudnn_deterministic_at_metadata_collection"] = torch.backends.cudnn.deterministic
     except Exception as e:
         info["backend_flags_error"] = str(e)
 

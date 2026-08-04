@@ -1,0 +1,47 @@
+{
+  "label": "E8_environment_probe",
+  "note": "Not one of the compare.py-driven experiments; a standalone record of the root-cause investigation into why every E8a-E8d GPU measurement failed with a CUDA OOM, done before writing/running the E8 scripts proper. Kept here so the article author has the exact evidence (not just a paraphrase) without having to re-run diagnostics.",
+  "host_nvidia_smi": {
+    "command": "nvidia-smi --query-gpu=memory.used,memory.free,memory.total --format=csv",
+    "result_mib": "used=23768, free=305, total=24564",
+    "sampled_5_times_over_10s": "stable at used=23768 free=305 across all samples",
+    "resident_process": "vLLM::EngineCore (PID varies), ~23172 MiB; a second /usr/bin/python process holds ~564 MiB",
+    "instruction_compliance": "neither process was touched/killed, per task constraints"
+  },
+  "bare_cuda_c_test": {
+    "purpose": "rule out a PyTorch-specific bug by testing raw CUDA driver/runtime behavior directly, with no PyTorch/cuDNN/cuBLAS involved",
+    "image": "nvidia/cuda:13.0.0-devel-ubuntu22.04 (matches the host driver's CUDA 13.0)",
+    "program": "cudaSetDevice(0); cudaMemGetInfo(&free,&total); cudaMalloc(&p, 1MB); cudaMemGetInfo again",
+    "result": {
+      "cudaSetDevice": "code=2 (cudaErrorMemoryAllocation): out of memory",
+      "cudaMemGetInfo_after_setDevice": "code=2 (cudaErrorMemoryAllocation), free=0 total=0",
+      "cudaMalloc_1MB": "out of memory",
+      "cudaMemGetInfo_after_malloc": "out of memory"
+    },
+    "repeated": "3x over ~10s, identical result every time",
+    "interpretation": "the driver cannot even establish a CUDA context (let alone allocate a 1MB buffer) with only 305 MiB of free VRAM on this RTX 4090. This is a genuine, reproducible resource-exhaustion condition at the CUDA driver level, not a container/toolkit/PyTorch compatibility problem."
+  },
+  "pytorch_lightweight_probe": {
+    "purpose": "determine which torch.cuda.* calls need a live CUDA context/allocation vs which are safe metadata-only queries, so E8 scripts could still collect rich environment metadata even though real GPU compute is blocked",
+    "succeeded_without_any_allocation": [
+      "torch.__version__ -> '2.5.1+cu124'",
+      "torch.version.cuda -> '12.4'",
+      "torch.backends.cudnn.version() -> 90100",
+      "torch.cuda.is_available() -> True",
+      "torch.cuda.device_count() -> 1",
+      "torch.cuda.get_device_name(0) -> 'NVIDIA GeForce RTX 4090'",
+      "torch.cuda.get_device_capability(0) -> (8, 9)",
+      "torch.cuda.get_device_properties(0) -> name/major/minor/total_memory/multi_processor_count/uuid/L2_cache_size all populated",
+      "torch.backends.cuda.matmul.allow_tf32 -> False (library default)",
+      "torch.backends.cudnn.allow_tf32 -> True (library default)",
+      "torch.backends.cudnn.benchmark -> False (library default)",
+      "torch.backends.cudnn.deterministic -> False (library default)"
+    ],
+    "failed_with_cuda_oom": [
+      "torch.cuda.mem_get_info() -> RuntimeError: CUDA error: out of memory",
+      "torch.zeros(1, device='cuda') -> RuntimeError: CUDA error: out of memory (even a single float32 element)"
+    ],
+    "conclusion": "torch.cuda.is_available() returning True is NOT sufficient evidence that GPU compute will actually work when VRAM is this tight -- it only reflects driver/device visibility, not whether a context can be created. This distinction is worth stating explicitly in the article, since it contradicts the naive assumption that 'is_available() == True' implies GPU experiments are runnable."
+  },
+  "conclusion_for_e8": "Every E8a/E8b/E8c/E8d measurement that needs any CUDA tensor allocation fails identically with RuntimeError: CUDA error: out of memory, at every fallback size down to a single element, in every one of the 3+3 repeated containers. This is expected given the above: the GPU has only ~305 MiB free (vLLM holds ~23.8/24.5 GB), and even a bare CUDA context needs more than that. The E8 scripts and run_gpu.sh are fully implemented and were run to completion; what they demonstrate in this environment is that the failure itself is perfectly reproducible (identical error message, 0 mismatches across repeated containers in e8a_compare_*.json / e8b_compare_*.json), while the metadata-only fields (GPU name/capability/cuDNN version/TF32 defaults) were successfully collected throughout."
+}
