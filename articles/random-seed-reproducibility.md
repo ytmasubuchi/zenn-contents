@@ -24,6 +24,7 @@ DS/MLをやっていると、一度はこの現象に出会います。
 2. 同じマシンで、コンテナを作り直したら?
 3. コンテナイメージ(ライブラリのバージョン)が変わったら?
 4. ハードウェア(CPUアーキテクチャ)が変わったら?
+5. 計算をGPUに載せたら?
 
 先に結論の輪郭だけ言うと、「乱数そのもの」は驚くほど頑丈です。
 壊れるのはいつも、乱数の外側です。
@@ -38,6 +39,7 @@ DS/MLをやっていると、一度はこの現象に出会います。
 - BLAS実体: NumPyホイール同梱の scipy-openblas 0.3.27(pthreadsビルド。`threadpoolctl` で確認)
 - 比較用の旧イメージ: `python:3.11-slim`(Python 3.11.15)+ NumPy 1.26.4 / scikit-learn 1.3.2
 - 異アーキテクチャ検証: QEMUエミュレーションによる `linux/arm64`
+- GPU検証環境(7章): NVIDIA GeForce RTX 4090(Ada Lovelace、compute capability 8.9)、ドライバ 580.173.02、イメージ `pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime`(torch 2.5.1+cu124 / CUDA 12.4 / cuDNN 9.1.0)。CPU実験とはホストが別(GPU実験のみ別ホストで実施)
 
 ## 1. 乱数は「計算」で作られている
 
@@ -565,13 +567,14 @@ NumPyには `SeedSequence.spawn()` という、1つの親シードから重複�
 
 [^seedseq]: https://numpy.org/doc/stable/reference/random/bit_generators/generated/numpy.random.SeedSequence.html
 
-## 7. GPUの世界(理論編)
+## 7. GPUの世界
 
 ここまでCPUの話をしてきました。
 GPUはさらに条件が厳しくなります。
 
-手元のGPUがドライバ不整合で動かせなかったため、この章は公式ドキュメントの裏どりベースの理論編です。
-その公式ドキュメントが、驚くほど率直なことを書いています。
+この記事を最初に書いた時点では手元にGPUがなく、この章は公式ドキュメントの裏どりだけの理論編でした。
+その後、実機のRTX 4090が使える環境を用意できたので、この章は理論と実測の両方で書き直します。
+まず理論編がベースにしていた、PyTorch自身の率直な一文です。
 
 > Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. Furthermore, results may not be reproducible between CPU and GPU executions, even when using identical seeds.
 > (完全に再現可能な結果は、PyTorchのリリース間、個々のコミット間、異なるプラットフォーム間で保証されません。さらに、同一のシードを使っても、CPUとGPUの実行間で結果が再現されない場合があります)[^torchrepro]
@@ -579,17 +582,35 @@ GPUはさらに条件が厳しくなります。
 [^torchrepro]: PyTorch公式 Reproducibility ノート。 https://docs.pytorch.org/docs/stable/notes/randomness.html
 
 PyTorch自身が「シードを固定しても保証しない」と明言しているわけです。
-GPU特有の非決定性は、大きく2つあります。
+実測は、この一文が具体的にどこで、どのくらいの大きさで効いてくるかを確かめる作業になります。
+
+検証環境は NVIDIA GeForce RTX 4090(Ada Lovelace、compute capability 8.9)、ドライバ 580.173.02、イメージ `pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime`(torch 2.5.1+cu124、cuDNN 9.1.0)です。
+地味に紛らわしいのですが、TF32の既定値は経路によって違います。行列積(`torch.backends.cuda.matmul.allow_tf32`)は既定 `False`、cuDNNの畳み込み(`torch.backends.cudnn.allow_tf32`)は既定 `True`。`cudnn.benchmark` と `cudnn.deterministic` はいずれも既定 `False` です。
+
+### 罠: GPUが「見える」ことと「使える」ことは別
+
+実測に入る前に、1つ実務的な罠を挙げておきます。
+最初の実験は、GPU上で1件の測定も成功せずに終わりました。
+原因はドライバ不整合ではありません。同じGPUを常駐のvLLMサーバが使っていて、空きVRAMがたったの305MiB(全体24564MiBのうち23768MiBが使用済み)しかなかったのです。
+
+厄介なのは、この状態でも `torch.cuda.is_available()` は `True` を返すことです。
+デバイスの可視性チェックは通っても、実際に計算するにはCUDAコンテキストの生成やテンソルのメモリ確保が必要で、そちらは空きVRAMが足りず失敗します。
+実際、1要素だけのテンソルを`cuda`に置こうとしても`RuntimeError: CUDA error: out of memory`で落ちました(`results/e8_environment_probe.json`)。PyTorchを経由しない素のCUDA Cプログラムでも同じ`cudaErrorMemoryAllocation`が出たので、PyTorch側の不具合ではなく、正真正銘のVRAM枯渇です。
+
+`is_available() == True` は「GPUというデバイスが見えている」ことしか保証しません。「今、計算できる空きメモリがある」こととは別の話です。
+共有GPU環境で実験や学習が動かないとき、疑うべき容疑者がもう1人増えます。
+幸い後日vLLMが停止して空きVRAMが約23.5GBに戻ったため、同じスクリプトをそのまま再実行して、以下の実測データを得ました。
 
 ### 非決定性その1: cuDNNのアルゴリズム自動選択
 
 cuDNNは同じ畳み込みに対して複数の実装を持ち、実行時に「今の入力サイズならどれが速いか」をベンチマークして選びます(`cudnn.benchmark`)。
 実行のたびに違う実装が選ばれれば、演算順序が変わり、結果のビットが変わります。
 
-これは `torch.backends.cudnn.benchmark = False` で止められます。
+これは `torch.backends.cudnn.benchmark = False` で止められます(この値はライブラリの既定でもあります)。
 ただし、これで固定できるのは「どの実装が選ばれるか」までです。選ばれた実装そのものが、次に述べるatomicAddなどの理由で非決定的な場合があり、そちらは `torch.use_deterministic_algorithms(True)` で別途止める必要があります(cuDNNの演算に限れば `torch.backends.cudnn.deterministic = True` でも代用できます)。
+この2段構えは理屈の上の話に聞こえるかもしれませんが、次の実測がまさにこの2つを切り分けて見せてくれます。
 
-### 非決定性その2: atomicAdd
+### 非決定性その2: atomicAdd、そして実測
 
 より根深いのがこちらです。
 GPUでは数千のスレッドが同じメモリ位置に同時に足し込む場面があり、そこでatomicAdd(不可分な加算)が使われます。
@@ -598,13 +619,36 @@ atomicAddは「同時に足しても壊れない」ことは保証しますが�
 順番はその瞬間のスケジューリング次第で、実行ごとに変わります。
 浮動小数点の足し算は順序で結果が変わるので、出力もビット単位で揺れます。
 
-`scatter_add` や `index_add` のように、複数のスレッドが同じ出力位置へ同時に書き込みうる集約系の演算の多くが、この構図に当てはまります。
-実際、`torch.use_deterministic_algorithms(True)` を有効にすると、`index_add_` のCUDA実装は結果を返す代わりにエラーを送出して停止します[^torchrepro]。
-「非決定的な演算を黙って実行させるより、エラーで止めて気づかせる」というのが、この手の演算に対するPyTorchの基本方針です。
+ここからは実測です(E8a)。`cudnn.benchmark = False`(既定値)のまま、`use_deterministic_algorithms` は呼ばずに、同一イメージから3つの独立したコンテナで一連の演算を実行し、比較しました(`results/e8a_compare_1v2.json` / `e8a_compare_1v3.json`)。
+
+**3コンテナで完全に一致した項目**:
+
+- `torch.manual_seed(42)` 後のPhilox `rand` / `randn`
+- 512×512 float32行列積(cuBLAS)――cuBLASが公式に規定している再現性(同一ツールキット・同一アーキ・同一SM数ならビット単位で一致)が実測でも成立しています[^cublas]
+- Conv2dのforward出力、weight勾配(`grad_weight`)
+- MLP学習(50ステップ)のloss曲線・最終パラメータ
+- `embedding_bag(mode='sum')` のforward・backward
+
+**一致しなかった項目**:
+
+- **Conv2dの `grad_input`(入力側の勾配)**: 49152要素中、run1対run2で6048要素(12.3%)、run1対run3で5513要素(11.2%)が不一致。最大絶対差は1.19×10⁻⁷、最大ULP差は1024(`results/e8_ulp_diff.json`)
+- **`index_add_` / `scatter_add_`**: どちらも出力16要素のほぼ全部(16/16、run1対run3のscatter_addのみ15/16)が不一致。`index_add_`の最大絶対差は1.22×10⁻³〜2.00×10⁻³、最大ULP差691〜2101。`scatter_add_`は最大絶対差2.38×10⁻³〜2.93×10⁻³、最大ULP差585〜1003
+- **`cumsum`**: 100万要素中47.0%〜50.5%が不一致。最大相対差は最大28.9%、最大ULP差は約455万――これはもう丸め誤差の範疇ではありません
+
+ここで、`cudnn.benchmark` はどちらの実験も既定の `False` のままだったことに注目してください。
+つまり「どの畳み込み実装を使うか」は3コンテナとも同じはずなのに、`grad_input` だけがビット単位で揺れました。
+forward出力とweight勾配は完全一致したのに、です。
+これは前節の理屈で言う非決定性その1(アルゴリズム選択)ではなく、その2(選ばれた実装内部のatomicAdd)が単独で効いている実例です。**cudnn.benchmark=Falseはアルゴリズム選択の揺れは止めますが、選ばれたアルゴリズムそのものの非決定性までは止めません。**
+
+atomicAddの非決定性は、別マシンや別コンテナに移らなくても観測できました。
+同じコンテナ・同じプロセス内で、同じ`index_add_`/`scatter_add_`を(idxもvalsも変えずに)20回繰り返したところ、**20回すべてが異なるハッシュ**になりました(`index_add_unique_count: 20`, `scatter_add_unique_count: 20`、`results/e8a_run1.json`)。
+コンテナの再起動すら要らない、その場で何度でも起きる非決定性です。
+
+`cumsum`の不一致は、実はatomicAddとは別の理由に由来する可能性があります。`cumsum`(累積和)はスキャンと呼ばれる並列アルゴリズムで実装されることが多く、複数スレッドで分担した部分和を後から結合する処理自体が、実行ごとに違う分割・結合順になりうるためです。ここは実装の内部構造まで踏み込んで確認したわけではないので、断定は避けます。
 
 ### それでもGPUで再現させたいとき
 
-やることは決まっています。
+理屈のうえでやることは決まっています。
 
 ```python
 torch.manual_seed(42)
@@ -619,10 +663,61 @@ torch.backends.cudnn.benchmark = False
 
 [^cublas]: https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility cuBLASの再現性の規定は2段構えです。(1) 同一ツールキットバージョンでは、同一アーキテクチャ・同一SM数のGPU上なら実行ごとにビット単位で同じ結果を出すよう設計されている("By design, all cuBLAS API routines from a given toolkit version, generate the same bit-wise results at every run when executed on GPUs with the same architecture and the same number of SMs")。ただしバージョン間の一致は保証されない。(2) 例外として、複数のCUDAストリームを併用するとワークスペースの使い分けにより同一バージョン内でも結果が揺れることがあり、`CUBLAS_WORKSPACE_CONFIG`(`:16:8` または `:4096:8`)はこの(2)へのデバッグ用の回避策として提示されている。
 
+この設定を実測でも確かめました(E8b)。前節で不一致だった項目を含め、同一イメージの3コンテナで**比較可能な全項目がビット単位で完全一致**しました(`results/e8b_compare_1v2.json` / `e8b_compare_1v3.json`、不一致0件)。
+Conv2dの`grad_input`も、`index_add_`/`scatter_add_`の20回反復も、決定的モードに入れた途端にハッシュが1種類に収束しています。
+
+ただし演算ごとの挙動は一様ではありませんでした。`results/e8b_run1.json` の `status` を見ると、`index_add_`と`scatter_add_`は`ok`――エラーにはならず、決定的な実装に自動的に差し替わって成功しています。一方`cumsum`は次のエラーで停止しました。
+
+```
+RuntimeError: cumsum_cuda_kernel does not have a deterministic implementation,
+but you set 'torch.use_deterministic_algorithms(True)'. ...
+```
+
+**ここで、この記事の以前の版の記述を訂正します。**
+以前は「`use_deterministic_algorithms(True)` を有効にすると `index_add_` のCUDA実装はエラーを送出する」と書いていましたが、これはtorch 2.5.1では成立しません。実際にエラーになるのは`cumsum`のほうで、`index_add_`と`scatter_add_`はエラーにならず決定的な実装に差し替えられます。
+
+面白いのは、この訂正の理由が単なる私の調べ不足ではなく、**PyTorchの公式ドキュメント同士が食い違っている**ことです。この章の冒頭で引用したReproducibilityノートは、今なお「`index_add_`のCUDA実装は`use_deterministic_algorithms(True)`でエラーを送出する」と明記しています[^torchrepro]。ところが`torch.use_deterministic_algorithms`関数自体のdocstringは、`torch.index_add()`と`torch.Tensor.scatter_add_()`を「`mode=True`で決定的に振る舞うようになる演算」の一覧に載せ、`torch.cumsum()`(浮動小数点型でCUDA実行時)を「`mode=True`でRuntimeErrorを送出する演算」の一覧に載せています[^detalgo]。
+今回の実測は、後者(docstring)の分類と一致し、前者(Reproducibilityノート)の記述とは食い違いました。
+
+[^detalgo]: `torch.use_deterministic_algorithms` docstring。 https://docs.pytorch.org/docs/stable/generated/torch.use_deterministic_algorithms.html 「決定的に振る舞うようになる演算」の一覧に "torch.index_add() when called on CUDA tensor" と "torch.Tensor.scatter_add_() when called on a CUDA tensor" が、「RuntimeErrorを送出する演算」の一覧に "torch.cumsum() when called on a CUDA tensor when dtype is floating point or complex" がそれぞれ記載されている。一方、本文で引用したReproducibilityノート([^torchrepro])は "running the nondeterministic CUDA implementation of torch.Tensor.index_add_() will throw an error" と、docstringと矛盾する記述を維持している。
+
+4章で見たNEP 19の例外条項と現行ドキュメントの齟齬と、構図はまったく同じです。
+公式ドキュメントが1枚岩とは限らず、複数のページが食い違っていることがある。
+そういうときに頼れるのは、結局のところ実測です。
+
 ただし、これで手に入る再現性には明確な範囲があります。
 **同じGPUアーキテクチャ・同じSM数(実務上はほぼ「同じ機種」)・同じCUDA/cuDNN/PyTorchバージョンの中だけ**です。
 A100で固定した結果はA100でしか再現せず、H100に載せ替えれば変わりえます。
 速度を犠牲にした上で、です。
+
+### TF32という、桁の違う変動要因
+
+ここまでの不一致は、どれも数ULP〜数千ULPのオーダーでした。
+TF32(TensorFloat-32、Ampere以降のGPUが行列積を高速化するために使う、仮数部を10bitに削った内部表現)は、それとは桁が違います。
+
+同一入力の512×512行列積を、TF32無効(既定)と有効で計算して比較しました(E8d、`results/e8d_tf32.json`)。
+
+- 262144要素中262127要素(99.99%)が不一致
+- 最大絶対差 0.0296、平均絶対差 0.00531
+- 最大相対差 1.90(190%。ゼロに近い要素で符号や桁そのものが変わっています)
+
+5章のE7誤差スケール表を思い出してください。CPUアーキテクチャをまたいだ行列積の絶対差は、最大でも1.0×10⁻¹³でした。
+TF32のon/offによる絶対差0.0296は、それより10桁以上大きい差です。
+アーキテクチャの違いが生む揺れは「無視できる範囲の丸め誤差」でしたが、TF32は演算の中身そのものを変える設定であり、無視できる精度低下では済まないことがある、ということが実測で裏づけられました。
+TF32はデフォルトでは行列積側は無効・cuDNN側は有効という、経路によって既定が違う設定です。意図せず片方だけ有効なまま計算していないか、確認する価値があります。
+
+### CPUとGPU、同じシード・同じ入力で比べる
+
+最後に、CPUとGPUを直接比べます(E8c、`results/e8c_cpu_vs_gpu.json`)。
+
+- **`torch.rand`(同じ`manual_seed(42)`)**: 完全に不一致(1000/1000要素)。CPUとGPUのデフォルト生成器はそもそも別物(CPUはMT19937系、GPUはPhilox)で、別ストリームなので当然の結果です
+- **512×512行列積(同一入力)**: 262144要素中235051要素(89.7%)が不一致、最大相対差2.57%。CPUのBLASとGPUのcuBLASは加算順序も丸めの実装も別物なので、6章で見たBLASの非結合性の議論が、アーキ内の話に留まらずCPU⇔GPU間でもそのまま成立します
+- **MLP学習(同一初期値、50ステップ)**: 最終パラメータ193要素中47要素(24.4%)が不一致。ただし最大ULP差はわずか**5**でした
+
+3つ目が意外でした。
+生の行列積は89.7%の要素・2.57%という無視できない相対差で割れていたのに、そこから50ステップ学習した後のパラメータは、たった5ULPしか離れていません。
+誤差は「使えば使うほど拡大する」だけではなく、学習のダイナミクスによっては吸収されることもある、という一例です。
+これは「どのレベルの出力を比較するかで、再現性の評価はまったく変わる」という、5章末で見た教訓のGPU版でもあります。生の演算だけを見て「危険」と判断するのも、学習後の指標だけを見て「安全」と判断するのも、どちらも早計です。
 
 ## 8. まとめ: 再現性の階層表
 
@@ -638,7 +733,7 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 | イメージ/ライブラリバージョン | RandomStateはポリシーとして保証。Generatorは非保証(実測ではたまたま一致) | 非保証。実測ではRFはたまたま一致、LRの係数は不一致 |
 | CPUアーキテクチャ | 整数列・一様乱数は数学的必然で一致。正規乱数はたまたま一致 | 個々の加減乗除・sqrt演算は数学的必然で一致(ただしFMA融合・演算順序が同じ場合)。それ以外(超越関数・BLAS・学習過程)は**まだらに不一致**——一致した項目(`np.sin`・`np.sum`・predictなど)もすべてたまたまで保証はない |
 | スレッド数・並列度 | 一致(生成器を分ければ設計上の必然) | 非保証。今回の規模ではたまたま一致したが、配列サイズやBLAS実装次第で変わりうる |
-| GPU機種・CUDAバージョン | — | 非保証(公式が明言) |
+| GPU機種・CUDAバージョン | Philoxのカウンタ生成は実測で反復一致(3コンテナ)。ただしPyTorchが明文で保証している値ではない | デフォルト設定は非保証。実測ではcuBLAS行列積・Conv2d forward/weight勾配・MLPは一致したがConv2dのgrad_input・`index_add_`/`scatter_add_`・`cumsum`は不一致(atomicAdd等が原因)。決定的モード+環境変数なら**同一GPU機種・同一バージョン内**でビット単位一致(cuBLASのポリシー保証と同型)。TF32 on/offは別軸の変動要因で、差はULPノイズより10桁以上大きい |
 
 この表から、実務の指針が素直に導けます。
 
@@ -649,7 +744,7 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 3. ライブラリはlockファイルでバージョン固定する。「イメージの再ビルド」は再現性を壊しうる(`pip install` の解決結果が変わるため)。ビルド済みイメージをダイジェスト指定で使い回すのが硬い
 4. スレッド数を固定する。ただし参照される環境変数はライブラリごとに違う(OpenBLASは `OPENBLAS_NUM_THREADS`、MKLは `MKL_NUM_THREADS` も見る)ので、`threadpoolctl` で一括制御するか、実際のスレッド数を確認して固定するのが確実。6章で見たとおり今回の実測ではスレッド数を変えても一致したが、固定は「変わりうる要因を消す」ための保険として入れる
 5. CPUアーキテクチャをまたぐビット一致は、原理的に狙わない
-6. GPUなら `use_deterministic_algorithms(True)` を入れ、GPU機種もバージョンも固定する
+6. GPUなら `use_deterministic_algorithms(True)` を入れ、GPU機種もバージョンも固定する。ただしこれで全演算が救われるわけではない――`cumsum`のように決定的実装が存在せずエラーで止まる演算もある。エラーは非決定性の隠蔽ではなく可視化なので、止まった箇所こそ実装の見直しどころ。加えてTF32の有効/無効は再現性以前に結果そのものを変える設定なので、経路ごとの既定値を明示的に確認する
 7. 再現性の検証は複数指標で行う。最終lossの1点比較は、今回の実測のように偶然一致で騙される
 8. 「一致した」を見たら、それが数学的必然・ポリシーとしての保証・たまたまの一致のどれなのかを切り分ける。前者2つには頼ってよいが、たまたまの一致に依存する運用は、次のバージョンアップやデータ規模の変化で静かに壊れる
 
@@ -672,6 +767,7 @@ A100で固定した結果はA100でしか再現せず、H100に載せ替えれ�
 - NumPy Random Compatibility Policy: https://numpy.org/doc/stable/reference/random/compatibility.html
 - scikit-learn Common pitfalls (Controlling randomness): https://scikit-learn.org/stable/common_pitfalls.html
 - PyTorch Reproducibility: https://docs.pytorch.org/docs/stable/notes/randomness.html
+- PyTorch `torch.use_deterministic_algorithms` docstring: https://docs.pytorch.org/docs/stable/generated/torch.use_deterministic_algorithms.html
 - NVIDIA Floating Point and IEEE 754: https://docs.nvidia.com/cuda/floating-point/index.html
 - IEEE 754-2019 Addendum(規格委員会公式ページ): https://grouper.ieee.org/groups/msc/ANSI_IEEE-Std-754-2019/background/addendum.html
 - Goldberg, "What Every Computer Scientist Should Know About Floating-Point Arithmetic": https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
