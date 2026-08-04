@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "hostname": "79ed53bd5a10",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.11.15",
+    "python_implementation": "CPython",
+    "numpy_version": "1.26.4",
+    "scipy_version": "1.11.4",
+    "sklearn_version": "1.3.2",
+    "torch_version": "not-installed",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E7_capture_raw",
+  "seed": 42,
+  "float_math_ops": {
+    "sin_sha256": "2153da229cd5d17e1743e4e8171c8df76a826c93e0f0fefe6f29db9841bc33e2",
+    "exp_sha256": "6e4b3f626ac6fdffe7b706d1fd7cd5701d66967e7425fbdfd7d256911d67c0ea",
+    "matmul_sha256": "9090c679debc2e3b58359a06864d593b966544c262da155d6774138a21e8c14d",
+    "big_array_sum_hex": "-0x1.f03dc2ba9a5aep+9",
+    "big_array_sum_sha256": "275ef90507d794ecdcbf645a79bcc3d827c7673f75d93019c7b4d89214e2956a"
+  },
+  "sklearn": {
+    "sklearn_version": "1.3.2",
+    "lr_n_iter": [
+      30
+    ],
+    "random_forest": {
+      "predictions_sha256": "bb6b4a0cebb91a248a2e2d1069897c5290cdde2dd84c9d37b30f6fd638c3e658",
+      "feature_importances_sha256": "8bf4d454c741e913be330d44cbfc6e6ae0e286b7c987e4d711259f5569bdfa4e",
+      "feature_importances_hex": [
+        "0x1.3eb9ff9c2d97cp-3",
+        "0x1.53373f8240884p-6",
+        "0x1.e86d2a4d300e4p-5",
+        "0x1.281ef5dd3ea45p-5",
+        "0x1.2bbf1dadea68dp-4",
+        "0x1.68bc087e0233fp-5",
+        "0x1.76d64de105820p-6",
+        "0x1.e206403abe0cap-5",
+        "0x1.a2a7ec8aafd44p-5",
+        "0x1.3a42b6591ea46p-6",
+        "0x1.b1f239a3cf29bp-5",
+        "0x1.81ea23334aef1p-5",
+        "0x1.c8224bd20600dp-6",
+        "0x1.48670650d812dp-5",
+        "0x1.3a46ca2be0327p-5",
+        "0x1.31d761486448cp-6",
+        "0x1.31cdc86fbff46p-6",
+        "0x1.549702c548f49p-5",
+        "0x1.897b8f36b4fc6p-5",
+        "0x1.00beb5349f90fp-3"
+      ]
+    },
+    "logistic_regression": {
+      "predictions_sha256": "1df54b27591cad21b15cf92f848092fe219a6c0b20f768b9feaefc9c5f360304",
+      "coef_sha256": "2a679acf26fbbc35d6e9603cd1e09471935ad4ab086ac78ac5f82a0d2c8de918",
+      "coef_hex": [
+        "-0x1.410671f10431bp-2",
+        "-0x1.ad989ed2e67b2p-3",
+        "0x1.356f63e4856f2p-3",
+        "0x1.3a0a35808fb5ap-2",
+        "0x1.68f0e2e08f05bp-2",
+        "-0x1.9fc7d372d6e46p-4",
+        "0x1.497ec51684231p-9",
+        "0x1.2d857cfcd7bb2p-2",
+        "0x1.68850a2e2dce7p-6",
+        "0x1.667ef8c5a8fc4p-3",
+        "-0x1.d2471aaff1920p-3",
+        "0x1.534ab4bb04532p-3",
+        "-0x1.ef2120112eac0p-5",
+        "-0x1.a05967d0c65e8p-2",
+        "0x1.d8c6c2521e8bep-4",
+        "0x1.19a0c23398bdbp-2",
+        "0x1.0f73021582bf1p-2",
+        "0x1.f1953ff76f102p-3",
+        "-0x1.f39dceb388d56p-4",
+        "0x1.8fef8dcfd94cep-2"
+      ],
+      "intercept_hex": [
+        "0x1.90e06e729df15p-4"
+      ]
+    }
+  },
+  "torch_mlp": {
+    "skipped": "torch not installed"
+  }
+}

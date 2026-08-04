@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "hostname": "8f60ab39bd9d",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": "8",
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E6_parallel_nondeterminism",
+  "seed": 42,
+  "cpu_count": 64,
+  "non_associativity": {
+    "minimal_3_value_example": {
+      "a": 1.0,
+      "b": 1e+16,
+      "c": -1e+16,
+      "(a+b)+c": 0.0,
+      "a+(b+c)": 1.0,
+      "differ": true
+    },
+    "large_array": {
+      "forward_sum_hex": "-0x1.2f21bfc75b33cp+7",
+      "reversed_sum_hex": "-0x1.2f21bfc75b33fp+7",
+      "shuffled_sum_hex": "-0x1.2f21bfc75b33cp+7",
+      "naive_sequential_sum_hex": "-0x1.2f21bfc75b29fp+7",
+      "forward_vs_reversed_differ": true,
+      "forward_vs_naive_differ": true
+    }
+  },
+  "blas_threads": {
+    "omp_num_threads_env": "8",
+    "openblas_num_threads_env": null,
+    "mkl_num_threads_env": null,
+    "threadpool_info": [
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 8,
+        "prefix": "libscipy_openblas",
+        "filepath": "/usr/local/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-ff651d7f.so",
+        "version": "0.3.27",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      }
+    ],
+    "matmul_sha256": "a70c098d9b1d9f5cd09d5b1270c2f2554160f0a1341a6d38e2ce5f93da072555",
+    "sum_hex": "-0x1.5c0a10e600482p+8"
+  },
+  "torch_threads": {
+    "threads_1_sha256": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f",
+    "threads_8_sha256": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f"
+  },
+  "sklearn_njobs": {
+    "n_jobs_1": {
+      "predictions_sha256": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7",
+      "feature_importances_sha256": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+    },
+    "n_jobs_minus1": {
+      "predictions_sha256": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7",
+      "feature_importances_sha256": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+    },
+    "predictions_match": true,
+    "feature_importances_match": true
+  }
+}

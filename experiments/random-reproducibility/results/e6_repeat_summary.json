@@ -1,0 +1,133 @@
+{
+  "label": "E6_repeat_summary",
+  "note": "e6_parallel_nondeterminism.py run 5x per OMP_NUM_THREADS setting, each in a fresh container of random-repro:base-amd64",
+  "settings": {
+    "omp1": {
+      "n_runs": 5,
+      "n_keys_compared": 12,
+      "all_keys_identical_across_runs": true,
+      "per_key": {
+        "non_associativity.large_array.forward_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33cp+7"
+        },
+        "non_associativity.large_array.reversed_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33fp+7"
+        },
+        "non_associativity.large_array.shuffled_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33cp+7"
+        },
+        "non_associativity.large_array.naive_sequential_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b29fp+7"
+        },
+        "blas_threads.matmul_sha256": {
+          "all_runs_identical": true,
+          "value": "a70c098d9b1d9f5cd09d5b1270c2f2554160f0a1341a6d38e2ce5f93da072555"
+        },
+        "blas_threads.sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.5c0a10e600482p+8"
+        },
+        "torch_threads.threads_1_sha256": {
+          "all_runs_identical": true,
+          "value": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f"
+        },
+        "torch_threads.threads_8_sha256": {
+          "all_runs_identical": true,
+          "value": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f"
+        },
+        "sklearn_njobs.n_jobs_1.predictions_sha256": {
+          "all_runs_identical": true,
+          "value": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7"
+        },
+        "sklearn_njobs.n_jobs_1.feature_importances_sha256": {
+          "all_runs_identical": true,
+          "value": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+        },
+        "sklearn_njobs.n_jobs_minus1.predictions_sha256": {
+          "all_runs_identical": true,
+          "value": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7"
+        },
+        "sklearn_njobs.n_jobs_minus1.feature_importances_sha256": {
+          "all_runs_identical": true,
+          "value": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+        }
+      }
+    },
+    "omp8": {
+      "n_runs": 5,
+      "n_keys_compared": 12,
+      "all_keys_identical_across_runs": true,
+      "per_key": {
+        "non_associativity.large_array.forward_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33cp+7"
+        },
+        "non_associativity.large_array.reversed_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33fp+7"
+        },
+        "non_associativity.large_array.shuffled_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b33cp+7"
+        },
+        "non_associativity.large_array.naive_sequential_sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.2f21bfc75b29fp+7"
+        },
+        "blas_threads.matmul_sha256": {
+          "all_runs_identical": true,
+          "value": "a70c098d9b1d9f5cd09d5b1270c2f2554160f0a1341a6d38e2ce5f93da072555"
+        },
+        "blas_threads.sum_hex": {
+          "all_runs_identical": true,
+          "value": "-0x1.5c0a10e600482p+8"
+        },
+        "torch_threads.threads_1_sha256": {
+          "all_runs_identical": true,
+          "value": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f"
+        },
+        "torch_threads.threads_8_sha256": {
+          "all_runs_identical": true,
+          "value": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f"
+        },
+        "sklearn_njobs.n_jobs_1.predictions_sha256": {
+          "all_runs_identical": true,
+          "value": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7"
+        },
+        "sklearn_njobs.n_jobs_1.feature_importances_sha256": {
+          "all_runs_identical": true,
+          "value": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+        },
+        "sklearn_njobs.n_jobs_minus1.predictions_sha256": {
+          "all_runs_identical": true,
+          "value": "abb0f2d223dd6cfdbb782765b145ab0f579bd9af14ec30fc1bc278258099b3a7"
+        },
+        "sklearn_njobs.n_jobs_minus1.feature_importances_sha256": {
+          "all_runs_identical": true,
+          "value": "67cfaea083ce1e2a9b9afb88e4bd8155344756b5216251dad74a4cb67b201398"
+        }
+      }
+    }
+  },
+  "omp1_vs_omp8_same_value": {
+    "all_match": true,
+    "per_key": {
+      "non_associativity.large_array.forward_sum_hex": true,
+      "non_associativity.large_array.reversed_sum_hex": true,
+      "non_associativity.large_array.shuffled_sum_hex": true,
+      "non_associativity.large_array.naive_sequential_sum_hex": true,
+      "blas_threads.matmul_sha256": true,
+      "blas_threads.sum_hex": true,
+      "torch_threads.threads_1_sha256": true,
+      "torch_threads.threads_8_sha256": true,
+      "sklearn_njobs.n_jobs_1.predictions_sha256": true,
+      "sklearn_njobs.n_jobs_1.feature_importances_sha256": true,
+      "sklearn_njobs.n_jobs_minus1.predictions_sha256": true,
+      "sklearn_njobs.n_jobs_minus1.feature_importances_sha256": true
+    }
+  }
+}

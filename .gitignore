@@ -1,3 +1,6 @@
 .DS_Store
 *.pyc
 node_modules
+
+# raw float arrays from E7 (regenerate with scripts/e7_capture_raw.py; ~11MB binaries)
+experiments/random-reproducibility/results/e7_raw/

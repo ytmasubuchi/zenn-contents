@@ -1,0 +1,167 @@
+{
+  "metadata": {
+    "hostname": "48b15ac855df",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "platform_release": "6.17.0-1025-oem",
+    "platform_processor": "",
+    "python_version": "3.12.13",
+    "python_implementation": "CPython",
+    "numpy_version": "2.1.3",
+    "scipy_version": "1.14.1",
+    "sklearn_version": "1.5.2",
+    "torch_version": "2.5.1+cpu",
+    "env": {
+      "PYTHONHASHSEED": null,
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "in_container": true
+  },
+  "experiment": "E7_capture_raw",
+  "seed": 42,
+  "float_math_ops": {
+    "sin_sha256": "2153da229cd5d17e1743e4e8171c8df76a826c93e0f0fefe6f29db9841bc33e2",
+    "exp_sha256": "f8c95512f38077d297cd851caa9b34fc7fe91b8d2ea532435f09d2e6c58a25bb",
+    "matmul_sha256": "9090c679debc2e3b58359a06864d593b966544c262da155d6774138a21e8c14d",
+    "big_array_sum_hex": "-0x1.f03dc2ba9a5aep+9",
+    "big_array_sum_sha256": "275ef90507d794ecdcbf645a79bcc3d827c7673f75d93019c7b4d89214e2956a"
+  },
+  "sklearn": {
+    "sklearn_version": "1.5.2",
+    "lr_n_iter": [
+      25
+    ],
+    "random_forest": {
+      "predictions_sha256": "bb6b4a0cebb91a248a2e2d1069897c5290cdde2dd84c9d37b30f6fd638c3e658",
+      "feature_importances_sha256": "8bf4d454c741e913be330d44cbfc6e6ae0e286b7c987e4d711259f5569bdfa4e",
+      "feature_importances_hex": [
+        "0x1.3eb9ff9c2d97cp-3",
+        "0x1.53373f8240884p-6",
+        "0x1.e86d2a4d300e4p-5",
+        "0x1.281ef5dd3ea45p-5",
+        "0x1.2bbf1dadea68dp-4",
+        "0x1.68bc087e0233fp-5",
+        "0x1.76d64de105820p-6",
+        "0x1.e206403abe0cap-5",
+        "0x1.a2a7ec8aafd44p-5",
+        "0x1.3a42b6591ea46p-6",
+        "0x1.b1f239a3cf29bp-5",
+        "0x1.81ea23334aef1p-5",
+        "0x1.c8224bd20600dp-6",
+        "0x1.48670650d812dp-5",
+        "0x1.3a46ca2be0327p-5",
+        "0x1.31d761486448cp-6",
+        "0x1.31cdc86fbff46p-6",
+        "0x1.549702c548f49p-5",
+        "0x1.897b8f36b4fc6p-5",
+        "0x1.00beb5349f90fp-3"
+      ]
+    },
+    "logistic_regression": {
+      "predictions_sha256": "1df54b27591cad21b15cf92f848092fe219a6c0b20f768b9feaefc9c5f360304",
+      "coef_sha256": "3f1a8bb43da7a54d956afe08e21002c0f54813cf349f255ffb56f8d03bf0f706",
+      "coef_hex": [
+        "-0x1.40f8e385391b3p-2",
+        "-0x1.ad31961d6097ap-3",
+        "0x1.356824c3ca24cp-3",
+        "0x1.3a0e3fc96b5a8p-2",
+        "0x1.68dbe46c0d0a7p-2",
+        "-0x1.9f3c0ad3a4c4dp-4",
+        "0x1.2d417940fba1fp-9",
+        "0x1.2d8c82cc662e9p-2",
+        "0x1.6832254eb9c5ap-6",
+        "0x1.65b7302fbd2c0p-3",
+        "-0x1.d2392f8b1208ap-3",
+        "0x1.533371f424bdcp-3",
+        "-0x1.ef02d607babd7p-5",
+        "-0x1.a046764d0335bp-2",
+        "0x1.d8e4cd4ff50d4p-4",
+        "0x1.19a70018e8a4dp-2",
+        "0x1.0f72251fa8cb7p-2",
+        "0x1.f1986fbcad12ep-3",
+        "-0x1.f3374f2b8a2dap-4",
+        "0x1.8fe7e877264b9p-2"
+      ],
+      "intercept_hex": [
+        "0x1.8fd4b34f03342p-4"
+      ]
+    }
+  },
+  "torch_mlp": {
+    "torch_version": "2.5.1+cpu",
+    "num_threads": 1,
+    "final_loss_hex": "0x1.d28ca40000000p+1",
+    "loss_curve_hex": [
+      "0x1.b231980000000p+2",
+      "0x1.afdf180000000p+2",
+      "0x1.ad8f1a0000000p+2",
+      "0x1.ab3fe20000000p+2",
+      "0x1.a8f3880000000p+2",
+      "0x1.a6a3d40000000p+2",
+      "0x1.a4462c0000000p+2",
+      "0x1.a1e1e80000000p+2",
+      "0x1.9f76620000000p+2",
+      "0x1.9d05a20000000p+2",
+      "0x1.9a8fe60000000p+2",
+      "0x1.9810700000000p+2",
+      "0x1.9585180000000p+2",
+      "0x1.92e72c0000000p+2",
+      "0x1.9038e60000000p+2",
+      "0x1.8d7c360000000p+2",
+      "0x1.8aab740000000p+2",
+      "0x1.87c8140000000p+2",
+      "0x1.84d50a0000000p+2",
+      "0x1.81cf760000000p+2",
+      "0x1.7eb2e40000000p+2",
+      "0x1.7b781e0000000p+2",
+      "0x1.781e180000000p+2",
+      "0x1.74ab4c0000000p+2",
+      "0x1.7116e80000000p+2",
+      "0x1.6d61780000000p+2",
+      "0x1.698c900000000p+2",
+      "0x1.6599580000000p+2",
+      "0x1.618a520000000p+2",
+      "0x1.5d59fe0000000p+2",
+      "0x1.58fe700000000p+2",
+      "0x1.54813e0000000p+2",
+      "0x1.4fe3e40000000p+2",
+      "0x1.4b104c0000000p+2",
+      "0x1.46136c0000000p+2",
+      "0x1.40f0e80000000p+2",
+      "0x1.3ba2940000000p+2",
+      "0x1.362e060000000p+2",
+      "0x1.308cbc0000000p+2",
+      "0x1.2ac2640000000p+2",
+      "0x1.24d60c0000000p+2",
+      "0x1.1ec14a0000000p+2",
+      "0x1.1887420000000p+2",
+      "0x1.12244a0000000p+2",
+      "0x1.0b9b260000000p+2",
+      "0x1.04f7740000000p+2",
+      "0x1.fc70b80000000p+1",
+      "0x1.eeb2b60000000p+1",
+      "0x1.e0b4940000000p+1",
+      "0x1.d28ca40000000p+1"
+    ],
+    "loss_curve_sha256": "07feffdd5821859102c9d43dfbe6d3b31c9265a1eeb8b4f61158e3899fae2e0f",
+    "final_params_sha256": "ad69c41424b599e70203416e5dadc0e064c33a97ade5aa25a0dbe67e850dac5d",
+    "param_shapes": [
+      [
+        16,
+        10
+      ],
+      [
+        16
+      ],
+      [
+        1,
+        16
+      ],
+      [
+        1
+      ]
+    ]
+  }
+}
