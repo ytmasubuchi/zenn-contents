@@ -1,6 +1,6 @@
 {
   "label": "E8e_ulp_diff",
-  "note": "diff statistics (max abs/rel/ULP) for E8a/E8b repeated-run pairs, E8c CPU-vs-GPU pairs, and E8d TF32-off-vs-on pairs. 'insufficient_data' means the corresponding GPU measurement never produced output in one or both runs being compared (most likely: every fallback size still hit a CUDA OOM).",
+  "note": "diff statistics (max abs/rel/ULP) for E8a/E8b repeated-run pairs, E8c CPU-vs-GPU pairs, and E8d TF32-off-vs-on pairs. 'insufficient_data' means the corresponding GPU measurement never produced output in one or both runs being compared -- the original experiment (e8a/e8b/e8c/e8d) failed to capture that raw array for some reason (e.g. every fallback size hit a CUDA OOM, or the op raised RuntimeError: no deterministic implementation under use_deterministic_algorithms(True), as happens for cumsum in E8b). Check that run's own JSON (e.g. e8b_run*.json's 'status'/'error_message' fields) for the specific reason in any given case.",
   "e8a_gpu_repeat_default": {
     "run1_vs_run2": {
       "philox_rand": {
