@@ -203,3 +203,6 @@ pandasは**バッチ化するだけで約870倍**速くなります。0.13msと�
 **主な依存バージョン:** pandas 3.0.3 / polars 1.42.1 / numpy 2.2.6 / Python 3.11(Docker)。pyarrowは意図的にインストールしておらず、pandas 3.0のデフォルト文字列dtypeがpyarrow非搭載環境でどう振る舞うかを明確に示しています。
 
 **測定環境(筆者環境):** Linux (aarch64) / 8 vCPU / メモリ 15.6GB。実験A(メモリ使用量)は決定的な値、実験B-1(列削除)は各条件7回実行の中央値、実験B-2(列の逐次追加)は単発測定です。個別の測定値は環境やCPUアーキテクチャ、測定回数によって変動しますが、傾向(pandasはデータ量に比例して増える vs polarsは増加が緩やか、ループ vs バッチの差)は再現するはずです。
+
+**実験コード:** [こちらのリポジトリ](https://github.com/ytmasubuchi/zenn-contents/tree/main/why-are-you-using-pandas)のものを使用しました
+
