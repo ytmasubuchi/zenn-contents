@@ -1,5 +1,5 @@
 ---
-title: "Why are you using pandas?"
+title: "Why are you using pandas? -pandasとpolarsを内部構造から使い分ける-"
 emoji: "🐼"
 type: "tech"
 topics: ["python", "pandas", "polars", "dataframe", "performance"]
