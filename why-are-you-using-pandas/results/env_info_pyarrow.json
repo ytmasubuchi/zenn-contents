@@ -5,6 +5,6 @@
   "total_mem_gb": 125.51,
   "pandas_version": "3.0.3",
   "polars_version": "1.42.1",
-  "pyarrow_version": null,
+  "pyarrow_version": "25.0.1",
   "numpy_version": "2.2.6"
 }

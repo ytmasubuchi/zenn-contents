@@ -1,0 +1,20 @@
+# 実験D(polars.to_pandas()の変換コスト)専用のDockerfile。
+# to_pandas()の呼び出し自体がpyarrowを必要とするため、本編の他の実験とは
+# 環境を分離し、pyarrowを導入した状態でのみ実行する。
+#
+# 使い方:
+#   docker build -f Dockerfile.pyarrow -t pandas-bench-pyarrow .
+#   docker run --rm -v $(pwd)/results:/bench/results pandas-bench-pyarrow
+FROM python:3.11-slim
+
+WORKDIR /bench
+
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-pyarrow.txt .
+RUN pip install --no-cache-dir -r requirements-pyarrow.txt
+
+COPY bench/ ./bench/
+
+CMD ["sh", "-c", "python bench/write_env_info.py env_info_pyarrow.json && python bench/run_exp_d.py && python bench/make_plot_d.py"]

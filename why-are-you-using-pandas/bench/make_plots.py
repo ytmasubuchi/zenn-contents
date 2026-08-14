@@ -140,7 +140,54 @@ def plot_exp_b2():
     print("wrote", out)
 
 
+def plot_exp_c():
+    rows = list(csv.DictReader(open(os.path.join(RESULTS, "exp_c.csv"))))
+    by_lib = {}
+    for r in rows:
+        by_lib.setdefault(r["lib"], []).append((int(r["n"]), float(r["median_sec"]) * 1e6))
+    for v in by_lib.values():
+        v.sort()
+
+    labels = {
+        "pandas": "pandas (.to_numpy())",
+        "polars_single_chunk": "polars (欠損なし・単一チャンク)",
+        "polars_multi_chunk": "polars (欠損なし・複数チャンク)",
+        "polars_nulls": "polars (欠損あり)",
+    }
+    colors = {
+        "pandas": "#d62728",
+        "polars_single_chunk": "#1f77b4",
+        "polars_multi_chunk": "#ff7f0e",
+        "polars_nulls": "#9467bd",
+    }
+    markers = {
+        "pandas": "o",
+        "polars_single_chunk": "D",
+        "polars_multi_chunk": "^",
+        "polars_nulls": "s",
+    }
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    for lib, pts in by_lib.items():
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        ax.plot(xs, ys, marker=markers[lib], color=colors[lib], label=labels[lib], linewidth=2)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("行数 N(対数軸)")
+    ax.set_ylabel(".to_numpy()の所要時間の中央値, us(対数軸)")
+    ax.set_title("numpy変換コスト: ゼロコピー条件が崩れるとpolarsもO(N)になる")
+    ax.legend(fontsize=8)
+    ax.grid(True, which="both", alpha=0.3)
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "exp_c_to_numpy.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
 if __name__ == "__main__":
     plot_exp_a()
     plot_exp_b1()
     plot_exp_b2()
+    plot_exp_c()
