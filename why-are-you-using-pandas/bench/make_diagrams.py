@@ -230,6 +230,149 @@ def diagram_blockmanager():
     print("wrote", out)
 
 
+def diagram_chunks():
+    # 図1(文字列: 実データ+オフセット配列の2バッファ構成)と混同しないよう、
+    # ここではベンチマークCと同じ数値型(float64)の例に絞り、1チャンク=1バッファを
+    # 図1と同じ「セルを並べた箱」の描画スタイルで具体的に示す。
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+    values_by_chunk = [["1.2", "5.0", "3.7", "9.1"], ["2.4", "6.6", "8.0", "4.3"], ["7.7", "1.9", "3.3", "5.5"]]
+
+    # ---- Left: single chunk ----
+    ax = axes[0]
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    ax.set_title("単一チャンク\n(列全体が1つのArrow配列)", fontsize=12, weight="bold")
+    ax.axis("off")
+
+    ax.text(5, 9.4, "pl.Series([1.2, 5.0, 3.7, ..., 5.5])  # 1回でまとめて構築", ha="center", fontsize=9, style="italic")
+
+    all_values = [v for chunk in values_by_chunk for v in chunk]
+    n_x, n_y, n_w, n_h = 1.0, 6.4, 8.0, 1.6
+    ax.text(n_x, n_y + n_h + 0.35, "チャンク0(Arrow配列 1つ): float64のデータバッファ1本に全12個の値を連続配置", fontsize=9)
+    cell_w = n_w / len(all_values)
+    for i, v in enumerate(all_values):
+        cx = n_x + i * cell_w
+        ax.add_patch(Rectangle((cx, n_y), cell_w, n_h, fill=True, facecolor="#e8f0fe",
+                                edgecolor=C_EDGE, linewidth=1.2, zorder=3))
+        ax.text(cx + cell_w / 2, n_y + n_h / 2, v, ha="center", va="center", fontsize=8, zorder=4)
+    ax.text(5.0, 6.0, "(文字列型の場合の内部構造は図1を参照)", ha="center", va="top", fontsize=8.3, color="#777777")
+
+    arrow(ax, (5.0, 5.1), (5.0, 3.8), color=C_ARROW, lw=2)
+    box(ax, 2.0, 2.2, 6.0, 1.4, ".to_numpy()\nこのバッファをそのまま参照 → ゼロコピー", fc="#e6f4ea", fontsize=9.5)
+
+    # ---- Right: multiple chunks ----
+    ax = axes[1]
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    ax.set_title("複数チャンク\n(concat等で複数のArrow配列のまま)", fontsize=12, weight="bold")
+    ax.axis("off")
+
+    ax.text(5, 9.4, "pl.concat([s1, s2, s3], rechunk=False)", ha="center", fontsize=9, style="italic")
+
+    n_chunks = len(values_by_chunk)
+    group_w = 8.0
+    gap = 0.4
+    chunk_w = (group_w - gap * (n_chunks - 1)) / n_chunks
+    start_x = 1.0
+    for ci, chunk_vals in enumerate(values_by_chunk):
+        gx = start_x + ci * (chunk_w + gap)
+        cell_w = chunk_w / len(chunk_vals)
+        for i, v in enumerate(chunk_vals):
+            cx = gx + i * cell_w
+            ax.add_patch(Rectangle((cx, n_y), cell_w, n_h, fill=True, facecolor="#e8f0fe",
+                                    edgecolor=C_EDGE, linewidth=1.2, zorder=3))
+            ax.text(cx + cell_w / 2, n_y + n_h / 2, v, ha="center", va="center", fontsize=8, zorder=4)
+        ax.text(gx + chunk_w / 2, n_y - 0.3, f"チャンク{ci}\n(s{ci+1}由来)",
+                ha="center", va="top", fontsize=8.5, weight="bold")
+
+    ax.text(5.0, 4.7, "それぞれ4個のfloat64値を持つ、独立したバッファ\n3つが論理的に1列としてつながっているだけ(仮想アドレス上でも別々の領域)",
+            ha="center", va="top", fontsize=8.3, color="#555555")
+
+    arrow(ax, (5.0, 3.7), (5.0, 2.8), color=C_PANDAS, lw=2)
+    box(ax, 1.5, 1.2, 7.0, 1.4, ".to_numpy()\n3つのバッファを1本に連結 → コピー発生(rechunk)", fc="#fff3cd", fontsize=9.5)
+
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "diagram_chunks.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
+def diagram_memory_layers():
+    # 「チャンクの分断」がどのメモリレイヤで起きるかを示す3層図。
+    # レイヤ2(仮想アドレス空間)の分断=チャンクであり、レイヤ3(物理ページ)の
+    # 分散とは別の話であることを1枚で対比する。
+    fig, ax = plt.subplots(figsize=(11, 8))
+    ax.set_xlim(0, 12)
+    ax.set_ylim(0, 13)
+    ax.axis("off")
+
+    C_CHUNK0 = "#e8f0fe"
+    C_CHUNK1 = "#eaf7ea"
+
+    def layer_band(y0, y1, title):
+        ax.add_patch(Rectangle((0.2, y0), 11.6, y1 - y0, facecolor="#fafafa",
+                               edgecolor="#cccccc", linewidth=1.0, zorder=1))
+        ax.text(0.45, y1 - 0.15, title, ha="left", va="top", fontsize=10.5, weight="bold", zorder=2)
+
+    # ---- Layer 1: logical ----
+    layer_band(10.0, 12.6, "レイヤ1: 論理(DataFrameのSeries)")
+    box(ax, 2.5, 10.4, 7.0, 1.0, 's = pl.concat([s1, s2], rechunk=False)\n→ DataFrame上では常に「1列」に見える', fc="#ffffff", fontsize=9.5)
+
+    # ---- Layer 2: virtual address space ----
+    layer_band(5.6, 9.4, "レイヤ2: 仮想アドレス空間 ← チャンクの分断はここで起きる")
+    # chunk0: contiguous buffer (8 cells), chunk1: contiguous buffer (4 cells), separated
+    c0_x, c0_w, c1_x, c1_w = 1.0, 5.2, 8.0, 2.8
+    buf_y, buf_h = 6.6, 1.2
+    for i in range(8):
+        ax.add_patch(Rectangle((c0_x + i * c0_w / 8, buf_y), c0_w / 8, buf_h, facecolor=C_CHUNK0,
+                               edgecolor=C_EDGE, linewidth=1.1, zorder=3))
+    for i in range(4):
+        ax.add_patch(Rectangle((c1_x + i * c1_w / 4, buf_y), c1_w / 4, buf_h, facecolor=C_CHUNK1,
+                               edgecolor=C_EDGE, linewidth=1.1, zorder=3))
+    ax.text(c0_x + c0_w / 2, buf_y - 0.3, "チャンク0(s1由来): 連続バッファ", ha="center", va="top", fontsize=9)
+    ax.text(c1_x + c1_w / 2, buf_y - 0.3, "チャンク1(s2由来): 連続バッファ", ha="center", va="top", fontsize=9)
+    ax.text((c0_x + c0_w + c1_x) / 2, buf_y + buf_h / 2, "別の\n確保領域", ha="center", va="center",
+            fontsize=8, color="#777777")
+    arrow(ax, (4.5, 10.4), (c0_x + c0_w / 2, buf_y + buf_h), connectionstyle="arc3,rad=0.1")
+    arrow(ax, (7.5, 10.4), (c1_x + c1_w / 2, buf_y + buf_h), connectionstyle="arc3,rad=-0.1")
+
+    # ---- Layer 3: physical memory ----
+    layer_band(1.6, 5.0, "レイヤ3: 物理メモリ(OSがページ単位で管理)")
+    page_y, page_h = 2.2, 1.2
+    n_pages = 8
+    page_w = 10.4 / n_pages
+    # chunk0 -> pages 1, 4, 6 / chunk1 -> pages 2, 7 (scattered)
+    page_colors = {1: C_CHUNK0, 4: C_CHUNK0, 6: C_CHUNK0, 2: C_CHUNK1, 7: C_CHUNK1}
+    for i in range(n_pages):
+        px = 0.8 + i * page_w
+        ax.add_patch(Rectangle((px, page_y), page_w, page_h, facecolor=page_colors.get(i, "#ffffff"),
+                               edgecolor=C_EDGE, linewidth=1.1, zorder=3))
+        ax.text(px + page_w / 2, page_y + page_h / 2, f"ページ{i}", ha="center", va="center", fontsize=8.5, zorder=4)
+    # arrows: virtual buffer thirds -> physical pages (crossing to show scatter)
+    for frac, page in [(1 / 6, 4), (3 / 6, 1), (5 / 6, 6)]:
+        arrow(ax, (c0_x + frac * c0_w, buf_y), (0.8 + page * page_w + page_w / 2, page_y + page_h),
+              color=C_ARROW, connectionstyle="arc3,rad=0.12")
+    for frac, page in [(1 / 4, 7), (3 / 4, 2)]:
+        arrow(ax, (c1_x + frac * c1_w, buf_y), (0.8 + page * page_w + page_w / 2, page_y + page_h),
+              color="#2e8b57", connectionstyle="arc3,rad=-0.12")
+    ax.text(6.0, 1.75, "仮想アドレス上で連続なバッファでも、物理ページは分散しうる(プログラムからは見えない)",
+            ha="center", va="bottom", fontsize=8.5, color="#555555")
+
+    # ---- bottom note ----
+    box(ax, 0.8, 0.1, 10.4, 1.1,
+        ".to_numpy()のゼロコピー可否を決めるのはレイヤ2の分断(複数チャンク)だけ。\n"
+        "レイヤ3の分散はOSが透過的に解決するため影響しない(numpyも仮想アドレス上で動くため)",
+        fc="#fff3cd", fontsize=9.5)
+
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "diagram_memory_layers.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
 if __name__ == "__main__":
     diagram_string_memory()
     diagram_blockmanager()
+    diagram_chunks()
+    diagram_memory_layers()
