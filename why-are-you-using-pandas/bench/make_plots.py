@@ -23,18 +23,21 @@ LIB_LABELS = {
     "pandas_object": "pandas (object dtype)",
     "pandas_default": "pandas 3.0 default (str, storage=python)",
     "pandas_category": "pandas (category)",
+    "pandas_pyarrow": "pandas 3.0 default (str, storage=pyarrow)",
     "polars": "polars (String)",
 }
 LIB_COLORS = {
     "pandas_object": "#d62728",
     "pandas_default": "#ff7f0e",
     "pandas_category": "#9467bd",
+    "pandas_pyarrow": "#2ca02c",
     "polars": "#1f77b4",
 }
 LIB_MARKERS = {
     "pandas_object": "o",
     "pandas_default": "s",
     "pandas_category": "^",
+    "pandas_pyarrow": "v",
     "polars": "D",
 }
 
@@ -44,6 +47,15 @@ def plot_exp_a():
     by_lib = {}
     for r in rows:
         by_lib.setdefault(r["lib"], []).append((int(r["length"]), float(r["api_bytes_per_elem"])))
+
+    # pandas 3.0 default (storage=pyarrow) はpyarrow導入済みの別イメージで計測しており、
+    # 結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_a_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        for r in pyarrow_rows:
+            by_lib.setdefault(r["lib"], []).append((int(r["length"]), float(r["api_bytes_per_elem"])))
+
     for v in by_lib.values():
         v.sort()
 
@@ -73,15 +85,24 @@ def plot_exp_b1():
             main[r["lib"]].append((int(r["n"]), float(r["median_sec"]) * 1000))
         elif r["lib"] == "polars_1thread":
             single_thread_point = (int(r["n"]), float(r["median_sec"]) * 1000)
+
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_b1_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        main["pandas_pyarrow"] = [(int(r["n"]), float(r["median_sec"]) * 1000) for r in pyarrow_rows]
+
     for v in main.values():
         v.sort()
 
     fig, ax = plt.subplots(figsize=(7, 5))
-    colors = {"pandas": "#d62728", "polars": "#1f77b4"}
+    colors = {"pandas": "#d62728", "polars": "#1f77b4", "pandas_pyarrow": "#2ca02c"}
+    labels = {"pandas": "pandas", "polars": "polars", "pandas_pyarrow": "pandas (ArrowDtype)"}
     for lib, pts in main.items():
         xs = [p[0] for p in pts]
         ys = [p[1] for p in pts]
-        ax.plot(xs, ys, marker="o", color=colors[lib], label=lib, linewidth=2)
+        ax.plot(xs, ys, marker="o", color=colors[lib], label=labels[lib], linewidth=2)
 
     if single_thread_point:
         ax.scatter(
@@ -114,6 +135,15 @@ def plot_exp_b2():
     loop_ms = [pandas_data["loop_add_time_total_sec"] * 1000, polars_data["loop_add_time_total_sec"] * 1000]
     batch_ms = [pandas_data["batch_add_time_sec"] * 1000, polars_data["batch_add_time_sec"] * 1000]
 
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_b2_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_data = json.load(open(pyarrow_path))
+        labels.append("pandas (ArrowDtype)")
+        loop_ms.append(pyarrow_data["loop_add_time_total_sec"] * 1000)
+        batch_ms.append(pyarrow_data["batch_add_time_sec"] * 1000)
+
     x = range(len(labels))
     width = 0.35
 
@@ -140,7 +170,128 @@ def plot_exp_b2():
     print("wrote", out)
 
 
+def plot_exp_c():
+    rows = list(csv.DictReader(open(os.path.join(RESULTS, "exp_c.csv"))))
+    by_lib = {}
+    for r in rows:
+        by_lib.setdefault(r["lib"], []).append((int(r["n"]), float(r["median_sec"]) * 1e6))
+
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_c_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        by_lib["pandas_pyarrow"] = [(int(r["n"]), float(r["median_sec"]) * 1e6) for r in pyarrow_rows]
+
+    for v in by_lib.values():
+        v.sort()
+
+    labels = {
+        "pandas": "pandas (.to_numpy())",
+        "pandas_pyarrow": "pandas (ArrowDtype, no nulls)",
+        "polars_single_chunk": "polars (欠損なし・単一チャンク)",
+        "polars_multi_chunk": "polars (欠損なし・複数チャンク)",
+        "polars_nulls": "polars (欠損あり)",
+    }
+    colors = {
+        "pandas": "#d62728",
+        "pandas_pyarrow": "#2ca02c",
+        "polars_single_chunk": "#1f77b4",
+        "polars_multi_chunk": "#ff7f0e",
+        "polars_nulls": "#9467bd",
+    }
+    markers = {
+        "pandas": "o",
+        "pandas_pyarrow": "v",
+        "polars_single_chunk": "D",
+        "polars_multi_chunk": "^",
+        "polars_nulls": "s",
+    }
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    for lib, pts in by_lib.items():
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        ax.plot(xs, ys, marker=markers[lib], color=colors[lib], label=labels[lib], linewidth=2)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("行数 N(対数軸)")
+    ax.set_ylabel(".to_numpy()の所要時間の中央値, us(対数軸)")
+    ax.set_title("numpy変換コスト: ゼロコピー条件が崩れるとpolarsもO(N)になる")
+    ax.legend(fontsize=8)
+    ax.grid(True, which="both", alpha=0.3)
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "exp_c_to_numpy.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
+def plot_exp_f():
+    path = os.path.join(RESULTS, "exp_f.csv")
+    if not os.path.exists(path):
+        print(f"skip exp_f: {path} not found")
+        return
+
+    rows = list(csv.DictReader(open(path)))
+    pandas_row = None
+    polars_pts = []  # (threads, median_ms)
+    for r in rows:
+        if r["lib"] == "pandas":
+            pandas_row = r
+        elif r["lib"] == "polars":
+            threads = int(r["threads_effective"] or r["threads_requested"])
+            # 共有環境の制約で16/32スレッド条件はCPU競合により計測ノイズが大きく、
+            # 信頼できないと判断したため不採用とし、8スレッドまでのみを採用する。
+            if threads > 8:
+                continue
+            polars_pts.append((threads, float(r["median_sec"]) * 1000))
+    polars_pts.sort()
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    xs = [p[0] for p in polars_pts]
+    ys = [p[1] for p in polars_pts]
+    ax1.plot(xs, ys, marker="D", color="#1f77b4", label="polars (group_by + agg)", linewidth=2)
+    if pandas_row:
+        pandas_ms = float(pandas_row["median_sec"]) * 1000
+        ax1.axhline(pandas_ms, color="#d62728", linestyle="--", linewidth=2,
+                    label=f"pandas (groupby + agg, 1スレッド想定, {pandas_ms:.2f} ms)")
+    ax1.set_xscale("log", base=2)
+    ax1.set_xticks(xs)
+    ax1.set_xticklabels([str(x) for x in xs])
+    ax1.set_yscale("log")
+    ax1.set_xlabel("POLARS_MAX_THREADS(スレッド数, 対数軸)")
+    ax1.set_ylabel("groupby集計の所要時間の中央値, ms(対数軸)")
+    ax1.set_title("スレッド数とgroupby集計の所要時間")
+    ax1.legend(fontsize=8)
+    ax1.grid(True, which="both", alpha=0.3)
+
+    if polars_pts:
+        base_ms = dict(polars_pts).get(1, ys[0])
+        speedup_xs = xs
+        speedup_ys = [base_ms / p[1] for p in polars_pts]
+        ax2.plot(speedup_xs, speedup_ys, marker="D", color="#1f77b4", label="polars 実測スピードアップ", linewidth=2)
+        ax2.plot(speedup_xs, speedup_xs, color="#7f7f7f", linestyle=":", linewidth=1.5, label="理想的な線形スケーリング")
+    ax2.set_xscale("log", base=2)
+    ax2.set_xticks(xs)
+    ax2.set_xticklabels([str(x) for x in xs])
+    ax2.set_xlabel("POLARS_MAX_THREADS(スレッド数, 対数軸)")
+    ax2.set_ylabel("1スレッド比のスピードアップ倍率")
+    ax2.set_title("polarsのスレッドスケーリング効率")
+    ax2.legend(fontsize=8)
+    ax2.grid(True, which="both", alpha=0.3)
+
+    fig.suptitle("シングルスレッド vs マルチスレッド: groupby集計のスレッドスケーリング")
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "exp_f_thread_scaling.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
 if __name__ == "__main__":
     plot_exp_a()
     plot_exp_b1()
     plot_exp_b2()
+    plot_exp_c()
+    plot_exp_f()

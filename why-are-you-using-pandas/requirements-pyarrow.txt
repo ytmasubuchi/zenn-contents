@@ -1,0 +1,6 @@
+pandas==3.0.3
+polars==1.42.1
+numpy==2.2.6
+psutil>=5.9
+matplotlib>=3.8
+pyarrow>=18.0

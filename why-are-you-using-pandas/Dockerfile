@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY bench/ ./bench/
 
-CMD ["sh", "-c", "python bench/write_env_info.py && python bench/run_exp_a.py && python bench/run_exp_b1.py && python bench/run_exp_b2.py && python bench/make_plots.py"]
+CMD ["sh", "-c", "python bench/write_env_info.py && python bench/run_exp_a.py && python bench/run_exp_b1.py && python bench/run_exp_b2.py && python bench/run_exp_c.py && python bench/make_plots.py"]

@@ -2,6 +2,8 @@ import json
 import os
 import sys
 
+OUT_NAME = sys.argv[1] if len(sys.argv) > 1 else "env_info.json"
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bench.common import env_info  # noqa: E402
 
@@ -24,6 +26,6 @@ info["numpy_version"] = np.__version__
 
 out_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")
 os.makedirs(out_dir, exist_ok=True)
-with open(os.path.join(out_dir, "env_info.json"), "w") as f:
+with open(os.path.join(out_dir, OUT_NAME), "w") as f:
     json.dump(info, f, indent=2, ensure_ascii=False)
 print(json.dumps(info, indent=2, ensure_ascii=False))
