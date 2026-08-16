@@ -170,6 +170,60 @@ def plot_exp_b2():
     print("wrote", out)
 
 
+def plot_exp_b2_per_column():
+    pandas_data = json.load(open(os.path.join(RESULTS, "exp_b2_pandas.json")))
+    polars_data = json.load(open(os.path.join(RESULTS, "exp_b2_polars.json")))
+
+    series = [
+        ("pandas", pandas_data["iter_times"], "#d62728", "o"),
+        ("polars", polars_data["iter_times"], "#1f77b4", "D"),
+    ]
+
+    pyarrow_path = os.path.join(RESULTS, "exp_b2_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_data = json.load(open(pyarrow_path))
+        series.append(("pandas (ArrowDtype)", pyarrow_data["iter_times"], "#2ca02c", "v"))
+
+    def rolling_mean(values, window=10):
+        out = []
+        for i in range(len(values)):
+            lo = max(0, i - window + 1)
+            out.append(sum(values[lo : i + 1]) / (i - lo + 1))
+        return out
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    for label, iter_times, color, marker in series:
+        ms = [t * 1000 for t in iter_times]
+        xs = list(range(1, len(ms) + 1))
+        ax.scatter(xs, ms, color=color, marker=marker, s=14, alpha=0.35, linewidths=0)
+        ax.plot(xs, rolling_mean(ms), color=color, linewidth=2.2, label=label)
+
+    # polarsの1回目はスレッドプール起動などの初期化コストが乗る外れ値のため注記する。
+    first_polars_ms = polars_data["iter_times"][0] * 1000
+    ax.annotate(
+        f"1回目: {first_polars_ms:.2f} ms\n(スレッドプール起動等の初期化コストと推定)",
+        xy=(1, first_polars_ms),
+        xytext=(20, first_polars_ms * 0.6),
+        fontsize=8,
+        color="#1f77b4",
+        arrowprops=dict(arrowstyle="->", color="#1f77b4", alpha=0.7),
+    )
+
+    ax.set_yscale("log")
+    ax.set_xlabel("追加した列の通し番号(1〜150列目)")
+    ax.set_ylabel("1列追加あたりの所要時間, ms(対数軸)")
+    ax.set_title(
+        "列を1列ずつ追加していく間、1回あたりのコストはどう推移するか\n"
+        "(点: 個別の実測値、線: 移動平均(窓=10)。7回中1回(rep=0)のみの実測で、他図の7回中央値とは基準が異なる)"
+    )
+    ax.legend(fontsize=9)
+    ax.grid(True, which="both", alpha=0.3)
+    fig.tight_layout()
+    out = os.path.join(IMAGES, "exp_b2_per_column.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
 def plot_exp_c():
     rows = list(csv.DictReader(open(os.path.join(RESULTS, "exp_c.csv"))))
     by_lib = {}
@@ -293,5 +347,6 @@ if __name__ == "__main__":
     plot_exp_a()
     plot_exp_b1()
     plot_exp_b2()
+    plot_exp_b2_per_column()
     plot_exp_c()
     plot_exp_f()
