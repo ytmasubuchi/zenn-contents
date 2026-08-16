@@ -4,3 +4,6 @@ node_modules
 
 # raw float arrays from E7 (regenerate with scripts/e7_capture_raw.py; ~11MB binaries)
 experiments/random-reproducibility/results/e7_raw/
+
+# local build output of why-are-you-using-pandas/bench scripts (published copy lives in images/why-are-you-using-pandas/)
+why-are-you-using-pandas/images/
