@@ -1,0 +1,52 @@
+[
+  {
+    "lib": "pandas_pyarrow",
+    "n": 5000,
+    "reps": 7,
+    "n_chunks": null,
+    "dtype_repr": "double[pyarrow]",
+    "median_sec": 5.093216896057129e-05,
+    "min_sec": 4.4113025069236755e-05,
+    "max_sec": 8.795689791440964e-05
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 20000,
+    "reps": 7,
+    "n_chunks": null,
+    "dtype_repr": "double[pyarrow]",
+    "median_sec": 4.3901149183511734e-05,
+    "min_sec": 4.0205661207437515e-05,
+    "max_sec": 7.241126149892807e-05
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 50000,
+    "reps": 7,
+    "n_chunks": null,
+    "dtype_repr": "double[pyarrow]",
+    "median_sec": 4.139263182878494e-05,
+    "min_sec": 3.816373646259308e-05,
+    "max_sec": 7.203873246908188e-05
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "reps": 7,
+    "n_chunks": null,
+    "dtype_repr": "double[pyarrow]",
+    "median_sec": 2.7788802981376648e-05,
+    "min_sec": 2.5180168449878693e-05,
+    "max_sec": 4.476727917790413e-05
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 500000,
+    "reps": 7,
+    "n_chunks": null,
+    "dtype_repr": "double[pyarrow]",
+    "median_sec": 6.104260683059692e-05,
+    "min_sec": 5.369586870074272e-05,
+    "max_sec": 9.079230949282646e-05
+  }
+]

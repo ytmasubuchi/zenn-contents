@@ -1,0 +1,68 @@
+[
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 5,
+    "api_bytes": 2600132,
+    "api_bytes_per_elem": 13.00066,
+    "rss_delta_bytes": 17113088,
+    "rss_delta_per_elem": 85.56544,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 10,
+    "api_bytes": 3600132,
+    "api_bytes_per_elem": 18.00066,
+    "rss_delta_bytes": 19017728,
+    "rss_delta_per_elem": 95.08864,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 20,
+    "api_bytes": 5600132,
+    "api_bytes_per_elem": 28.00066,
+    "rss_delta_bytes": 23425024,
+    "rss_delta_per_elem": 117.12512,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 50,
+    "api_bytes": 11600132,
+    "api_bytes_per_elem": 58.00066,
+    "rss_delta_bytes": 42328064,
+    "rss_delta_per_elem": 211.64032,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 100,
+    "api_bytes": 21600132,
+    "api_bytes_per_elem": 108.00066,
+    "rss_delta_bytes": 69480448,
+    "rss_delta_per_elem": 347.40224,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "length": 200,
+    "api_bytes": 41600132,
+    "api_bytes_per_elem": 208.00066,
+    "rss_delta_bytes": 124149760,
+    "rss_delta_per_elem": 620.7488,
+    "dtype_repr": "str",
+    "storage_repr": "pyarrow"
+  }
+]

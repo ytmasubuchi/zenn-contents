@@ -1,0 +1,57 @@
+[
+  {
+    "lib": "pandas_pyarrow",
+    "n": 5000,
+    "reps": 7,
+    "threads": null,
+    "median_sec": 0.000927979126572609,
+    "min_sec": 0.0008941767737269402,
+    "max_sec": 0.001087917946279049,
+    "dtype_repr": "double[pyarrow]",
+    "block_count": 101
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 20000,
+    "reps": 7,
+    "threads": null,
+    "median_sec": 0.0017626737244427204,
+    "min_sec": 0.0017087538726627827,
+    "max_sec": 0.002285229042172432,
+    "dtype_repr": "double[pyarrow]",
+    "block_count": 101
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 50000,
+    "reps": 7,
+    "threads": null,
+    "median_sec": 0.0010051140561699867,
+    "min_sec": 0.000957028940320015,
+    "max_sec": 0.0011853557080030441,
+    "dtype_repr": "double[pyarrow]",
+    "block_count": 101
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 200000,
+    "reps": 7,
+    "threads": null,
+    "median_sec": 0.0017120260745286942,
+    "min_sec": 0.0016936808824539185,
+    "max_sec": 0.002008930779993534,
+    "dtype_repr": "double[pyarrow]",
+    "block_count": 101
+  },
+  {
+    "lib": "pandas_pyarrow",
+    "n": 500000,
+    "reps": 7,
+    "threads": null,
+    "median_sec": 0.0017001638188958168,
+    "min_sec": 0.001597756054252386,
+    "max_sec": 0.001884568016976118,
+    "dtype_repr": "double[pyarrow]",
+    "block_count": 101
+  }
+]
