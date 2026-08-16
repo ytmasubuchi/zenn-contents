@@ -18,7 +18,7 @@ def main():
     ap.add_argument(
         "--lib",
         required=True,
-        choices=["pandas", "polars_single_chunk", "polars_multi_chunk", "polars_nulls"],
+        choices=["pandas", "pandas_pyarrow", "polars_single_chunk", "polars_multi_chunk", "polars_nulls"],
     )
     ap.add_argument("--n", type=int, required=True)
     ap.add_argument("--reps", type=int, default=7)
@@ -27,12 +27,30 @@ def main():
     rng = np.random.default_rng(42)
     times = []
     n_chunks = None
+    dtype_repr = None
 
     if args.lib == "pandas":
         import pandas as pd
 
         for _ in range(args.reps):
             s = pd.Series(rng.random(args.n))
+            gc.collect()
+            gc.disable()
+            t0 = time.perf_counter()
+            arr = s.to_numpy()
+            t1 = time.perf_counter()
+            gc.enable()
+            times.append(t1 - t0)
+            del s, arr
+
+    elif args.lib == "pandas_pyarrow":
+        import pandas as pd
+
+        for _ in range(args.reps):
+            # Series構築(numpy→Arrow変換込み)は計時の外。計時対象は既存条件と同じく.to_numpy()のみ。
+            s = pd.Series(rng.random(args.n)).astype("float64[pyarrow]")
+            if dtype_repr is None:
+                dtype_repr = str(s.dtype)
             gc.collect()
             gc.disable()
             t0 = time.perf_counter()
@@ -102,6 +120,7 @@ def main():
                 "n": args.n,
                 "reps": args.reps,
                 "n_chunks": n_chunks,
+                "dtype_repr": dtype_repr,
                 "median_sec": median,
                 "min_sec": times_sorted[0],
                 "max_sec": times_sorted[-1],

@@ -23,18 +23,21 @@ LIB_LABELS = {
     "pandas_object": "pandas (object dtype)",
     "pandas_default": "pandas 3.0 default (str, storage=python)",
     "pandas_category": "pandas (category)",
+    "pandas_pyarrow": "pandas 3.0 default (str, storage=pyarrow)",
     "polars": "polars (String)",
 }
 LIB_COLORS = {
     "pandas_object": "#d62728",
     "pandas_default": "#ff7f0e",
     "pandas_category": "#9467bd",
+    "pandas_pyarrow": "#2ca02c",
     "polars": "#1f77b4",
 }
 LIB_MARKERS = {
     "pandas_object": "o",
     "pandas_default": "s",
     "pandas_category": "^",
+    "pandas_pyarrow": "v",
     "polars": "D",
 }
 
@@ -44,6 +47,15 @@ def plot_exp_a():
     by_lib = {}
     for r in rows:
         by_lib.setdefault(r["lib"], []).append((int(r["length"]), float(r["api_bytes_per_elem"])))
+
+    # pandas 3.0 default (storage=pyarrow) はpyarrow導入済みの別イメージで計測しており、
+    # 結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_a_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        for r in pyarrow_rows:
+            by_lib.setdefault(r["lib"], []).append((int(r["length"]), float(r["api_bytes_per_elem"])))
+
     for v in by_lib.values():
         v.sort()
 
@@ -73,15 +85,24 @@ def plot_exp_b1():
             main[r["lib"]].append((int(r["n"]), float(r["median_sec"]) * 1000))
         elif r["lib"] == "polars_1thread":
             single_thread_point = (int(r["n"]), float(r["median_sec"]) * 1000)
+
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_b1_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        main["pandas_pyarrow"] = [(int(r["n"]), float(r["median_sec"]) * 1000) for r in pyarrow_rows]
+
     for v in main.values():
         v.sort()
 
     fig, ax = plt.subplots(figsize=(7, 5))
-    colors = {"pandas": "#d62728", "polars": "#1f77b4"}
+    colors = {"pandas": "#d62728", "polars": "#1f77b4", "pandas_pyarrow": "#2ca02c"}
+    labels = {"pandas": "pandas", "polars": "polars", "pandas_pyarrow": "pandas (ArrowDtype)"}
     for lib, pts in main.items():
         xs = [p[0] for p in pts]
         ys = [p[1] for p in pts]
-        ax.plot(xs, ys, marker="o", color=colors[lib], label=lib, linewidth=2)
+        ax.plot(xs, ys, marker="o", color=colors[lib], label=labels[lib], linewidth=2)
 
     if single_thread_point:
         ax.scatter(
@@ -114,6 +135,15 @@ def plot_exp_b2():
     loop_ms = [pandas_data["loop_add_time_total_sec"] * 1000, polars_data["loop_add_time_total_sec"] * 1000]
     batch_ms = [pandas_data["batch_add_time_sec"] * 1000, polars_data["batch_add_time_sec"] * 1000]
 
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_b2_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_data = json.load(open(pyarrow_path))
+        labels.append("pandas (ArrowDtype)")
+        loop_ms.append(pyarrow_data["loop_add_time_total_sec"] * 1000)
+        batch_ms.append(pyarrow_data["batch_add_time_sec"] * 1000)
+
     x = range(len(labels))
     width = 0.35
 
@@ -145,23 +175,34 @@ def plot_exp_c():
     by_lib = {}
     for r in rows:
         by_lib.setdefault(r["lib"], []).append((int(r["n"]), float(r["median_sec"]) * 1e6))
+
+    # pandas (ArrowDtype, float64[pyarrow]) はpyarrow導入済みの別イメージで
+    # 計測しており、結果は別JSONに分けて保存されているのでここでマージする。
+    pyarrow_path = os.path.join(RESULTS, "exp_c_pandas_pyarrow.json")
+    if os.path.exists(pyarrow_path):
+        pyarrow_rows = json.load(open(pyarrow_path))
+        by_lib["pandas_pyarrow"] = [(int(r["n"]), float(r["median_sec"]) * 1e6) for r in pyarrow_rows]
+
     for v in by_lib.values():
         v.sort()
 
     labels = {
         "pandas": "pandas (.to_numpy())",
+        "pandas_pyarrow": "pandas (ArrowDtype, no nulls)",
         "polars_single_chunk": "polars (欠損なし・単一チャンク)",
         "polars_multi_chunk": "polars (欠損なし・複数チャンク)",
         "polars_nulls": "polars (欠損あり)",
     }
     colors = {
         "pandas": "#d62728",
+        "pandas_pyarrow": "#2ca02c",
         "polars_single_chunk": "#1f77b4",
         "polars_multi_chunk": "#ff7f0e",
         "polars_nulls": "#9467bd",
     }
     markers = {
         "pandas": "o",
+        "pandas_pyarrow": "v",
         "polars_single_chunk": "D",
         "polars_multi_chunk": "^",
         "polars_nulls": "s",

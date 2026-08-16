@@ -10,7 +10,7 @@ import numpy as np
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--lib", choices=["pandas", "polars"], required=True)
+    ap.add_argument("--lib", choices=["pandas", "polars", "pandas_pyarrow"], required=True)
     ap.add_argument("--n", type=int, required=True)
     ap.add_argument("--reps", type=int, default=7)
     ap.add_argument("--threads", type=int, default=0, help="polars専用: POLARS_MAX_THREADSを固定する場合に指定")
@@ -25,11 +25,31 @@ def main():
     colnames = [f"c{i}" for i in range(ncols)]
 
     times = []
+    dtype_repr = None
+    block_count = None
     if args.lib == "pandas":
         import pandas as pd
 
         for _ in range(args.reps):
             df = pd.DataFrame(data, columns=colnames, copy=False)
+            gc.collect()
+            gc.disable()
+            t0 = time.perf_counter()
+            df2 = df.drop(columns=["c50"])
+            t1 = time.perf_counter()
+            gc.enable()
+            times.append(t1 - t0)
+            del df, df2
+    elif args.lib == "pandas_pyarrow":
+        import pandas as pd
+
+        for _ in range(args.reps):
+            # DataFrame構築(float64[pyarrow]への変換込み)は計時の外。
+            # 計時対象は既存条件と同じくdropのみ。
+            df = pd.DataFrame(data, columns=colnames, copy=False).astype("float64[pyarrow]")
+            if dtype_repr is None:
+                dtype_repr = str(df.dtypes.iloc[0])
+                block_count = len(df._mgr.blocks)
             gc.collect()
             gc.disable()
             t0 = time.perf_counter()
@@ -64,6 +84,8 @@ def main():
                 "median_sec": median,
                 "min_sec": times_sorted[0],
                 "max_sec": times_sorted[-1],
+                "dtype_repr": dtype_repr,
+                "block_count": block_count,
             }
         )
     )
