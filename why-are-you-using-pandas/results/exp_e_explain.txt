@@ -1,0 +1,22 @@
+# polars lazy .explain() for exp_e (n=3000000, filter_col > 0.9)
+
+## optimized=False (最適化前の論理プラン)
+AGGREGATE[maintain_order: false]
+  [col("v0").mean().alias("v0_mean"), col("v1").mean().alias("v1_mean"), len().alias("cnt")] BY [col("group_key")]
+  FROM
+  SELECT [col("group_key"), col("v0"), col("v1")]
+    FILTER [(col("filter_col")) > (0.9)]
+    FROM
+      Parquet SCAN [/bench/data/exp_e/n_3000000.parquet]
+      PROJECT */40 COLUMNS
+      ESTIMATED ROWS: 3000000
+
+## optimized=True (最適化後: predicate/projection pushdownが適用された物理プラン)
+AGGREGATE[maintain_order: false]
+  [col("v0").mean().alias("v0_mean"), col("v1").mean().alias("v1_mean"), len().alias("cnt")] BY [col("group_key")]
+  FROM
+  simple π 3/3 ["group_key", "v0", "v1"]
+    Parquet SCAN [/bench/data/exp_e/n_3000000.parquet]
+    PROJECT 4/40 COLUMNS
+    SELECTION: [(col("filter_col")) > (0.9)]
+    ESTIMATED ROWS: 3000000
