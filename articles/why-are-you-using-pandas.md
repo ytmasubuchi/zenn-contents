@@ -3,7 +3,7 @@ title: "Why are you using pandas? -pandasとpolarsを内部構造から使い分
 emoji: "🐼"
 type: "tech"
 topics: ["python", "pandas", "polars", "dataframe", "performance"]
-published: false
+published: true
 publication_name: jdsc_sol_dev
 ---
 
@@ -345,7 +345,7 @@ polarsの`DataFrame.to_pandas()`は、内部的にpyarrowの変換ルーチン�
 
 ここは私の予想と反した点でもあります。5章の理論(文字列はboxingで57+Lバイト/要素のオーバーヘッドがある)からは「文字列列の方が`True`/`False`の差が大きく開く」と予想していましたが、実測では**数値列の方が相対的な差は大きく**出ました。理由として考えられるのは、pyarrowの`to_pandas()`変換自体がC++で実装されており、文字列のPythonオブジェクト化(boxing相当の処理)もCPython APIを直接叩く形で行われるため、素朴なPythonループでのboxingほど遅くならない、ということです。ただし絶対時間で見れば文字列列の変換は数値列よりずっと重く(N=500,000で4.286ms vs 1.397ms)、コスト自体は5章の理論と整合しています。
 
-**実務への示唆:** 「polarsで前処理してから、pandas前提のライブラリに渡す」という設計をとる場合、`to_pandas()`をデフォルト(`use_pyarrow_extension_array=False`)で呼ぶと、Arrow→numpy(または文字列オブジェクト)への実体化コストを毎回払うことになります。渡した先のライブラリがpandasの`ArrowDtype`列を受け付けられるなら、`use_pyarrow_extension_array=True`で変換を軽量化できます。ただしscikit-learnなど内部でnumpy配列を要求するライブラリに渡す場合は、いずれかのタイミングでnumpyへの実体化が発生するため、変換コストを完全になくせるわけではなく、「どこで・何回払うか」を設計する話になります。またこの往復コストが無視できない規模なら、そもそも「一部だけpolarsに逃がす」設計自体の是非(2章のQCD)を見直す価値があります。
+**実務への示唆:** 「polarsで前処理してから、pandas前提のライブラリに渡す」という設計をとる場合、`to_pandas()`をデフォルト(`use_pyarrow_extension_array=False`)で呼ぶと、Arrow→numpy(または文字列オブジェクト)への実体化コストを毎回払うことになります。渡した先のライブラリがpandasの`ArrowDtype`列を受け付けられるなら、`use_pyarrow_extension_array=True`で変換を軽量化できます。ただし内部でnumpy配列を要求するライブラリに渡す場合は、いずれかのタイミングでnumpyへの実体化が発生するため、変換コストを完全になくせるわけではなく、「どこで・何回払うか」を設計する話になります。またこの往復コストが無視できない規模なら、そもそも「一部だけpolarsに逃がす」設計自体の是非(2章のQCD)を見直す価値があります。
 
 # 第II部: コンピューティング編 — データをどう処理するか
 
