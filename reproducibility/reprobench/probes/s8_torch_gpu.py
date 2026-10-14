@@ -190,14 +190,15 @@ def _train10_cuda(torch, dtype=None):
 
     params = torch.cat([p.detach().flatten().float() for p in model.parameters()])
     arr = params.cpu().numpy().astype(np.float64)
-    # fix round 2 small finding: these digest the CPU-generated float32
+    # fix round 2/3 small finding: these digest the CPU-generated float32
     # source tensors, *before* the optional `.to(dtype)` cast on line 177 --
     # for S8_mlp_train10_cuda_bf16 this is not what the model actually
     # consumed (that was the bf16-cast version). Named accordingly so a
     # reader does not mistake this for "the bf16 input"; the cast itself is
-    # a deterministic truncation of this same float32 source, so comparing
-    # this digest across hosts still answers "did the inputs match" for the
-    # bf16 probe too, just one step upstream of what the GPU actually saw.
+    # a deterministic round-to-nearest-even conversion (not a truncation) of
+    # this same float32 source, so comparing this digest across hosts still
+    # answers "did the inputs match" for the bf16 probe too, just one step
+    # upstream of what the GPU actually saw.
     input_digests = {
         "x_float32_source": digest(x_cpu.numpy().astype(np.float64)),
         "target_float32_source": digest(target_cpu.numpy().astype(np.float64)),
@@ -381,11 +382,17 @@ def _curand_randn_sizes() -> ProbeResult:
 def _index_add_once(torch, cpu_gen):
     """重複indexへの`index_add_`を1回実行し、結果と入力のdigestを返す。
 
-    `index_add_`はCUDA上で複数スレッドが同じ出力要素へ`atomicAdd`する
-    実装であり、加算順序がスレッド実行順(スケジューリングのタイミング)
-    に依存する——`Linear`/`ReLU`/`MSELoss`のみのMLP(cuBLAS GEMM、
-    run-to-runで決定的)とは異なり、こちらは本当にGPU上で非決定的な
-    演算である(モジュールdocstring finding 0参照)。
+    PyTorchの再現性に関する公式ドキュメント(`torch.use_deterministic_
+    algorithms`のAPIリファレンス)は、CUDA上の`index_add_`を含む複数の
+    演算が`atomicAdd`を使って実装されており、加算順序がスレッド実行順
+    依存であるため既定では非決定的であると述べている。これは(fix round 2
+    finding 0にある通り)実際に変化させて測定した対照実験でもある——
+    `use_deterministic_algorithms(True)`を有効/無効にする2つの変種
+    (`S8_index_add_atomics`/`_deterministic`)を用意し、座長の実機測定で
+    前者が不安定・後者が安定という対比を確認済み。`Linear`/`ReLU`/
+    `MSELoss`のみのMLP(cuBLAS GEMM、run-to-runで決定的)とは対照的に、
+    こちらは本当にGPU上で非決定的な演算である(モジュールdocstring
+    finding 0参照)。
     """
     values_cpu, values = _cpu_randn(_ATOMIC_N, generator=cpu_gen)
     index_cpu = torch.randint(0, _ATOMIC_BINS, (_ATOMIC_N,), generator=cpu_gen)

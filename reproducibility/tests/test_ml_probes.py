@@ -20,12 +20,15 @@ from reprobench.registry import ProbeResult, SkippedProbe, run_probe
 
 
 def test_sklearn_probes_deterministic_within_process():
-    # fix round 2 finding 1: 測定した相関のみを書く。S5_kmeans_centersは
-    # 有効スレッド数が1・2・4のときは安定、8(測定環境のnproc)のときは
-    # 不安定という相関を30回×6設定の実測で確認した(s5_sklearn.pyの
-    # モジュールdocstring参照)。既定(未設定)の環境では不安定な側に
-    # 入るため、ここでdigestの一致を前提にはできない。このプローブ自身が
-    # `meta["stable_within_process"]`として自己申告する対象であり
+    # fix round 1/2/3: 測定した相関のみを書く。S5_kmeans_centersは有効
+    # スレッド数が1・2・4のときは安定、8(測定環境のnproc)のときは不安定
+    # という相関を30回×6設定の実測で確認した(s5_sklearn.pyのモジュール
+    # docstring参照)。このテストを走らせる検証コンテナは8 CPUで、既定
+    # (未設定)の環境ではその8 CPU上で不安定側に入ることを確認済みだが、
+    # これは「このコンテナでの既定」についての記述であり、有効スレッド数が
+    # 1・2・4のホスト(そこでは同じ表が安定を予測する)についての主張では
+    # ない。したがってここでdigestの一致を前提にはできない。このプローブ
+    # 自身が`meta["stable_within_process"]`として自己申告する対象であり
     # (test_all_probes_smoke.pyの`_SELF_REPORTED_STABILITY`参照)、ここでは
     # それが存在することだけを確認する。
     pytest.importorskip("sklearn")
@@ -99,16 +102,16 @@ def test_sklearn_probes_skip_cleanly_without_library(monkeypatch):
 
 
 def test_kmeans_dataset_has_genuine_cluster_structure_and_a_unique_optimum():
-    # finding 2: the original dataset was a single isotropic Gaussian with
-    # no real cluster structure, so k=4 had a huge family of near-tied local
-    # optima. With the new well-separated-blobs dataset, repeated fits
-    # converge via the identical path (n_iter_ never varies, measured over
-    # 180 fits across 6 thread-count configurations -- see s5_sklearn.py's
-    # module docstring) -- that is the signature of "one dominant optimum",
-    # not "a different local optimum chosen each time". inertia_ itself can
-    # still differ by a tiny relative amount (measured: up to ~3.9e-16); the
-    # tolerance below reflects that measurement, not a claimed mechanism for
-    # it.
+    # finding 2: the classification dataset was not built for clustering, so
+    # k=4 on it had a huge family of near-tied local optima. With the new
+    # well-separated-blobs dataset, repeated fits converge via the identical
+    # path (n_iter_ never varies, measured over 180 fits across 6
+    # thread-count configurations -- see s5_sklearn.py's module docstring)
+    # -- that is the signature of "one dominant optimum", not "a different
+    # local optimum chosen each time". inertia_ itself can still differ by a
+    # tiny relative amount (measured: up to ~3.9e-16, across two independent
+    # 30-fit runs). rel=1e-12 below is a safety bound with a ~2500x margin
+    # over that measurement, not itself a measured tolerance.
     pytest.importorskip("sklearn")
     from reprobench.probes.s5_sklearn import _kmeans_dataset
     from sklearn.cluster import KMeans

@@ -23,14 +23,16 @@ fix round 2 finding D: `S0_glob_order` は呼び出しのたびに新しい
 `meta["stable_within_process"]`として既に記録しているので、スモーク
 テストではdigestの一致ではなく、このキーが存在することだけを確認する。
 
-Task 7 fix(fix round 2で再々訂正——測定した相関のみを書く): `S5_kmeans_centers`
-も同じ扱いに加えた。有効スレッド数が1・2・4のときは30回連続で安定、
-8(測定に使ったコンテナのnproc)のときは30回中16種のdigestに分かれる、
-という相関を実測した(`n_iter_`は全180回のフィットで一度も変わっていない)。
-これ以上の仕組み(なぜ8だけ不安定かなど)は測定していないため主張しない
-(詳細・数値は`reprobench/probes/s5_sklearn.py`のモジュールdocstring参照)。
-このプローブ自身が内部で2回fitして一致を`meta["stable_within_process"]`に
-記録している。
+Task 7 fix(fix round 2/3で再訂正——測定した相関のみを書く): `S5_kmeans_centers`
+も同じ扱いに加えた。有効スレッド数が1・2・4のときは独立な2回の30フィット
+実行の両方で完全に安定、8(測定に使ったコンテナのnproc)のときはどちらの
+実行でも複数種類のdigestに分かれる、という相関を実測した(`n_iter_`は
+両実行とも全180回のフィットで一度も変わっていない)。「何種類に分かれる
+か」という具体的な個数自体は実行ごとに違う値になった(1回目は16種類、
+独立な再実行では13種類)ため、固定値としては引用しない。これ以上の仕組み
+(なぜ8だけ不安定かなど)は測定していないため主張しない(詳細・数値は
+`reprobench/probes/s5_sklearn.py`のモジュールdocstring参照)。このプローブ
+自身が内部で2回fitして一致を`meta["stable_within_process"]`に記録している。
 
 Task 8 fix round 1 finding 0: `S8_index_add_atomics`も同じ扱いに加えた。
 `atomicAdd`を使うCUDAの`index_add_`はスレッド実行順に加算順序が依存する

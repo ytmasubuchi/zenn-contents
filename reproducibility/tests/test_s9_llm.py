@@ -105,8 +105,12 @@ def test_every_s9_probe_meta_survives_a_json_round_trip():
     for name in names:
         r = run_probe(name)
         if isinstance(r, ProbeResult):
+            # fix round 3 small finding: check the whole meta dict, not just
+            # generation_config -- this costs nothing extra and also catches
+            # a non-string-keyed dict anywhere else in an S9 probe's meta
+            # (the same class of bug as S8's int-keyed digests, finding 9).
             round_tripped = json.loads(json.dumps(r.meta))
-            assert round_tripped["generation_config"] == r.meta["generation_config"], name
+            assert round_tripped == r.meta, name
 
 
 def test_sampling_probes_have_isolated_and_realistic_variants():
