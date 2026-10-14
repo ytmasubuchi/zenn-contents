@@ -84,12 +84,12 @@ def _train():
     params = _params(num_threads)
     dtrain = lgb.Dataset(X[train_idx], label=y[train_idx])
     booster = lgb.train(params, dtrain, num_boost_round=_NUM_BOOST_ROUND)
-    return booster, X, test_idx, params
+    return booster, X, train_idx, test_idx, params
 
 
 @register("S6_lgbm_pred", requires=("lightgbm",))
 def _lgbm_pred() -> ProbeResult:
-    booster, X, test_idx, params = _train()
+    booster, X, train_idx, test_idx, params = _train()
     pred = booster.predict(X[test_idx]).astype(np.float64)
 
     scalars = {"mean_pred": float(pred.mean())}
@@ -102,6 +102,12 @@ def _lgbm_pred() -> ProbeResult:
         "learning_rate": _LEARNING_RATE,
         "n_test": len(test_idx),
         "mean_pred_hex": scalars["mean_pred"].hex(),
+        # fix round 1 finding 10: S5とS6は同じ生成式のデータセットを使うが
+        # 独立に分割する(S6はsklearnに依存しないため——モジュールdocstring
+        # 参照)。分割自体が食い違っていないかを比較器が直接確認できるよう、
+        # 使った分割のdigestを残す(S5側と一致しないのが正しい——別の
+        # アルゴリズムで独立に分割しているため)。
+        "train_idx_digest": digest(train_idx.astype(np.int64)),
     }
     return ProbeResult(
         probe="S6_lgbm_pred",
@@ -114,7 +120,7 @@ def _lgbm_pred() -> ProbeResult:
 
 @register("S6_lgbm_tree_structure", requires=("lightgbm",))
 def _lgbm_tree_structure() -> ProbeResult:
-    booster, _X, test_idx, params = _train()
+    booster, _X, train_idx, _test_idx, params = _train()
     model_json = booster.dump_model()
     # dict のキー順はJSON化の実装都合で揺れうる(本物の木構造の差では
     # ない)ため、sort_keys=Trueで正規化してからダイジェストを取る。
@@ -131,6 +137,7 @@ def _lgbm_tree_structure() -> ProbeResult:
         "learning_rate": _LEARNING_RATE,
         "num_trees": booster.num_trees(),
         "normalization": "json.dumps(sort_keys=True)",
+        "train_idx_digest": digest(train_idx.astype(np.int64)),
     }
     return ProbeResult(
         probe="S6_lgbm_tree_structure",

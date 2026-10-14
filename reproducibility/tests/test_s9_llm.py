@@ -62,3 +62,59 @@ def test_greedy_probes_use_do_sample_false_not_temperature_zero():
     if isinstance(r, ProbeResult):
         assert r.meta["do_sample"] is False
         assert "temperature" not in r.meta or r.meta.get("temperature") is None
+
+
+# --- fix round 1 (coordinator review) ---
+
+
+def test_every_s9_probe_records_generation_config_and_device(monkeypatch):
+    # finding 4: generation_config.json ships top_p/top_k/repetition_penalty
+    # that are not neutral; recording it is what lets a reader notice.
+    # finding 7: the model must run on CUDA when available, and every probe
+    # must say which device it actually used.
+    names = [
+        "S9_greedy_batch1", "S9_greedy_batch8", "S9_greedy_fp32",
+        "S9_greedy_bf16", "S9_greedy_fp16", "S9_temperature_zero_api_semantics",
+        "S9_sampling_t0_7_seed", "S9_sampling_t0_7_seed_isolated",
+        "S9_sampling_t1_2_seed", "S9_sampling_t1_2_seed_isolated",
+        "S9_logit_margin",
+    ]
+    for name in names:
+        r = run_probe(name)
+        if isinstance(r, ProbeResult):
+            assert "generation_config" in r.meta, name
+            assert "device" in r.meta, name
+
+
+def test_sampling_probes_have_isolated_and_realistic_variants():
+    # finding 4: an isolating variant with top_p=1.0/top_k=0/repetition_penalty=1.0
+    # (temperature is the only active parameter) alongside a realistic
+    # variant using the model's shipped generation_config defaults, labeled
+    # for what each is.
+    pairs = [
+        ("S9_sampling_t0_7_seed", "S9_sampling_t0_7_seed_isolated"),
+        ("S9_sampling_t1_2_seed", "S9_sampling_t1_2_seed_isolated"),
+    ]
+    for realistic_name, isolated_name in pairs:
+        realistic = run_probe(realistic_name)
+        isolated = run_probe(isolated_name)
+        if isinstance(realistic, ProbeResult) and isinstance(isolated, ProbeResult):
+            assert realistic.meta["isolation"] == "model_shipped_defaults"
+            assert isolated.meta["isolation"] == "temperature_only"
+            assert isolated.meta["isolating_kwargs"] == {
+                "top_p": 1.0, "top_k": 0, "repetition_penalty": 1.0,
+            }
+
+
+def test_logit_margin_uses_isolating_settings():
+    r = run_probe("S9_logit_margin")
+    if isinstance(r, ProbeResult):
+        assert r.meta["isolation"] == "temperature_only"
+        assert r.meta["isolating_kwargs"]["repetition_penalty"] == 1.0
+
+
+def test_isolated_sampling_probes_skip_without_model(monkeypatch):
+    monkeypatch.setattr(registry, "check_requirement", lambda r: r != "hf_model")
+    for name in ("S9_sampling_t0_7_seed_isolated", "S9_sampling_t1_2_seed_isolated"):
+        r = run_probe(name)
+        assert isinstance(r, SkippedProbe) and "hf_model" in r.reason

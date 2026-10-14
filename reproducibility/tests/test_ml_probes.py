@@ -8,11 +8,12 @@ digest/metaへ直接アクセスするテストはそのままでは`AttributeEr
 スキップへ丸める(標準スイートを壊さないため。検証コンテナ
 (sklearn/lightgbmをpip installしたもの)ではそのまま実行される)。
 """
+import numpy as np
 import pytest
 
 import reprobench.probes  # モジュールimportの副作用でS5/S6プローブ群を登録する
 from reprobench import registry
-from reprobench.registry import SkippedProbe, run_probe
+from reprobench.registry import ProbeResult, SkippedProbe, run_probe
 
 
 # --- タスクブリーフ記載のテスト(そのまま、ただしsklearn不在環境用にimportorskipを追加) ---
@@ -48,10 +49,16 @@ def test_ml_probes_skip_without_library(monkeypatch):
 
 
 def test_random_forest_n_jobs_follows_repro_threads(monkeypatch):
+    # fix round 1 small finding: `isinstance(r, SkippedProbe) or ...` passes
+    # vacuously for ANY skip reason (including a bug-indicating "raised: ..."),
+    # which defeats the `importorskip` guard above it. Since sklearn is
+    # confirmed present at this point, a SkippedProbe here would itself be
+    # the bug worth catching, not something to wave through.
     pytest.importorskip("sklearn")
     monkeypatch.setenv("REPRO_THREADS", "3")
     r = run_probe("S5_random_forest_pred")
-    assert isinstance(r, SkippedProbe) or r.meta["n_jobs"] == 3
+    assert isinstance(r, ProbeResult)
+    assert r.meta["n_jobs"] == 3
 
 
 def test_logreg_probe_records_solver_and_max_iter():
@@ -62,10 +69,12 @@ def test_logreg_probe_records_solver_and_max_iter():
 
 
 def test_lgbm_num_threads_follows_repro_threads(monkeypatch):
+    # fix round 1 small finding: see test_random_forest_n_jobs_follows_repro_threads.
     pytest.importorskip("lightgbm")
     monkeypatch.setenv("REPRO_THREADS", "2")
     r = run_probe("S6_lgbm_pred")
-    assert isinstance(r, SkippedProbe) or r.meta["num_threads"] == 2
+    assert isinstance(r, ProbeResult)
+    assert r.meta["num_threads"] == 2
 
 
 def test_lgbm_tree_structure_differs_from_prediction_digest():
@@ -83,3 +92,62 @@ def test_sklearn_probes_skip_cleanly_without_library(monkeypatch):
     for name in ("S5_logreg_coef", "S5_random_forest_pred", "S5_kmeans_centers", "S5_train_test_split_index"):
         r = run_probe(name)
         assert isinstance(r, SkippedProbe) and "sklearn" in r.reason
+
+
+# --- fix round 1 (coordinator review) ---
+
+
+def test_kmeans_dataset_has_genuine_cluster_structure_and_a_unique_optimum():
+    # finding 2: the original dataset was a single isotropic Gaussian with
+    # no real cluster structure, so k=4 had a huge family of near-tied local
+    # optima. With the new well-separated-blobs dataset, repeated fits
+    # converge via the identical path (n_iter_ never varies) -- that is the
+    # signature of "one dominant optimum", not "a different local optimum
+    # chosen each time". inertia_ itself can still show ~1 ULP (~2e-16
+    # relative) floating-point jitter from the parallel reduction (see
+    # s5_sklearn.py's module docstring for the 20-repeat measurement this
+    # tolerance is based on); that jitter is the separate, correctly-scoped
+    # finding this fix produced, not a regression back to "different optimum".
+    pytest.importorskip("sklearn")
+    from reprobench.probes.s5_sklearn import _kmeans_dataset
+    from sklearn.cluster import KMeans
+
+    X = _kmeans_dataset()
+    a = KMeans(n_clusters=4, n_init=10, random_state=20261014).fit(X)
+    b = KMeans(n_clusters=4, n_init=10, random_state=20261014).fit(X)
+    assert a.n_iter_ == b.n_iter_
+    assert a.inertia_ == pytest.approx(b.inertia_, rel=1e-12)
+
+
+def test_kmeans_centers_digest_is_invariant_to_row_order():
+    # finding 2 (canonicalization): KMeans assigns no stable row order to
+    # cluster_centers_, so two hosts that find the identical clustering with
+    # rows permuted must not be reported as disagreeing.
+    from reprobench.probes.s5_sklearn import _canonical_centers
+
+    centers = np.array([[3.0, 0.0], [1.0, 0.0], [2.0, 0.0]])
+    permuted = centers[[2, 0, 1]]
+    assert np.array_equal(_canonical_centers(centers), _canonical_centers(permuted))
+
+
+def test_kmeans_centers_records_effective_thread_count():
+    pytest.importorskip("sklearn")
+    r = run_probe("S5_kmeans_centers")
+    assert isinstance(r, ProbeResult)
+    assert r.meta["effective_thread_count"] is not None
+    assert r.meta["effective_thread_count"] > 0
+
+
+def test_split_digests_are_recorded_and_s5_s6_use_independent_splits():
+    # finding 10: S5 and S6 use the same dataset-generation formula but
+    # independent split algorithms (S6 avoids sklearn on purpose -- see
+    # s6_lightgbm.py's module docstring). Record both so a reader can see
+    # they differ, rather than silently assuming they match.
+    pytest.importorskip("sklearn")
+    pytest.importorskip("lightgbm")
+    s5 = run_probe("S5_logreg_coef")
+    s6 = run_probe("S6_lgbm_pred")
+    assert isinstance(s5, ProbeResult) and isinstance(s6, ProbeResult)
+    assert "train_idx_digest" in s5.meta
+    assert "train_idx_digest" in s6.meta
+    assert s5.meta["train_idx_digest"] != s6.meta["train_idx_digest"]

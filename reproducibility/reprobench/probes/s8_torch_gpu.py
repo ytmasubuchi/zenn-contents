@@ -1,4 +1,4 @@
-"""S8: PyTorch(CUDA)のMLP学習・TF32・curandのGPUモデル依存性。
+"""S8: PyTorch(CUDA)のMLP学習・TF32・atomic演算・curandのGPUモデル依存性。
 
 重い依存(`torch`)はalpine等に無いことがあるため、関数本体の内部で
 importする(モジュール先頭には置かない。パッケージdocstring参照)。
@@ -17,12 +17,31 @@ matmul.allow_tf32`と`torch.backends.cudnn.allow_tf32`の両方を切り替え�
 後続の他プローブ(同一プロセス内で`all_probes()`を回すランナーや
 スモークテスト)が意図せず変化後の値を引き継いでしまう。そのため
 `_tf32_flags`コンテキストマネージャで元の値を保存し、必ず`finally`で
-復元する。
+復元する。`torch.use_deterministic_algorithms`も同じプロセスグローバルな
+可変状態であるため、`_deterministic_algorithms`コンテキストマネージャで
+同様に元の値(`torch.are_deterministic_algorithms_enabled()`)を保存して
+復元する(fix round 1 finding 6: 旧版は`finally`で無条件に`False`へ戻して
+おり、元が`True`だった場合に後続プローブへ意図せず伝播していた)。
 
 `S8_mlp_train10_cuda_deterministic`は`CUBLAS_WORKSPACE_CONFIG`がプロセス
 起動時に設定されていなければ`SkippedProbe`を返す(cuBLASはプロセス起動
 後にこの環境変数を読むため、プローブ内で`os.environ`へ書き込んでも
-手遅れ)。
+手遅れ)。これは`"missing requirement: "`とは別の、プローブ自身が判定する
+「環境変数の前提条件」によるスキップであり、理由文字列は
+`"missing env var: "`で始める。`tests/test_all_probes_smoke.py`はこの
+接頭辞も設計通りのスキップとして認識する(fix round 1 finding 5)。
+
+**fix round 1 finding 3(重要)**: 行列積・MLP学習系プローブの入力は、
+本バッチが測定したいGPU依存curandの影響そのものを受けないよう、**CPU側の
+ジェネレータで生成してから`.to("cuda")`で転送する**(`_cpu_randn`)。
+以前は`torch.randn(..., device="cuda")`で直接CUDA上に生成しており、
+2048×2048=4,194,304要素は`S8_curand_randn_sizes`が測る4サイズのうちの
+1つと厳密に一致していた——つまり「2つのGPUでTF32 on/offの行列積が違う」
+という観測が、行列積アルゴリズムの差ではなく入力そのものの違い(curandの
+GPUモデル依存)によるものである可能性を排除できていなかった。入力を
+CPU生成に切り替え、`digest(a)`/`digest(b)`(行列積系)・`digest(x)`/
+`digest(target)`(学習系)を`meta`に記録することで、「入力が一致していた
+かどうか」をソースを読まずとも記録から直接確認できるようにする。
 
 `S8_curand_randn_sizes`はこのバッチで最も重要なプローブである。PyTorchの
 CUDA RNGは`curand_init`がPhiloxをスレッドindexでseedするため、スレッド→
@@ -31,9 +50,26 @@ seed・同じPhiloxでもGPUモデルが違えば生成される乱数そのも�
 (PyTorch issue #194676)。4サイズ(1024/65536/4194304/67108864)それぞれを
 `torch.manual_seed(20261014)`で**独立に**(ストリームを継続させず)
 reseedしてから生成し、サイズごとに別々のダイジェストを
-`meta["digests"]`に記録する。2026-10-14時点でこの挙動を公式ドキュメントに
-追記するPR(#196733)はapprove済み・未マージであり、本プローブの実測が
-一次情報になる。
+`meta["digests"]`に記録する(キーは文字列——fix round 1 finding 9:
+JSONはdictのキーを文字列化するため、int キーのままでは比較器が読む
+`results.json`との整合性が無い)。2026-10-14時点でこの挙動を公式
+ドキュメントに追記するPR(#196733)はapprove済み・未マージであり、
+本プローブの実測が一次情報になる。
+
+**fix round 1 finding 0(重要、座長の実測で追加)**: `S8_mlp_train10_cuda`
+系は`Linear`+`ReLU`+`MSELoss`のみで構成されており、これはCUDA上で
+決定的な演算(cuBLASのGEMMはシングルストリーム・固定workspace下では
+run-to-runで決定的)である。座長がRTX 4090実機で測定した結果、
+`S8_mlp_train10_cuda`と`S8_mlp_train10_cuda_deterministic`は**同一
+digest**になった——つまりこのMLPには「決定的アルゴリズムフラグが
+修正すべき非決定性」がそもそも存在しない。GPUの非決定性は
+`atomicAdd`を使う演算(`index_add_`/`scatter_add_`/embedding backward等)
+に由来するため、`S8_index_add_atomics`(既定、重複indexへの
+`index_add_`)と`S8_index_add_atomics_deterministic`
+(`use_deterministic_algorithms(True)`下)を追加する。前者は
+プロセス内で安定しないことが期待される自己申告プローブ
+(`_SELF_REPORTED_STABILITY`入り)、後者は決定的アルゴリズムが実際に
+その非決定性を消すことを示す対照実験である。
 """
 import os
 from contextlib import contextmanager
@@ -54,6 +90,8 @@ _LR = 0.01
 _CURAND_SIZES = (1024, 65536, 4194304, 67108864)
 _CUBLAS_WORKSPACE_CONFIGS = (":4096:8", ":16:8")
 _MATMUL_SIZE = 2048
+_ATOMIC_N = 1_000_000
+_ATOMIC_BINS = 64
 
 
 def _device_meta(torch) -> dict:
@@ -79,6 +117,36 @@ def _tf32_flags(torch, matmul: bool, cudnn: bool):
         torch.backends.cudnn.allow_tf32 = orig_cudnn
 
 
+@contextmanager
+def _deterministic_algorithms(torch, enabled: bool):
+    # fix round 1 finding 6: 元の値を保存して復元する。以前は`finally`で
+    # 無条件に`False`に戻しており、プロセス起動時に`True`だった場合に
+    # 後続の他プローブへ意図せず伝播していた。
+    orig = torch.are_deterministic_algorithms_enabled()
+    torch.use_deterministic_algorithms(enabled)
+    try:
+        yield
+    finally:
+        torch.use_deterministic_algorithms(orig)
+
+
+def _cpu_randn(*shape, generator, dtype=None) -> tuple:
+    """CPU側のジェネレータで乱数を生成してからCUDAへ転送する。
+
+    `torch.randn(..., device="cuda")`で直接生成すると、本バッチが測定
+    したいcurandのGPUモデル依存性そのものが行列積・学習系プローブの
+    入力に混入してしまう(fix round 1 finding 3、モジュールdocstring
+    参照)。CPU生成の値をそのまま返すので、呼び出し側でCPU側配列の
+    digestを記録できる。
+    """
+    import torch
+
+    t_cpu = torch.randn(*shape, generator=generator)
+    if dtype is not None:
+        t_cpu = t_cpu.to(dtype)
+    return t_cpu, t_cpu.to("cuda")
+
+
 def _build_mlp():
     import torch.nn as nn
 
@@ -92,16 +160,18 @@ def _build_mlp():
 
 
 def _train10_cuda(torch, dtype=None):
-    """3層MLPをCUDA上で10ステップ学習し、学習後の全パラメータ・損失推移を
-    返す。`dtype`を渡すとモデル・データをそのdtypeへキャストする
-    (`S8_mlp_train10_cuda_bf16`用)。
+    """3層MLPをCUDA上で10ステップ学習し、学習後の全パラメータ・損失推移・
+    入力(x/target、CPU生成)のdigestを返す。`dtype`を渡すとモデル・データ
+    をそのdtypeへキャストする(`S8_mlp_train10_cuda_bf16`用)。
     """
     import torch.nn as nn
 
-    torch.manual_seed(_SEED)
+    torch.manual_seed(_SEED)  # モデルの重み初期化(CPU側のデフォルトRNG)を再現可能にする
     model = _build_mlp().to("cuda")
-    x = torch.randn(_BATCH, _IN_FEATURES, device="cuda")
-    target = torch.randn(_BATCH, _OUT_FEATURES, device="cuda")
+
+    cpu_gen = torch.Generator(device="cpu").manual_seed(_SEED)
+    x_cpu, x = _cpu_randn(_BATCH, _IN_FEATURES, generator=cpu_gen)
+    target_cpu, target = _cpu_randn(_BATCH, _OUT_FEATURES, generator=cpu_gen)
     if dtype is not None:
         model = model.to(dtype)
         x = x.to(dtype)
@@ -120,11 +190,15 @@ def _train10_cuda(torch, dtype=None):
 
     params = torch.cat([p.detach().flatten().float() for p in model.parameters()])
     arr = params.cpu().numpy().astype(np.float64)
-    return arr, losses
+    input_digests = {
+        "x": digest(x_cpu.numpy().astype(np.float64)),
+        "target": digest(target_cpu.numpy().astype(np.float64)),
+    }
+    return arr, losses, input_digests
 
 
 def _train10_result(name: str, torch, dtype_name: str, dtype=None) -> ProbeResult:
-    arr, losses = _train10_cuda(torch, dtype)
+    arr, losses, input_digests = _train10_cuda(torch, dtype)
     scalars = {"first_loss": losses[0], "final_loss": losses[-1]}
     meta = {
         "seed": _SEED,
@@ -135,6 +209,7 @@ def _train10_result(name: str, torch, dtype_name: str, dtype=None) -> ProbeResul
         "n_params": len(arr),
         "losses": losses,
         "dtype": dtype_name,
+        "input_digests": input_digests,
         **_device_meta(torch),
     }
     for key, value in scalars.items():
@@ -186,11 +261,8 @@ def _mlp_train10_cuda_deterministic() -> ProbeResult | SkippedProbe:
 
     import torch
 
-    torch.use_deterministic_algorithms(True)
-    try:
-        arr, losses = _train10_cuda(torch)
-    finally:
-        torch.use_deterministic_algorithms(False)
+    with _deterministic_algorithms(torch, True):
+        arr, losses, input_digests = _train10_cuda(torch)
 
     scalars = {"first_loss": losses[0], "final_loss": losses[-1]}
     meta = {
@@ -202,6 +274,7 @@ def _mlp_train10_cuda_deterministic() -> ProbeResult | SkippedProbe:
         "n_params": len(arr),
         "losses": losses,
         "dtype": "float32",
+        "input_digests": input_digests,
         "cublas_workspace_config": cublas_cfg,
         "deterministic_algorithms": True,
         **_device_meta(torch),
@@ -221,9 +294,9 @@ def _tf32_result(name: str, tf32: bool) -> ProbeResult:
     import torch
 
     with _tf32_flags(torch, tf32, tf32):
-        torch.manual_seed(_SEED)
-        a = torch.randn(_MATMUL_SIZE, _MATMUL_SIZE, device="cuda", dtype=torch.float32)
-        b = torch.randn(_MATMUL_SIZE, _MATMUL_SIZE, device="cuda", dtype=torch.float32)
+        cpu_gen = torch.Generator(device="cpu").manual_seed(_SEED)
+        a_cpu, a = _cpu_randn(_MATMUL_SIZE, _MATMUL_SIZE, generator=cpu_gen, dtype=torch.float32)
+        b_cpu, b = _cpu_randn(_MATMUL_SIZE, _MATMUL_SIZE, generator=cpu_gen, dtype=torch.float32)
         c = a @ b
         arr = c.cpu().numpy().astype(np.float64)
 
@@ -233,6 +306,8 @@ def _tf32_result(name: str, tf32: bool) -> ProbeResult:
             "torch_version": torch.__version__,
             "shape": list(arr.shape),
             "tf32": tf32,
+            "input_a_digest": digest(a_cpu.numpy().astype(np.float64)),
+            "input_b_digest": digest(b_cpu.numpy().astype(np.float64)),
             **_device_meta(torch),
         }
         for key, value in scalars.items():
@@ -260,17 +335,21 @@ def _matmul_tf32_off() -> ProbeResult:
 def _curand_randn_sizes() -> ProbeResult:
     import torch
 
-    digests: dict[int, str] = {}
+    digests: dict[str, str] = {}
     scalars: dict[str, float] = {}
     for n in _CURAND_SIZES:
         # 各サイズごとに独立してreseedする(ストリームを継続させない)。
         # 「同じseed・同じPhiloxで生成した乱数そのものがGPUモデルで
         # 変わるか」を見るプローブなので、サイズ間でRNG状態を共有すると
-        # 問いがぼやける(モジュールdocstring参照)。
+        # 問いがぼやける(モジュールdocstring参照)。このプローブ**だけ**は
+        # 意図的に`device="cuda"`で直接生成する——curandのGPUモデル依存性
+        # そのものが測定対象であるため。
         torch.manual_seed(_SEED)
         x = torch.randn(n, device="cuda")
         arr = x.cpu().numpy().astype(np.float64)
-        digests[n] = digest(arr)
+        # fix round 1 finding 9: JSONはdictのキーを文字列化するため、
+        # intキーのままではresults.jsonとin-processの値が食い違う。
+        digests[str(n)] = digest(arr)
         scalars[f"mean_{n}"] = float(arr.mean())
 
     meta = {
@@ -287,5 +366,92 @@ def _curand_randn_sizes() -> ProbeResult:
         digest=digest(list(digests.values())),
         scalars=scalars,
         sample_b64=None,
+        meta=meta,
+    )
+
+
+def _index_add_once(torch, cpu_gen):
+    """重複indexへの`index_add_`を1回実行し、結果と入力のdigestを返す。
+
+    `index_add_`はCUDA上で複数スレッドが同じ出力要素へ`atomicAdd`する
+    実装であり、加算順序がスレッド実行順(スケジューリングのタイミング)
+    に依存する——`Linear`/`ReLU`/`MSELoss`のみのMLP(cuBLAS GEMM、
+    run-to-runで決定的)とは異なり、こちらは本当にGPU上で非決定的な
+    演算である(モジュールdocstring finding 0参照)。
+    """
+    values_cpu, values = _cpu_randn(_ATOMIC_N, generator=cpu_gen)
+    index_cpu = torch.randint(0, _ATOMIC_BINS, (_ATOMIC_N,), generator=cpu_gen)
+    index = index_cpu.to("cuda")
+    out = torch.zeros(_ATOMIC_BINS, device="cuda")
+    out.index_add_(0, index, values)
+    arr = out.cpu().numpy().astype(np.float64)
+    input_digests = {
+        "values": digest(values_cpu.numpy().astype(np.float64)),
+        "index": digest(index_cpu.numpy().astype(np.int64)),
+    }
+    return arr, input_digests
+
+
+@register("S8_index_add_atomics", requires=("torch", "cuda"))
+def _index_add_atomics() -> ProbeResult:
+    import torch
+
+    cpu_gen = torch.Generator(device="cpu").manual_seed(_SEED)
+    first, input_digests = _index_add_once(torch, cpu_gen)
+    cpu_gen2 = torch.Generator(device="cpu").manual_seed(_SEED)
+    second, _ = _index_add_once(torch, cpu_gen2)
+    stable = bool(np.array_equal(first, second))
+
+    scalars = {"sum": float(first.sum())}
+    meta = {
+        "seed": _SEED,
+        "torch_version": torch.__version__,
+        "n": _ATOMIC_N,
+        "bins": _ATOMIC_BINS,
+        "deterministic_algorithms": False,
+        "stable_within_process": stable,
+        "input_digests": input_digests,
+        **_device_meta(torch),
+    }
+    for key, value in scalars.items():
+        meta[f"{key}_hex"] = value.hex()
+    return ProbeResult(
+        probe="S8_index_add_atomics",
+        digest=digest(first),
+        scalars=scalars,
+        sample_b64=encode_sample(first),
+        meta=meta,
+    )
+
+
+@register("S8_index_add_atomics_deterministic", requires=("torch", "cuda"))
+def _index_add_atomics_deterministic() -> ProbeResult:
+    import torch
+
+    with _deterministic_algorithms(torch, True):
+        cpu_gen = torch.Generator(device="cpu").manual_seed(_SEED)
+        first, input_digests = _index_add_once(torch, cpu_gen)
+        cpu_gen2 = torch.Generator(device="cpu").manual_seed(_SEED)
+        second, _ = _index_add_once(torch, cpu_gen2)
+    stable = bool(np.array_equal(first, second))
+
+    scalars = {"sum": float(first.sum())}
+    meta = {
+        "seed": _SEED,
+        "torch_version": torch.__version__,
+        "n": _ATOMIC_N,
+        "bins": _ATOMIC_BINS,
+        "deterministic_algorithms": True,
+        "stable_within_process": stable,
+        "input_digests": input_digests,
+        **_device_meta(torch),
+    }
+    for key, value in scalars.items():
+        meta[f"{key}_hex"] = value.hex()
+    return ProbeResult(
+        probe="S8_index_add_atomics_deterministic",
+        digest=digest(first),
+        scalars=scalars,
+        sample_b64=encode_sample(first),
         meta=meta,
     )

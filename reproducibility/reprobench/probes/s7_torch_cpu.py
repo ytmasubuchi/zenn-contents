@@ -13,6 +13,16 @@ reseedする**(resolution 3)。これにより、重み初期化→入力生成�
 `S7_mlp_forward`は推論のみ(勾配無し)、`S7_mlp_train10`はMSE損失・SGDで
 10ステップ学習し、学習後の全パラメータを連結した1本のベクトルを
 ダイジェスト化する(損失の推移も`meta["losses"]`に残す)。
+
+**fix round 1 finding 7**: `meta["dtype"]`には**計算が実際に行われた
+dtype**(`nn.Linear`/`torch.randn`の既定であるfloat32)を記録する。
+以前は`digest`/`encode_sample`用にfloat64へ後から昇格した**numpy配列**の
+dtypeをそのまま`str(arr.dtype)`していたため、常に`"float64"`になり、
+実際の計算精度を正しく表していなかった(s4_libm.py等の既存プローブが
+計算と同じdtypeの配列をそのままdigestに使うのとは事情が違う——ここでは
+比較しやすさのためfloat64へ昇格してからdigestを取っているため、計算
+dtypeとdigest対象dtypeが分かれる)。`S7_mlp_train10`には`dtype`が
+そもそも記録されていなかったため、併せて追加した。
 """
 import numpy as np
 
@@ -60,6 +70,7 @@ def _mlp_forward() -> ProbeResult:
     x = torch.randn(_BATCH, _IN_FEATURES)
     with torch.no_grad():
         y = model(x)
+    compute_dtype = str(y.dtype).removeprefix("torch.")  # fix round 1 finding 7
     arr = y.numpy().astype(np.float64)
 
     scalars = {"mean": float(arr.mean()), "std": float(arr.std())}
@@ -67,7 +78,8 @@ def _mlp_forward() -> ProbeResult:
         torch,
         {
             "shape": list(arr.shape),
-            "dtype": str(arr.dtype),
+            "dtype": compute_dtype,
+            "digest_dtype": str(arr.dtype),
             "batch": _BATCH,
         },
     )
@@ -104,6 +116,7 @@ def _mlp_train10() -> ProbeResult:
         losses.append(float(loss.item()))
 
     params = torch.cat([p.detach().flatten() for p in model.parameters()])
+    compute_dtype = str(params.dtype).removeprefix("torch.")  # fix round 1 finding 7
     arr = params.numpy().astype(np.float64)
 
     scalars = {"first_loss": losses[0], "final_loss": losses[-1]}
@@ -115,6 +128,8 @@ def _mlp_train10() -> ProbeResult:
             "lr": _LR,
             "n_params": len(arr),
             "losses": losses,
+            "dtype": compute_dtype,
+            "digest_dtype": str(arr.dtype),
         },
     )
     for key, value in scalars.items():
