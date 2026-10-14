@@ -28,24 +28,28 @@ def _base_values() -> np.ndarray:
     return rng.standard_normal(_N)
 
 
-def _scalar_result(name: str, key: str, value: float, dtype: str) -> ProbeResult:
+def _scalar_result(name: str, key: str, value: float, dtype: str, **extra_meta) -> ProbeResult:
     """スカラー1個(合計または平均)を返すプローブの共通組み立て処理。
 
     JSONの浮動小数点表現はfloat64の全ビットを往復させる保証が無いため、
     `meta["{key}_hex"]` に `float.hex()` を残し、比較器が正確なビットで
-    突き合わせられるようにする。
+    突き合わせられるようにする。`extra_meta` は
+    `S2_sum_shuffled_float32` が置換の情報(`permuted`/`perm_seed`)を
+    足すために使う。
     """
+    meta = {
+        "seed": _SEED,
+        "n": _N,
+        "dtype": dtype,
+        f"{key}_hex": value.hex(),
+    }
+    meta.update(extra_meta)
     return ProbeResult(
         probe=name,
         digest=digest(value),
         scalars={key: value},
         sample_b64=None,
-        meta={
-            "seed": _SEED,
-            "n": _N,
-            "dtype": dtype,
-            f"{key}_hex": value.hex(),
-        },
+        meta=meta,
     )
 
 
@@ -75,4 +79,11 @@ def _sum_shuffled_float32() -> ProbeResult:
     arr = _base_values().astype(np.float32)
     perm = np.random.default_rng(_PERM_SEED).permutation(_N)
     total = float(np.sum(arr[perm]))
-    return _scalar_result("S2_sum_shuffled_float32", "total", total, "float32")
+    return _scalar_result(
+        "S2_sum_shuffled_float32",
+        "total",
+        total,
+        "float32",
+        permuted=True,
+        perm_seed=_PERM_SEED,
+    )

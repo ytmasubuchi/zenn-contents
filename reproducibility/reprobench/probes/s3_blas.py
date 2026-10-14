@@ -24,15 +24,23 @@ def _matmul_result(name: str, dtype) -> ProbeResult:
     a = rng.standard_normal((_SIZE, _SIZE)).astype(dtype)
     b = rng.standard_normal((_SIZE, _SIZE)).astype(dtype)
     c = a @ b
+    trace = float(np.trace(c))
+    fro_norm = float(np.linalg.norm(c))
     return ProbeResult(
         probe=name,
         digest=digest(c),
-        scalars={
-            "trace": float(np.trace(c)),
-            "fro_norm": float(np.linalg.norm(c)),
-        },
+        scalars={"trace": trace, "fro_norm": fro_norm},
         sample_b64=encode_sample(c, n=4096),
-        meta={"seed": _SEED, "shape": list(c.shape), "dtype": str(c.dtype)},
+        meta={
+            "seed": _SEED,
+            "shape": list(c.shape),
+            "dtype": str(c.dtype),
+            # JSONのfloat表現はfloat64の全ビットを往復させる保証が無いため、
+            # 比較器が正確なビットで突き合わせられるようhex表現を残す
+            # (s2_reduction.pyのtotal_hexと同じ理由)。
+            "trace_hex": trace.hex(),
+            "fro_norm_hex": fro_norm.hex(),
+        },
     )
 
 
