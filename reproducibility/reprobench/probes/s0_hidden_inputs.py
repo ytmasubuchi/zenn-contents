@@ -9,9 +9,7 @@
 """
 import glob
 import os
-import random
 import tempfile
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from reprobench.digest import digest
@@ -59,23 +57,31 @@ def _dict_from_set() -> ProbeResult:
 
 @register("S0_glob_order")
 def _glob_order() -> ProbeResult:
+    # 同一ディレクトリに対して同一プロセス内で2回 `glob.glob` を呼び、
+    # 列挙順が安定しているかを `stable_within_process` に記録する。
+    # 呼び出しのたびに新しいTemporaryDirectoryを作ると、2つの異なる
+    # ディレクトリを比べることになり、「環境間の不一致」と「このプローブが
+    # そもそも再現しない」を区別できなくなる(並列プローブと同じ理由)。
     with tempfile.TemporaryDirectory(prefix="reprobench_s0_glob_") as tmp:
         names = [f"file_{i:03d}.txt" for i in range(_N_FILES)]
         for name in names:
             open(os.path.join(tmp, name), "w").close()
-        raw = [os.path.basename(p) for p in glob.glob(os.path.join(tmp, "*.txt"))]
+        pattern = os.path.join(tmp, "*.txt")
+        first = [os.path.basename(p) for p in glob.glob(pattern)]
+        second = [os.path.basename(p) for p in glob.glob(pattern)]
         # with文を抜ける時点でTemporaryDirectoryが一時ファイル・ディレクトリ
         # 自体を削除するため、ここでの明示的な後始末は不要。
-    sorted_raw = sorted(raw)
+    sorted_raw = sorted(first)
     return ProbeResult(
         probe="S0_glob_order",
-        digest=digest(raw),
+        digest=digest(first),
         scalars={},
         sample_b64=None,
         meta={
             "n": _N_FILES,
-            "sorted_equals_raw": raw == sorted_raw,
-            "order": raw,
+            "sorted_equals_raw": first == sorted_raw,
+            "order": first,
+            "stable_within_process": first == second,
         },
     )
 
@@ -92,16 +98,35 @@ def _hash_of_str() -> ProbeResult:
     )
 
 
-def _job(i: int) -> int:
-    """微小なランダム遅延のあと `i` を返す。
+_WORK_BASE = 50_000
 
-    遅延はOSエントロピーでseedしたローカルな乱数源(`random.Random()`、
-    引数なし)を使う。他プローブが使うPRNGの状態や、本プロセス内の他の
-    呼び出しからも独立させるためで、遅延を入れないとGIL/
-    ThreadPoolExecutorの実装次第で完了順が提出順とほぼ常に一致してしまい、
-    「完了順は揺らぐ」という本プローブの主張を実証できなくなる。
+
+def _work_size(i: int) -> int:
+    """ジョブ `i` に与える作業量(ビジーループの反復回数)。
+
+    idに対して単調な作業量(例: `i`に比例)だと、完了順はほぼ常に
+    「作業量が少ない順」= 「id順」に落ち着いてしまい、スケジューラ由来の
+    揺らぎが見えなくなる。ここでは係数を `(i*7+5) % 12 + 1` という非単調な
+    式で決め、複数のジョブが同程度の作業量を持つようにして、それらの間の
+    完了順が実際のスレッドスケジューリングに委ねられるようにする。
     """
-    time.sleep(random.Random().random() * 0.001)
+    coefficient = (i * 7 + 5) % 12 + 1
+    return _WORK_BASE * coefficient
+
+
+def _job(i: int) -> int:
+    """`_work_size(i)` 回分の実際のCPU作業を行ってから `i` を返す。
+
+    作業量はidだけで決まる決定的な値であり、乱数由来の遅延は一切使わない
+    (乱数で遅延を散らすと、どの2つの実行・どの2台のホストを比べても
+    digestが**構造的に**一致しなくなり、プローブがホストについて何も
+    語らなくなる)。完了順が揺らぐとすれば、それは本物のOSスケジューラ・
+    GIL切り替えタイミングに由来するものであり、揺らがずに毎回同じ順序に
+    なるなら、それもまた正直な測定結果である。
+    """
+    total = 0
+    for _ in range(_work_size(i)):
+        total += 1
     return i
 
 
@@ -113,8 +138,9 @@ def _completion_order() -> list:
 
 @register("S0_parallel_completion_order")
 def _parallel_completion_order() -> ProbeResult:
-    # この値はランごとに変わるのが正しい挙動。同一プロセス内で2回実行して
-    # 一致したかどうかを `stable_within_process` に記録する(G1-1aの材料)。
+    # この値はランごとに変わりうるのが正しい挙動(揺らがず安定するなら、
+    # それも正直な測定結果)。同一プロセス内で2回実行して一致したかどうかを
+    # `stable_within_process` に記録する(G1-1aの材料)。
     first = _completion_order()
     second = _completion_order()
     return ProbeResult(
@@ -124,6 +150,7 @@ def _parallel_completion_order() -> ProbeResult:
         sample_b64=None,
         meta={
             "n_jobs": _N_JOBS,
+            "work_sizes": [_work_size(i) for i in range(_N_JOBS)],
             "order": first,
             "stable_within_process": first == second,
         },
