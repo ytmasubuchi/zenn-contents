@@ -11,3 +11,6 @@
 道連れになる。
 """
 from reprobench.probes import s1_prng  # 副作用: S1プローブ群を登録する
+from reprobench.probes import s2_reduction  # 副作用: S2プローブ群を登録する
+from reprobench.probes import s3_blas  # 副作用: S3プローブ群を登録する
+from reprobench.probes import s4_libm  # 副作用: S4プローブ群を登録する
