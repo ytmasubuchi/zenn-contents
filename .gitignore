@@ -6,3 +6,9 @@ node_modules
 
 # 調査の生ノート(最終レポートは reports/ にコミットする。spec §6 / Task 12 resolution)
 research_notes/
+
+# Hugging Face model cache for the gpu image's local runs
+# (scripts/run_on_host.sh / fetch_model.sh create reproducibility/hf-cache/
+# when REPRO_HOST=local; fix round 2 -- was missing, so this directory
+# could have been git-added by mistake)
+hf-cache/

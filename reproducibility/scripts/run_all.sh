@@ -22,6 +22,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPRO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 DRY_RUN=0
 for arg in "$@"; do
@@ -111,12 +112,65 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "run_all.sh: $(echo "$MATRIX" | awk 'NF' | wc -l | tr -d ' ') planned run(s):"
 fi
 
+# fix round 2, Important 4: this loop used to run every row under plain
+# `set -e` with no per-row guard, so the first failing row killed the
+# entire campaign outright -- and since remote results/ is excluded from
+# `--delete` (it persists between invocations) and the runner refuses to
+# overwrite an existing output file, a second `run_all.sh` after that
+# failure died again immediately, on the FIRST already-completed row,
+# before ever reaching the one that actually failed. Resuming would have
+# meant hand-pruning JSONs across up to four machines. Fixed two ways at
+# once: (a) skip a row outright if its output is already sitting in
+# results/ locally -- the one place completion is unambiguous regardless
+# of which host produced it -- and (b) record a row's failure and
+# continue to the rest rather than aborting, the same contract
+# fetch_model.sh already uses for its per-host loop.
+#
+# Known residual gap, not fixed here: if a row's measurement succeeded
+# remotely but collection (scp) failed, the local results/ file never
+# gets created, so a retry calls run_on_host.sh again -- which rsyncs,
+# rebuilds, and reruns the container, and the runner then refuses to
+# overwrite the STALE remote output file from the first attempt. Fix
+# round 2's reordering in run_on_host.sh (collect before chown) makes
+# this less likely by removing one cause of exactly that failure mode,
+# but does not eliminate every way collection could fail after a
+# successful measurement.
+FAILED_ROWS=""
+SKIPPED_ROWS=""
+
 while read -r host image config; do
   [ -z "$host" ] && continue
   if [ "$DRY_RUN" -eq 1 ]; then
     "$SCRIPT_DIR/run_on_host.sh" "$host" "$image" "$config" --dry-run
+    echo "---"
+    continue
+  fi
+
+  out_file="$REPRO_DIR/results/${host}__${image}__${config}.json"
+  if [ -f "$out_file" ]; then
+    echo "run_all.sh: already have results/${host}__${image}__${config}.json, skipping"
+    SKIPPED_ROWS="$SKIPPED_ROWS ${host}/${image}/${config}"
+    echo "---"
+    continue
+  fi
+
+  if "$SCRIPT_DIR/run_on_host.sh" "$host" "$image" "$config"; then
+    :
   else
-    "$SCRIPT_DIR/run_on_host.sh" "$host" "$image" "$config"
+    row_exit=$?
+    echo "run_all.sh: ${host}/${image}/${config} FAILED (exit $row_exit), continuing to the next row" >&2
+    FAILED_ROWS="$FAILED_ROWS ${host}/${image}/${config}"
   fi
   echo "---"
 done < <(echo "$MATRIX")
+
+if [ "$DRY_RUN" -ne 1 ]; then
+  if [ -n "$SKIPPED_ROWS" ]; then
+    echo "run_all.sh: skipped (results already collected):$SKIPPED_ROWS"
+  fi
+  if [ -n "$FAILED_ROWS" ]; then
+    echo "run_all.sh: FAILED row(s):$FAILED_ROWS" >&2
+    exit 1
+  fi
+  echo "run_all.sh: campaign complete (no failures)"
+fi

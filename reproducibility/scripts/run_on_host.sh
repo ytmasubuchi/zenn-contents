@@ -186,19 +186,60 @@ capture_gpu_info() {
 # be shipped to a remote host verbatim via `declare -f` + ssh, instead of
 # existing twice (once local, once re-typed inside an ssh heredoc) --
 # one implementation, run in two places.
+#
+# fix round 2, CRITICAL: the previous version backgrounded
+# `( sleep "$timeout_secs" && docker kill ... ) &` without redirecting its
+# descriptors, and `kill "$watcher"` below only killed that subshell, not
+# the `sleep` it was blocked on. Two bugs from one line: (1) the subshell
+# inherits this function's stdout/stderr -- on a remote run those are
+# sshd's pipe back to this script, so *any* process still holding them
+# open blocks `ssh` from returning; (2) sending a signal to the subshell
+# while it's inside a `wait` on a separate `sleep` child does not touch
+# that child -- `sleep` is reparented and keeps running as an orphan,
+# continuing to hold those descriptors, for up to the full timeout.
+# Reviewer-verified with the identical pattern piped to `cat`: 6s elapsed
+# with the pipe vs. 0s without. Fixed by (a) redirecting the sleep and
+# the watcher subshell's stdin/stdout/stderr to /dev/null before
+# backgrounding either, and (b) keeping a direct handle on the `sleep`
+# process itself (not just the subshell waiting on it) so it can be
+# killed directly, rather than relying on a signal to the subshell
+# somehow reaching its child.
+#
+# fix round 2, Important 3: `--rm` added. This does not make the watchdog
+# survive an interrupted ssh session (the watcher is still a child of the
+# remote shell and dies with it on SIGHUP, which is a larger, deferred
+# fix -- see the fix-round-2 report), but it guarantees a container that
+# outlives its watcher at least doesn't accumulate as a stopped container
+# on a shared host afterward.
+#
+# This also changed from `docker run -d` + `docker wait` + `docker logs`
+# to a single foreground (attached) `docker run`: with `-d` and `--rm`
+# together, there is a race between `docker wait` returning (the
+# container has exited) and the daemon's own auto-removal completing --
+# `docker logs` right after could then intermittently fail to find the
+# container at all, silently losing the one thing it exists to capture.
+# Attached mode sidesteps this entirely: output streams live as it
+# happens, and `docker run`'s own exit status already mirrors the
+# container's, so neither a separate `docker wait` nor `docker logs` is
+# needed. `docker kill` from the watcher below still reaches the
+# container by name regardless of how the client is attached.
 run_container() {
   local image="$1"; shift
   local cname="$1"; shift
   local timeout_secs="$1"; shift
   # remaining args ($@): full extra `docker run` flags (-e / -v / --gpus)
   trap "docker rm -f $cname >/dev/null 2>&1 || true" EXIT
-  docker run -d --name "$cname" "$@" "reprobench:$image" python -m reprobench.runner
-  ( sleep "$timeout_secs" && docker kill "$cname" >/dev/null 2>&1 ) &
+
+  sleep "$timeout_secs" </dev/null >/dev/null 2>&1 &
+  local sleep_pid=$!
+  ( wait "$sleep_pid" 2>/dev/null && docker kill "$cname" >/dev/null 2>&1 ) </dev/null >/dev/null 2>&1 &
   local watcher=$!
-  local exit_code
-  exit_code="$(docker wait "$cname" 2>/dev/null || echo 1)"
+
+  local exit_code=0
+  docker run --rm --name "$cname" "$@" "reprobench:$image" python -m reprobench.runner || exit_code=$?
+
+  kill "$sleep_pid" >/dev/null 2>&1 || true
   kill "$watcher" >/dev/null 2>&1 || true
-  docker logs "$cname" || true
   return "$exit_code"
 }
 
@@ -219,7 +260,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
       echo "[dry-run] ssh $HOST: NOT reachable" >&2
       exit 1
     fi
-    echo "[dry-run] would run: rsync -az --delete --exclude results/ --exclude __pycache__/ --exclude '*.pyc' --exclude .pytest_cache/ $REPRO_DIR/ $HOST:~/reprobench-run/"
+    echo "[dry-run] would run: rsync -az --delete --exclude results/ --exclude hf-cache/ --exclude __pycache__/ --exclude '*.pyc' --exclude .pytest_cache/ $REPRO_DIR/ $HOST:~/reprobench-run/"
   fi
   capture_gpu_info
   echo "[dry-run] would run: docker build -f docker/Dockerfile.$IMAGE -t reprobench:$IMAGE ."
@@ -248,7 +289,12 @@ capture_gpu_info
 # using the image that was just built (already present locally, nothing
 # extra to pull), run as its default root user specifically so it has
 # permission to hand ownership back to the host user -- a regular user
-# cannot chown a file to themselves that root already owns.
+# cannot chown a file to themselves that root already owns. On the
+# remote path this now runs AFTER collecting the result (fix round 2,
+# Important 1) and never aborts the script on its own (both chown calls
+# below are `||`-guarded): a transient chown failure must not strand an
+# already-successful measurement, or take down the rest of a multi-row
+# campaign over a cosmetic ownership problem.
 if [ "$HOST" = "local" ]; then
   cd "$REPRO_DIR"
   docker build -f "docker/Dockerfile.$IMAGE" -t "reprobench:$IMAGE" .
@@ -262,10 +308,17 @@ if [ "$HOST" = "local" ]; then
   run_exit=0
   run_container "$IMAGE" "$CNAME" "$TIMEOUT_SECS" "${RUN_FLAGS[@]}" || run_exit=$?
 
+  # fix round 2, Important 1: these must never abort the script under
+  # `set -e` -- a transient chown failure is not worth losing a
+  # successful measurement over, and locally there is no separate
+  # collection step for it to get stranded ahead of, but the principle
+  # (cleanup is best-effort, never fatal) should hold here too.
   uid_gid="$(id -u):$(id -g)"
-  docker run --rm -v "$REPRO_DIR/results:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix
+  docker run --rm -v "$REPRO_DIR/results:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix \
+    || echo "run_on_host.sh: chown fixup for results/ failed (non-fatal)" >&2
   if [ "$IMAGE" = "gpu" ]; then
-    docker run --rm -v "$REPRO_DIR/hf-cache:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix
+    docker run --rm -v "$REPRO_DIR/hf-cache:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix \
+      || echo "run_on_host.sh: chown fixup for hf-cache/ failed (non-fatal)" >&2
   fi
 
   if [ "$run_exit" -ne 0 ]; then
@@ -275,7 +328,17 @@ if [ "$HOST" = "local" ]; then
   echo "run_on_host.sh: wrote results/${HOST}__${IMAGE}__${CONFIG}.json (if the runner did not refuse/skip -- see the log above)"
 else
   echo "run_on_host.sh: syncing to $HOST:~/reprobench-run/ ..."
-  rsync -az --delete --exclude 'results/' --exclude '__pycache__/' --exclude '*.pyc' --exclude '.pytest_cache/' "$REPRO_DIR/" "$HOST:~/reprobench-run/"
+  # fix round 2, CRITICAL: hf-cache/ was missing from this exclude list.
+  # It lives inside this same ~/reprobench-run/ tree on the remote host
+  # but does not exist in this local source tree, so without excluding
+  # it, `--delete` wiped the ~1GB Qwen2.5-0.5B-Instruct snapshot
+  # fetch_model.sh had just fetched on every single subsequent
+  # run_on_host.sh invocation against that host -- the GPU measurement
+  # would then either re-download it inside the 480-second timeout or
+  # record `missing requirement: hf_model`, defeating the prefetch step
+  # outright and re-pulling a multi-gigabyte download exactly where
+  # resolution 15 forbids it.
+  rsync -az --delete --exclude 'results/' --exclude 'hf-cache/' --exclude '__pycache__/' --exclude '*.pyc' --exclude '.pytest_cache/' "$REPRO_DIR/" "$HOST:~/reprobench-run/"
 
   ssh "$HOST" "mkdir -p ~/reprobench-run/results ~/reprobench-run/hf-cache && cd ~/reprobench-run && docker build -f docker/Dockerfile.$IMAGE -t reprobench:$IMAGE ." < /dev/null
 
@@ -308,21 +371,35 @@ else
   run_exit=0
   ssh "$HOST" "cd ~/reprobench-run && $(declare -f run_container); $remote_call" < /dev/null || run_exit=$?
 
+  # fix round 2, Important 1: collect BEFORE chowning, and make the
+  # chown best-effort (never fatal under `set -e`). The previous order
+  # ran the chown fixups first -- a transient failure there aborted the
+  # script after a successful measurement and before the JSON was ever
+  # copied back, stranding a real result on the remote host while the
+  # rest of a `run_all.sh` campaign had already died: a shared-host slot
+  # spent for nothing that a plain reordering avoids.
+  mkdir -p "$REPRO_DIR/results"
+  scp_exit=0
+  scp "$HOST:~/reprobench-run/results/${HOST}__${IMAGE}__${CONFIG}.json" "$REPRO_DIR/results/" < /dev/null || scp_exit=$?
+
   # Ownership fixup on the remote host -- see the file-level comment
   # above this if/else for why this is a separate, root-run throwaway
   # container rather than running the measurement container as a
-  # non-root user.
-  ssh "$HOST" "docker run --rm -v $remote_repro_dir/results:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null
+  # non-root user. Best-effort: a failure here is reported, not fatal.
+  ssh "$HOST" "docker run --rm -v $remote_repro_dir/results:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null \
+    || echo "run_on_host.sh: chown fixup for results/ on $HOST failed (non-fatal)" >&2
   if [ "$IMAGE" = "gpu" ]; then
-    ssh "$HOST" "docker run --rm -v $remote_repro_dir/hf-cache:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null
+    ssh "$HOST" "docker run --rm -v $remote_repro_dir/hf-cache:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null \
+      || echo "run_on_host.sh: chown fixup for hf-cache/ on $HOST failed (non-fatal)" >&2
   fi
 
   if [ "$run_exit" -ne 0 ]; then
     echo "run_on_host.sh: measurement container exited non-zero ($run_exit)" >&2
     exit "$run_exit"
   fi
-
-  mkdir -p "$REPRO_DIR/results"
-  scp "$HOST:~/reprobench-run/results/${HOST}__${IMAGE}__${CONFIG}.json" "$REPRO_DIR/results/"
+  if [ "$scp_exit" -ne 0 ]; then
+    echo "run_on_host.sh: failed to collect results/${HOST}__${IMAGE}__${CONFIG}.json from $HOST (scp exit $scp_exit)" >&2
+    exit "$scp_exit"
+  fi
   echo "run_on_host.sh: collected results/${HOST}__${IMAGE}__${CONFIG}.json from $HOST"
 fi

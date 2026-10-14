@@ -34,10 +34,10 @@ CPU_IMAGES := base py313 oldpy oldlibs alpine
 # verification command (`pip install numpy==2.2.6 pytest`): base also
 # carries scipy/scikit-learn/lightgbm/torch, so tests that
 # `pytest.importorskip` those libraries actually run here instead of
-# skipping. See Task 12 report for the one known, pre-existing exception
-# (test_envinfo.py::test_collect_env_survives_torch_module_not_found_error
-# asserts torch is ABSENT, which conflicts with base's brief-mandated
-# contents -- not something this Makefile can paper over).
+# skipping. Passes cleanly: 178 passed, 1 skipped (fix round 1 --
+# test_envinfo.py::test_collect_env_survives_torch_module_not_found_error
+# now skips when torch is importable, since it only has something to
+# prove where torch is genuinely absent; see the Task 12/13 report).
 test:
 	docker build -f docker/Dockerfile.base -t reprobench:base .
 	docker run --rm reprobench:base pytest -q -W error
@@ -84,8 +84,9 @@ run:
 	fi; \
 	./scripts/run_on_host.sh $(REPRO_HOST) $(IMAGE) $(CONFIG)
 
-# `make report`: results/*.json (the runner's `{host}__{image}__{config}.json`
-# files) -> results/report.json + results/matrix.md, via
+# `make report`: results/*__*__*.json (the runner's
+# `{host}__{image}__{config}.json` files) -> results/report.json +
+# results/matrix.md, via
 # reprobench.compare's public API (load_results/build_report/to_markdown).
 # Runs inside the base image, per the Task 12 brief ("report と figures
 # も base イメージ内で実行する").
@@ -96,10 +97,18 @@ run:
 #
 # This is a single recipe line (not a heredoc) on purpose -- see the
 # file-level comment above on why this Makefile avoids heredocs.
+#
+# The final line chowns $(RESULTS_DIR) back to the invoking user (fix
+# round 2, small finding): the container above runs as root like every
+# image in this project, so report.json/matrix.md would otherwise land
+# root-owned inside a directory the reader's own clone created -- the
+# same bug class fixed in scripts/run_on_host.sh for the measurement
+# containers, missed here originally.
 report:
 	docker build -f docker/Dockerfile.base -t reprobench:base .
 	mkdir -p $(RESULTS_DIR)
 	docker run --rm -v $(RESULTS_DIR):/work/results reprobench:base python3 -c "import glob, json, sys; from reprobench.compare import build_report, load_results, to_markdown; paths = sorted(glob.glob('results/*__*__*.json')) or sys.exit('make report: no results/*__*__*.json files found (run make run for at least one host/image/config first)'); results = load_results(paths); report = build_report(results); json.dump(report, open('results/report.json', 'w', encoding='utf-8'), indent=2, ensure_ascii=False, allow_nan=False); open('results/matrix.md', 'w', encoding='utf-8').write(to_markdown(report)); print(f'make report: wrote results/report.json and results/matrix.md from {len(paths)} file(s)')"
+	docker run --rm -v $(RESULTS_DIR):/fix reprobench:base chown -R $$(id -u):$$(id -g) /fix
 
 # `make figures`: results/report.json -> article figures (F4, F8; PNGs
 # land in images/reproducibility-of-randomness/, the repo-root sibling of
@@ -116,8 +125,12 @@ report:
 # level up from WORKDIR /work (../images/reproducibility-of-randomness),
 # so that whatever figures.py writes there lands in the real repo-root
 # images/ directory on the host.
+# The final two lines chown $(RESULTS_DIR)/$(IMAGES_DIR) back to the
+# invoking user, for the same reason as `report`'s chown above.
 figures:
 	docker build -f docker/Dockerfile.base -t reprobench:base .
 	mkdir -p $(RESULTS_DIR)
 	mkdir -p $(IMAGES_DIR)
 	docker run --rm -v $(RESULTS_DIR):/work/results -v $(IMAGES_DIR):/images/reproducibility-of-randomness reprobench:base python -m reprobench.figures
+	docker run --rm -v $(RESULTS_DIR):/fix reprobench:base chown -R $$(id -u):$$(id -g) /fix
+	docker run --rm -v $(IMAGES_DIR):/fix reprobench:base chown -R $$(id -u):$$(id -g) /fix

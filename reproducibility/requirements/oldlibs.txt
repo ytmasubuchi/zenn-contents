@@ -35,3 +35,7 @@ scipy==1.7.3
 scikit-learn==1.0.2
 lightgbm==4.5.0
 threadpoolctl==3.5.0
+# pytest was missing here even though Dockerfile.oldlibs `COPY tests/
+# ./tests/` -- found in fix round 2 (the same gap already fixed for
+# `gpu` and `alpine`). Same version used everywhere else.
+pytest==9.1.1

@@ -60,13 +60,19 @@ for host in $GPU_HOSTS; do
 
   if [ "$DRY_RUN" -eq 1 ]; then
     echo "[dry-run] ssh $host: reachable"
-    echo "[dry-run] would run: rsync -az --delete --exclude results/ --exclude __pycache__/ --exclude '*.pyc' --exclude .pytest_cache/ $REPRO_DIR/ $host:~/reprobench-run/"
+    echo "[dry-run] would run: rsync -az --delete --exclude results/ --exclude hf-cache/ --exclude __pycache__/ --exclude '*.pyc' --exclude .pytest_cache/ $REPRO_DIR/ $host:~/reprobench-run/"
     echo "[dry-run] would run: ssh $host 'mkdir -p ~/reprobench-run/hf-cache && cd ~/reprobench-run && docker build -f docker/Dockerfile.gpu -t reprobench:gpu .'"
     echo "[dry-run] would run: ssh $host \"docker run --rm -v ~/reprobench-run/hf-cache:/root/.cache/huggingface reprobench:gpu python3 -c '$FETCH_PY'\""
     continue
   fi
 
-  if ! rsync -az --delete --exclude 'results/' --exclude '__pycache__/' --exclude '*.pyc' --exclude '.pytest_cache/' "$REPRO_DIR/" "$host:~/reprobench-run/"; then
+  # fix round 2, CRITICAL (same bug as run_on_host.sh's rsync, see that
+  # script's comment): without excluding hf-cache/, this --delete would
+  # wipe out a model snapshot this same script already fetched on a
+  # previous run -- this script could then never be a no-op on a host
+  # that already has the model, defeating the whole point of
+  # pre-fetching it.
+  if ! rsync -az --delete --exclude 'results/' --exclude 'hf-cache/' --exclude '__pycache__/' --exclude '*.pyc' --exclude '.pytest_cache/' "$REPRO_DIR/" "$host:~/reprobench-run/"; then
     echo "fetch_model.sh: rsync to $host failed, skipping" >&2
     FAILED="$FAILED $host"
     continue
@@ -90,8 +96,16 @@ for host in $GPU_HOSTS; do
   # header comment), applied here to hf-cache/ for the same reason: left
   # alone, this is root-owned debris in a colleague's home directory that
   # their own account cannot clean up without another privileged
-  # container.
-  ssh "$host" "docker run --rm -v ~/reprobench-run/hf-cache:/fix reprobench:gpu chown -R \"\$(id -u):\$(id -g)\" /fix" < /dev/null
+  # container. Wrapped in the same `if ! ... ; then ... FAILED=...;
+  # continue; fi` pattern as every other step here (fix round 2: this one
+  # step wasn't, so a chown failure aborted the whole loop instead of
+  # recording the host and moving on, even though the model itself had
+  # already been fetched successfully).
+  if ! ssh "$host" "docker run --rm -v ~/reprobench-run/hf-cache:/fix reprobench:gpu chown -R \"\$(id -u):\$(id -g)\" /fix" < /dev/null; then
+    echo "fetch_model.sh: chown fixup on $host failed, skipping" >&2
+    FAILED="$FAILED $host"
+    continue
+  fi
 
   echo "fetch_model.sh: $host OK"
 done

@@ -15,15 +15,38 @@
 # only axis that moves relative to `base` is the BLAS implementation
 # (spec G2-2c).
 #
-# UNVERIFIED beyond a dry-run solve: this development host is aarch64 (a
-# MacBook), so this image could not actually be built or run from here.
-# `micromamba create --dry-run -c conda-forge python=3.11 numpy=2.2.6
-# scipy=1.15.2 scikit-learn=1.7.2 lightgbm=4.5.0 pytest=9.1.1
-# threadpoolctl=3.5.0 "libblas=*=*mkl"` was run under linux/amd64 QEMU
-# emulation (Task 12) and confirmed conda-forge resolves this exact
-# version set together, linked against MKL 2026.1.0 -- but the image
-# itself was never built or run.
+# `USER root` (fix round 2): `mambaorg/micromamba` defaults to a non-root
+# user (confirmed by the task coordinator: `mambauser`, uid/gid 57439),
+# unlike every other image in this project, which runs as root with no
+# `USER` instruction at all. Left at the base image's default, that
+# non-root uid can neither write into /work/results (bind-mounted from a
+# directory the host's login user created, mode 755 -- no "other" write
+# bit) nor chown anything at all (chown requires root or CAP_CHOWN) --
+# breaking both the measurement write itself and run_on_host.sh's
+# chown-after ownership fixup (Task 13 resolution 15). Fixed by switching
+# back to root immediately after FROM, matching every other image's
+# behaviour instead of special-casing this one. Verified (fix round 2,
+# via a throwaway Dockerfile under linux/amd64 QEMU emulation, not the
+# real image, and not on blade): `id` reports root; a file written into a
+# bind-mounted directory is root-owned and then `chown`-able by a
+# follow-up root container; numpy still loads and uses MKL correctly
+# under the entrypoint's activation (`/opt/conda/lib/libblas.so* ->
+# libmkl_rt.so.3`, confirmed by directory listing) -- switching user
+# before the `micromamba install` step did not change what got installed
+# or how it resolves at runtime.
+#
+# UNVERIFIED beyond that and a dry-run solve: this development host is
+# aarch64 (a MacBook), so the full image (with its real pins: scipy,
+# scikit-learn, lightgbm, pytest, threadpoolctl) could not actually be
+# built or run from here. `micromamba create --dry-run -c conda-forge
+# python=3.11 numpy=2.2.6 scipy=1.15.2 scikit-learn=1.7.2 lightgbm=4.5.0
+# pytest=9.1.1 threadpoolctl=3.5.0 "libblas=*=*mkl"` was run under
+# linux/amd64 QEMU emulation (Task 12) and confirmed conda-forge resolves
+# this exact version set together, linked against MKL 2026.1.0 -- but the
+# image itself was never built or run.
 FROM mambaorg/micromamba:2.0.5
+
+USER root
 
 ENV REPRO_IMAGE=mkl
 ENV PYTHONPATH=/work
@@ -40,5 +63,5 @@ RUN micromamba install -y -n base -c conda-forge \
       "libblas=*=*mkl" \
     && micromamba clean --all --yes
 
-COPY --chown=$MAMBA_USER:$MAMBA_USER reprobench/ ./reprobench/
-COPY --chown=$MAMBA_USER:$MAMBA_USER tests/ ./tests/
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

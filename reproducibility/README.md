@@ -12,13 +12,18 @@ script in `scripts/` builds and runs a Docker image.
 
 ## Reproducing from a plain clone
 
+Prerequisites: `docker` and `make` (both required for every command
+below); `rsync` and `ssh` are only needed for running on a remote host
+(`scripts/run_on_host.sh`/`run_all.sh`/`fetch_model.sh`), not for the
+`local` walkthrough here.
+
 ```sh
-git clone <this repo>
-cd <repo>/reproducibility
+git clone git@github.com:ytmasubuchi/zenn-contents.git
+cd zenn-contents/reproducibility
 make build IMAGE=base      # builds reprobench:base
 make run IMAGE=base CONFIG=threadsmax
 #   -> results/local__base__threadsmax.json
-make report                # results/*.json -> results/report.json + results/matrix.md
+make report                # results/*__*__*.json -> results/report.json + results/matrix.md
 make figures                # results/report.json -> images/reproducibility-of-randomness/*.png
 ```
 
@@ -91,7 +96,7 @@ is left for pip to resolve freely.
 | `make build IMAGE=<name>` | builds exactly one image |
 | `make build-all-cpu` | builds `base py313 oldpy oldlibs alpine mkl` (skips `mkl` on non-x86_64) |
 | `make run IMAGE=<name> CONFIG=<name> [REPRO_HOST=<host>]` | delegates to `scripts/run_on_host.sh` |
-| `make report` | `results/*.json` -> `results/report.json` + `results/matrix.md`, inside `base` |
+| `make report` | `results/*__*__*.json` -> `results/report.json` + `results/matrix.md`, inside `base` |
 | `make figures` | `results/report.json` -> article PNGs, inside `base` |
 
 `CONFIG` is one of `threads1 threads8 threadsmax nosimd512 hashseed0
@@ -153,11 +158,18 @@ the containers they start (never left running).
   image built from this Dockerfile is left cached on anakin** so Task 14
   does not have to re-pull the multi-gigabyte CUDA base image again;
   remove it once measurements there are finished.
-- **`mkl` was never built, only dry-run solved.** `mkl` is x86_64-only
-  and this host is aarch64; `micromamba create --dry-run` (run under
+- **`mkl` was never built as the real image, only dry-run solved and
+  spot-checked with a throwaway Dockerfile.** `mkl` is x86_64-only and
+  this host is aarch64; `micromamba create --dry-run` (run under
   linux/amd64 QEMU emulation) confirmed conda-forge resolves the exact
-  pinned version set together, linked against MKL, but the image itself
-  was never built.
+  pinned version set together, linked against MKL. Separately (fix round
+  2): `mambaorg/micromamba`'s base image defaults to a non-root user,
+  which broke both the measurement write into `/work/results` and the
+  chown-after fixup -- fixed with an explicit `USER root`, verified (via
+  the same throwaway-Dockerfile technique, not the real image) to still
+  load numpy linked against MKL correctly afterward. The real
+  `Dockerfile.mkl` (with its actual pins) has still never been built or
+  run.
 - **One pre-existing unit test conflicted with `base`'s own brief, now
   fixed.**
   `tests/test_envinfo.py::test_collect_env_survives_torch_module_not_found_error`
