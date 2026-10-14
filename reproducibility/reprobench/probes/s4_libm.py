@@ -12,16 +12,20 @@
 NumPyのsin ufuncはFPU例外を立てない)。
 
 `S4_sin_float64`/`S4_log_float64`の既存の値域だけでは、本プローブが検出
-したい効果そのものを取り逃がす恐れがある: NumPyのベクトル化された
-`sin`/`cos`経路は歴史的に振幅がおよそ1.17e5未満の入力にしか適用されず、
-`[-1e6, 1e6]`の一様分布ではその閾値を超える入力がほとんどになり
-AVX-512経路を素通りしてしまう。また`[1e-9, 1e9]`の一様分布は指数的に
-広い範囲を線形に敷くため、サンプルの大半(約99.9%)が`1e6`超に偏り、
-下限の`1e-9`付近はほぼ実現されない(logの指数スイープにならない)。
-そこで既存の2本は変えず(両者とも別の問いに答えるプローブとして残す)、
-`S4_sin_small_float64`(振幅をAVX-512経路が実際に使われる範囲に収めた
-sin)と`S4_log_loguniform_float64`(指数を一様に敷いてlog一様サンプリング
-したlog)を追加する。
+したい効果そのものを取り逃がす恐れがある。NumPyのベクトル化された
+`sin`/`cos`経路には(float32では)およそ1.17e5未満の振幅にしか適用され
+ない閾値があることが知られているが、これはfloat32の話であり、**float64の
+`sin`がSVML/libmのどちらにどの振幅で分岐するかは本プロジェクトでは未検証**
+である。確実に言えるのは値域が違うという事実だけ: `[-1e6, 1e6]`
+(約2桁強)と`[-1e4, 1e4]`(約2桁弱)は実装のディスパッチ境界が仮にどこに
+あっても別の領域を踏む可能性があり、どちらの値域で差が出るか・出ないかは
+実測で確かめる以外にない。また`[1e-9, 1e9]`の一様分布は指数的に広い範囲を
+線形に敷くため、サンプルの大半(約99.9%)が`1e6`超に偏り、下限の`1e-9`
+付近はほぼ実現されない(logの指数スイープにならない)。そこで既存の2本は
+変えず(両者とも別の問いに答えるプローブとして残す)、
+`S4_sin_small_float64`(既存より2桁狭い振幅のsin)と
+`S4_log_loguniform_float64`(指数を一様に敷いてlog一様サンプリングした
+log)を追加する。
 """
 import numpy as np
 
@@ -39,7 +43,7 @@ def _libm_result(name: str, x: np.ndarray, fn, meta_extra: dict) -> ProbeResult:
         "last": float(y[-1]),
         "mean": float(y.mean()),
     }
-    meta = {"seed": _SEED, "n": _N, "dtype": str(y.dtype), **meta_extra}
+    meta = {"seed": _SEED, "n": len(x), "dtype": str(y.dtype), **meta_extra}
     # JSONのfloat表現はfloat64の全ビットを往復させる保証が無いため、
     # 比較器が正確なビットで突き合わせられるようscalarsの各値にhex表現を
     # 残す(s2_reduction.pyのtotal_hexと同じ理由)。
@@ -99,9 +103,11 @@ def _sin_float64() -> ProbeResult:
 
 @register("S4_sin_small_float64")
 def _sin_small_float64() -> ProbeResult:
-    # NumPyのベクトル化sin/cos経路が実際に使われる振幅(閾値はおよそ
-    # 1.17e5)に収めることで、S4_sin_float64が取り逃がしうる
-    # AVX-512経路そのものを確実に踏ませる。
+    # S4_sin_float64([-1e6, 1e6])とは値域が2桁狭い([-1e4, 1e4])。
+    # float64のsinがどの振幅でSIMD経路とscalar libm経路を分けるかは
+    # 未検証だが、値域そのものが違えば実装のディスパッチ境界をどちらかが
+    # 踏む可能性があり、2本を比べることに意味がある(モジュール先頭の
+    # docstring参照)。
     low, high = -1e4, 1e4
     return _libm_result(
         "S4_sin_small_float64", _uniform(low, high), np.sin,

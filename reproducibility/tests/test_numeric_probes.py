@@ -50,9 +50,11 @@ def test_s2_shuffled_sum_records_permutation_metadata():
 
 
 def test_s4_additional_domain_probes_cover_the_effect_s4_targets():
-    # S4_sin_float64/S4_log_float64の既存の値域だけでは、AVX-512 sin経路の
-    # 閾値未満に収まらなかったり、logの指数スイープが実現されなかったり
-    # する恐れがあるため追加した2本(finding 6)。
+    # S4_sin_float64/S4_log_float64の既存の値域だけでは、sinの値域が
+    # 実装のディスパッチ境界を踏まなかったり、logの指数スイープが
+    # 実現されなかったりする恐れがあるため追加した2本(finding 6)。
+    # float64のsinがどの振幅でSIMD経路と分岐するかは未検証であり、
+    # ここでは値域そのものが違うことだけを確認する。
     sin_small = run_probe("S4_sin_small_float64")
     assert sin_small.meta["domain"] == [-1e4, 1e4]
 
