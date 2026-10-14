@@ -1,0 +1,28 @@
+# oldlibs image pins (python:3.10-slim). numpy==1.21.6 is required, not a
+# newer 1.x: NumPy's documented stream-breaking changes land at 1.19.0 and
+# 1.22.0 (NEP 19). Pinning anywhere at or above 1.22.0 (e.g. 1.26.x) would
+# not cross either boundary and the NEP 19 condition this image exists to
+# demonstrate would measure nothing (Task 12 resolution 2). numpy 1.21.6
+# only ships wheels up to Python 3.10, which is why this image (and oldpy,
+# its Python-only counterpart) is pinned to python:3.10-slim rather than
+# base's 3.11.
+#
+# scikit-learn==1.0.2 is the version named in the brief; scipy==1.7.3 is
+# pinned explicitly even though the brief's prose only names numpy/
+# scikit-learn/torch, because scikit-learn 1.0.2 depends on scipy at
+# runtime (scipy.sparse, scipy.linalg) and leaving it unpinned would let
+# pip resolve to whatever scipy happens to be newest at build time --
+# exactly the kind of unpinned dependency resolution 6 forbids. 1.7.3 is
+# contemporaneous with scikit-learn 1.0.2 and has a cp310 wheel (verified).
+#
+# torch is deliberately NOT included in this image: see Dockerfile.oldlibs
+# for the full writeup. In short, every available cp310 torch wheel
+# (1.10.2 through 1.13.1, all tested) was compiled against a numpy C-API
+# version newer than numpy==1.21.6 provides, and `tensor.numpy()` raises
+# `RuntimeError: Numpy is not available` at runtime as a result -- there
+# is no version of torch that is both installable for Python 3.10 and
+# numpy-C-API-compatible with the numpy version resolution 2 requires.
+numpy==1.21.6
+scipy==1.7.3
+scikit-learn==1.0.2
+threadpoolctl==3.5.0

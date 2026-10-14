@@ -1,0 +1,43 @@
+# oldlibs image: python:3.10-slim + numpy==1.21.6 + scikit-learn==1.0.2.
+# Read this against oldpy (same Python version, numpy 2.2.6), not against
+# base (which would also move the Python version) -- see Dockerfile.oldpy
+# and Task 12 resolution 1.
+#
+# numpy MUST be 1.21.6, not a newer 1.26-series pin: NumPy's documented
+# stream-breaking changes are at 1.19.0 and 1.22.0 (NEP 19), and 1.21.6 is
+# the last release before the 1.22.0 boundary. A 1.26 pin would cross
+# neither boundary and this image would demonstrate nothing about NEP 19
+# (Task 12 resolution 2). numpy 1.21.6 only ships wheels up to Python
+# 3.10, which is why this image (and oldpy) is pinned to python:3.10-slim.
+#
+# NO TORCH in this image -- this is a deliberate omission, not an
+# oversight, and not a silent substitution (see Task 12 report for the
+# full writeup). The brief asks for "a corresponding old torch" alongside
+# numpy==1.21.6, but every torch wheel available for cp310 (checked:
+# 1.10.2 -- the oldest cp310 wheel that exists on the CPU index --
+# 1.12.1, and 1.13.1) was compiled against a numpy C-API version (0xf or
+# 0x10) newer than what numpy 1.21.6 provides (0xe). This is not a
+# warning that can be ignored: at runtime, any call that crosses the
+# torch/numpy boundary (`tensor.numpy()`, which S7's probes use to digest
+# their results) raises `RuntimeError: Numpy is not available` --
+# verified directly against all three versions above. There is no cp310
+# torch wheel old enough to predate this ABI bump (cp310 wheels only
+# started appearing after numpy 1.22 was already the ambient build-time
+# numpy in PyTorch's own CI, regardless of the torch version number), so
+# there is no version of torch that is simultaneously (a) installable for
+# Python 3.10 and (b) numpy-C-API-compatible with numpy==1.21.6. Since
+# resolution 2 fixes numpy at 1.21.6 non-negotiably, torch is left out of
+# this image entirely rather than shipped in a broken state: S7 (and any
+# other torch-requiring probe) records a clean `missing requirement:
+# torch` skip here instead of a misleading crash-like `raised:` skip.
+FROM python:3.10-slim
+
+ENV REPRO_IMAGE=oldlibs
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+COPY requirements/oldlibs.txt ./requirements/oldlibs.txt
+RUN pip install --no-cache-dir -r requirements/oldlibs.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

@@ -1,0 +1,44 @@
+# mkl image: conda-forge numpy linked against Intel MKL instead of
+# OpenBLAS, built from a micromamba base (MKL-linked numpy is not
+# distributed as a PyPI wheel, so this is the one image in this project
+# built from conda-forge rather than pip).
+#
+# x86_64 ONLY: conda-forge does not publish an MKL build of libblas for
+# linux-aarch64 (MKL itself is an x86-only library). `make build` /
+# `make build-all-cpu` detect the host architecture and skip this image
+# on aarch64 instead of attempting (and failing) the build (Task 12
+# resolution 5) -- see the Makefile.
+#
+# "libblas=*=*mkl" forces conda-forge's MKL build of libblas/libcblas/
+# liblapack instead of its default OpenBLAS build; every library version
+# below is otherwise the same pin used in requirements/base.txt, so the
+# only axis that moves relative to `base` is the BLAS implementation
+# (spec G2-2c).
+#
+# UNVERIFIED beyond a dry-run solve: this development host is aarch64 (a
+# MacBook), so this image could not actually be built or run from here.
+# `micromamba create --dry-run -c conda-forge python=3.11 numpy=2.2.6
+# scipy=1.15.2 scikit-learn=1.7.2 lightgbm=4.5.0 pytest=9.1.1
+# threadpoolctl=3.5.0 "libblas=*=*mkl"` was run under linux/amd64 QEMU
+# emulation (Task 12) and confirmed conda-forge resolves this exact
+# version set together, linked against MKL 2026.1.0 -- but the image
+# itself was never built or run.
+FROM mambaorg/micromamba:2.0.5
+
+ENV REPRO_IMAGE=mkl
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+RUN micromamba install -y -n base -c conda-forge \
+      python=3.11 \
+      numpy=2.2.6 \
+      scipy=1.15.2 \
+      scikit-learn=1.7.2 \
+      lightgbm=4.5.0 \
+      pytest=9.1.1 \
+      threadpoolctl=3.5.0 \
+      "libblas=*=*mkl" \
+    && micromamba clean --all --yes
+
+COPY --chown=$MAMBA_USER:$MAMBA_USER reprobench/ ./reprobench/
+COPY --chown=$MAMBA_USER:$MAMBA_USER tests/ ./tests/

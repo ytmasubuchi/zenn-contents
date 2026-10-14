@@ -1,0 +1,8 @@
+# alpine image pins (python:3.11-alpine, musl libc). Deliberately numpy
+# only -- no scipy, scikit-learn, lightgbm or torch (Task 12 resolution 4).
+# None of those packages publish musllinux wheels for the full set this
+# project needs, and probes that require them (sklearn/lightgbm/torch)
+# record a clean `missing requirement: ...` skip on this image, which is
+# the point: this image exists to isolate the musl-vs-glibc libm
+# difference (S4), not to run every probe.
+numpy==2.2.6

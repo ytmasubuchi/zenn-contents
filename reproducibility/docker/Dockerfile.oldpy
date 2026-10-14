@@ -1,0 +1,35 @@
+# oldpy image: python:3.10-slim + the exact same library pins as base
+# (requirements/oldpy.txt is a deliberate byte-for-byte copy of
+# requirements/base.txt, including numpy==2.2.6 -- NOT numpy 1.21.6).
+#
+# This is the confound-breaking control image (Task 12 resolution 1): base
+# (3.11) vs oldpy (3.10) moves ONLY the Python version, and oldpy (numpy
+# 2.2.6) vs oldlibs (numpy 1.21.6, also python:3.10-slim) moves ONLY the
+# numpy version. Without this image, "Python 3.10 + numpy 1.21.6" vs
+# "Python 3.11 + numpy 2.2.6" would confound both axes into one
+# comparison and neither could be read independently.
+FROM python:3.10-slim
+
+ENV REPRO_IMAGE=oldpy
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+# See Dockerfile.base for why this is needed (lightgbm requires libgomp,
+# which python:3.10-slim does not ship by default).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# See Dockerfile.base for why torch is installed separately, as an extra
+# index with "+cpu" pinned explicitly (this exact form -- exclusive
+# --index-url -- was tried first and fails on Python 3.10 with a
+# typing_extensions metadata mismatch; see Dockerfile.base). Verified
+# (Task 12): torch-2.14.1+cpu has a cp310 wheel on both linux/amd64 and
+# linux/aarch64.
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch==2.14.1+cpu
+
+COPY requirements/oldpy.txt ./requirements/oldpy.txt
+RUN pip install --no-cache-dir -r requirements/oldpy.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

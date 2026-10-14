@@ -1,0 +1,29 @@
+# py313 image: python:3.13-slim + the exact same library pins as base
+# (requirements/py313.txt is a deliberate byte-for-byte copy of
+# requirements/base.txt). The only thing this image moves relative to
+# `base` is the Python interpreter version (spec G2-2a); read base vs
+# py313 for "does the Python version change results", and oldpy vs
+# oldlibs (not base vs oldlibs) for "does the numpy version change
+# results" (Task 12 resolution 1).
+FROM python:3.13-slim
+
+ENV REPRO_IMAGE=py313
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+# See Dockerfile.base for why this is needed (lightgbm requires libgomp,
+# which python:3.13-slim does not ship by default).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# See Dockerfile.base for why torch is installed separately, as an extra
+# index with "+cpu" pinned explicitly. Verified (Task 12): torch-2.14.1+cpu
+# has a cp313 wheel on both linux/amd64 and linux/aarch64.
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch==2.14.1+cpu
+
+COPY requirements/py313.txt ./requirements/py313.txt
+RUN pip install --no-cache-dir -r requirements/py313.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

@@ -3,3 +3,6 @@
 __pycache__/
 node_modules
 .superpowers/
+
+# 調査の生ノート(最終レポートは reports/ にコミットする。spec §6 / Task 12 resolution)
+research_notes/

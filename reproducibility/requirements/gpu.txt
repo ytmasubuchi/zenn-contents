@@ -1,0 +1,27 @@
+# gpu image pins (nvidia/cuda:13.0.1-runtime-ubuntu24.04, python3.12).
+#
+# torch is NOT listed here: it is installed in Dockerfile.gpu from the
+# official CUDA 13 wheel index (https://download.pytorch.org/whl/cu130) in
+# a separate `pip install` step. This is required, not optional: the
+# default PyPI "torch" wheel is built against CUDA 12, and dgxspark's GB10
+# is compute capability (12, 1), which a cu12 build cannot target at all
+# (Task 12 resolution 3, verified on hardware). anakin/blade/dgxspark all
+# run driver 580.x / CUDA 13.0, so one cu130 build covers all three GPU
+# hosts. See Dockerfile.gpu for the pinned version (torch==2.14.1+cu130).
+numpy==2.2.6
+# transformers==5.19.0 is pinned, not "latest", because this exact version
+# was verified (reprobench/probes/s9_llm.py module docstring) to (a)
+# accept the non-deprecated `dtype=` argument to `from_pretrained` and (b)
+# emit the `do_sample=False` + top_k/top_p combination as a logger line
+# rather than a `warnings.warn` call. Both facts matter under this
+# project's `pytest -W error`: an older transformers that raises that
+# combination through `warnings.warn` would turn S9_greedy_* probes into a
+# `raised:` skip instead of a clean result. Pinning a different version
+# here would invalidate that already-verified behaviour.
+transformers==5.19.0
+accelerate==1.15.0
+# huggingface-hub is a direct import of reprobench/registry.py
+# (check_requirement("hf_model") calls try_to_load_from_cache), not only a
+# transitive transformers dependency -- pinned explicitly for the same
+# reason as threadpoolctl in requirements/base.txt.
+huggingface-hub==2.2.0
