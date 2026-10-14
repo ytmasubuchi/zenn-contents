@@ -119,3 +119,39 @@ def test_encode_sample_uses_every_element_when_smaller_than_n():
     out = decode_sample(encode_sample(arr, n=4096))
     assert out.shape == (10,)
     assert np.array_equal(out, arr)
+
+
+def test_ulp_diff_negative_zero_vs_positive_zero_is_zero():
+    assert ulp_diff(np.array([-0.0]), np.array([0.0]))[0] == 0
+
+
+def test_ulp_diff_of_adjacent_negative_floats_is_one():
+    a = np.array([-1.0])
+    b = np.nextafter(a, -2.0)
+    assert ulp_diff(a, b)[0] == 1
+
+
+def test_ulp_diff_additive_along_negative_side():
+    # -1.0 から -2.0 方向に1 ULPずつ2回進めた距離が、まとめて測った距離と
+    # 一致することを確認する(符号ビット側での単調性・加法性のテスト)。
+    a = np.array([-1.0])
+    b = np.nextafter(a, -2.0)
+    c = np.nextafter(b, -2.0)
+    assert ulp_diff(a, b)[0] == 1
+    assert ulp_diff(b, c)[0] == 1
+    assert ulp_diff(a, c)[0] == 2
+
+
+def test_ulp_diff_cross_zero_crossing_is_two():
+    # 0 を挟んで隣り合う(-0 の1つ隣と +0 の1つ隣)ペアはULP距離2になる。
+    neg = np.nextafter(np.array([-0.0]), np.array([-1.0]))
+    pos = np.nextafter(np.array([0.0]), np.array([1.0]))
+    assert ulp_diff(neg, pos)[0] == 2
+
+
+def test_ulp_diff_cross_sign_symmetry_pins_the_remap():
+    # 符号をまたぐ距離は「bits(1.0)を原点からの距離として2倍したもの」に
+    # 一致するはず(符号ビット反転の写像が正しく対称であることのピン止め)。
+    one_bits = int(np.array([1.0], dtype=np.float64).view(np.int64)[0])
+    assert ulp_diff(np.array([-1.0]), np.array([1.0]))[0] == 2 * one_bits
+    assert ulp_diff(np.array([-1.0]), np.array([1.0]))[0] == 9214364837600034816
