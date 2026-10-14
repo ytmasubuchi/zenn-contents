@@ -10,3 +10,4 @@
 モジュール自体がimportできなくなり、同じモジュール内の他のプローブも
 道連れになる。
 """
+from reprobench.probes import s1_prng  # 副作用: S1プローブ群を登録する
