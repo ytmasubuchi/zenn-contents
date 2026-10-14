@@ -11,9 +11,19 @@ JSONへ書き出す。
 このモジュールの責務は「プローブの選択・実行・結果の整形と書き出し」の
 みであり、プローブそのもの(Task 4以降)・プローブの登録と欠落/例外の
 吸収(registry.py)・結果の比較(別タスクの比較器)は扱わない。
+
+このモジュールは個々のプローブのハング(応答が返らない)を検知する
+ウォッチドッグを持たない。1つのプローブが戻ってこなければプロセス全体が
+そこで止まり、既に完了した分も含めて1つもファイルに書き出されない。
+これは意図的な選択である: プロセス内タイムアウト(シグナル等)を足すと
+第4のスキップ種別が生まれ、スモークテスト(test_all_probes_smoke.py)や
+比較器へ前提として波及するが、実際に起こるコストは「このホストでの
+再実行1回」程度に過ぎない。ウォッチドッグは一段外側、Task 13がホスト側
+シェルスクリプトで`docker run`を外側の`timeout`コマンドで包む形で持つ。
 """
 import argparse
 import json
+import os
 import sys
 import time
 from dataclasses import asdict
@@ -46,6 +56,13 @@ def _run_one(name: str) -> dict:
     追加の例外処理は行わない。プローブ自身の `meta`/`scalars` が
     JSON化できることは各プローブモジュール側の責務(このランナーの
     テストでも本物のペイロードで一度round-tripを確認している)。
+
+    `SkippedProbe.reason` はここで一切加工しない(要約・切り詰め・
+    正規化のいずれもしない)。理由文字列は"missing requirement: "/
+    "missing env var: "/"raised: "のどの接頭辞であっても、ここを素通りし
+    `probes`エントリの`skipped`キーへそのまま入る。ここで何かを変形すると、
+    計測ホスト上で実際にクラッシュしたプローブが「設計通りスキップされた」
+    かのように見えてしまい、記事がその理由を繰り返してしまう。
     """
     start = time.perf_counter()
     result = run_probe(name)
@@ -68,13 +85,19 @@ def run(selected: list[str] | None = None, repeat: int = 1) -> dict:
     自体を持たせない。
 
     Raises:
-        ValueError: 登録済みプローブが1つも無い場合、または `selected`
-            がどの登録済みプローブ名にも前方一致しなかった場合。空の
-            結果を書き出すのは、共用ホストを占有した上で何も測らずに
-            成功したように見える、最悪の結果になるため、ここで必ず
-            エラーにする。
+        ValueError: 登録済みプローブが1つも無い場合、`selected` が
+            どの登録済みプローブ名にも前方一致しなかった場合、または
+            `repeat` が1未満の場合。前2つは、空の結果を書き出すのが
+            共用ホストを占有した上で何も測らずに成功したように見える、
+            最悪の結果になるため。最後の1つは、呼び出し側が指定した
+            `repeat`を無言で1へ丸めるのが、このプロジェクトが繰り返し
+            引き締めてきた「指定した値を無言で変える」のと同じ種類の
+            問題であるため(丸めずエラーにする)。
     """
     import reprobench.probes  # noqa: F401  (副作用: 全プローブを登録する)
+
+    if repeat < 1:
+        raise ValueError(f"run: repeat must be >= 1, got {repeat!r}")
 
     if not all_probes():
         raise ValueError(
@@ -85,7 +108,7 @@ def run(selected: list[str] | None = None, repeat: int = 1) -> dict:
     if not names:
         raise ValueError(f"run: selection {selected!r} matched no registered probe")
 
-    rounds = [[_run_one(name) for name in names] for _ in range(max(1, repeat))]
+    rounds = [[_run_one(name) for name in names] for _ in range(repeat)]
 
     out = {
         "schema": 1,
@@ -115,13 +138,25 @@ def main(argv: list[str] | None = None) -> None:
 
     `--probes S1,S2` のようにカンマ区切りで複数の前方一致セレクタを指定
     できる(省略時は全プローブ)。`--out` 省略時は
-    `results/{host}__{image}__{config}.json` に書き出す。出力先ディレクトリ
-    が無ければ作成するが、**出力先に既にファイルが存在する場合は上書き
-    せず拒否する**(占有済みの共用ホストで得た結果を無言で失うのは、
-    空の結果を書くのと同じ種類の事故であるため)。
+    `results/{host}__{image}__{config}.json` に書き出す。
 
-    選択が空プローブに終わった場合・出力ファイルが既に存在する場合は、
-    標準エラーに理由を書いて非ゼロ終了する(`SystemExit`)。
+    出力先に既にファイルが存在する場合は上書きせず拒否する(占有済みの
+    共用ホストで得た結果を無言で失うのは、空の結果を書くのと同じ種類の
+    事故であるため)。この存在チェックは**プローブの実行(`run()`)より
+    前**に行う — 後に置くと、既に結果がある場所へ向けて実測10分を
+    使い切ってから書き込みだけ拒否する、という本末転倒になり、保護しよう
+    としている資源そのものを二重に消費してしまう。`--out`が無い場合の
+    デフォルトパス算出に必要なのは`collect_env()`だけであり、プローブの
+    実行は要らない。
+
+    書き出しは一時ファイルへ書いてから`os.replace`で本来の名前へ置き換える
+    (途中で強制終了されても、既存ファイルが壊れた(切り詰められた)JSON
+    で上書きされないようにするため)。
+
+    選択が空プローブに終わった場合・`repeat`が1未満の場合・出力ファイルが
+    既に存在する場合・出力先への書き込みがOS側の理由(権限・ディスク
+    フルなど)で失敗した場合は、いずれも標準エラーに理由を一行書いて
+    非ゼロ終了する(`SystemExit`)。
     """
     parser = argparse.ArgumentParser(description="Run reprobench probes and record results.")
     parser.add_argument(
@@ -140,13 +175,12 @@ def main(argv: list[str] | None = None) -> None:
     # 「全件選択」に化ける。ここで取り除き、素通りさせない。
     selected = [p.strip() for p in args.probes.split(",") if p.strip()] if args.probes else None
 
-    try:
-        out = run(selected=selected, repeat=args.repeat)
-    except ValueError as exc:
-        print(f"runner: {exc}", file=sys.stderr)
-        raise SystemExit(1)
-
-    out_path = Path(args.out) if args.out else _default_output_path(out["env"])
+    # 出力先を、プローブを1つも実行する前に確定・チェックする(モジュール
+    # docstring参照)。デフォルトパスの算出だけのために`collect_env()`を
+    # ここで呼ぶのは、`run()`内部でも同じものをもう一度集める(=二重に
+    # 集める)ことになるが、環境メタデータの収集はプローブの実測そのもの
+    # ではなく軽い処理なので、実測前にチェックできることの方を優先する。
+    out_path = Path(args.out) if args.out else _default_output_path(collect_env())
 
     if out_path.exists():
         print(
@@ -155,8 +189,21 @@ def main(argv: list[str] | None = None) -> None:
         )
         raise SystemExit(1)
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    try:
+        out = run(selected=selected, repeat=args.repeat)
+    except ValueError as exc:
+        print(f"runner: {exc}", file=sys.stderr)
+        raise SystemExit(1)
+
+    try:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = out_path.with_name(out_path.name + ".tmp")
+        tmp_path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
+        os.replace(tmp_path, out_path)
+    except OSError as exc:
+        print(f"runner: failed to write output file {out_path}: {exc}", file=sys.stderr)
+        raise SystemExit(1)
+
     print(f"runner: wrote {out_path}")
 
 
