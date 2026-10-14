@@ -74,6 +74,28 @@ def test_one_failing_probe_does_not_affect_others():
 # --- 曖昧さの解決事項に対する追加テスト ---
 
 
+def test_run_probe_dispatches_through_module_global_check_requirement(monkeypatch):
+    # 解決事項1: `run_probe` は `check_requirement` をモジュールグローバル
+    # 経由で呼ばなければならない(ローカルimportやキャプチャされた参照では
+    # なく)。このテストコンテナにはtorchが無いため、本物の
+    # `check_requirement("torch")` は何もmonkeypatchしなくても`False`を
+    # 返す — つまり「常にFalseを返すよう差し替える」テストだけでは、
+    # `run_probe`がパッチ後の関数ではなく差し替え前の参照を握っていても
+    # 同じ結果になり、検出できない(他のmonkeypatchテストが実際にそう)。
+    # ここでは逆に`check_requirement`を常に`True`を返すよう差し替え、
+    # 「本来ならスキップされるはずの要求」のプローブが実行されることを
+    # 確認する。`run_probe`がモジュールグローバル経由で呼んでいなければ、
+    # 差し替え前の(torch不在でFalseを返す)本物の関数が使われ続けて
+    # プローブはスキップされ、このテストは失敗する。
+    monkeypatch.setattr(registry, "check_requirement", lambda r: True)
+
+    @register("T_patched_true", requires=("torch",))
+    def _p():
+        return ProbeResult("T_patched_true", "d", {}, None, {})
+
+    assert isinstance(run_probe("T_patched_true"), ProbeResult)
+
+
 def test_run_probe_distinguishes_missing_requirement_from_raised_reason(monkeypatch):
     # 解決事項2: 「設計通りのスキップ」と「バグによる例外」は理由文字列の
     # 接頭辞で区別できなければ、数ヶ月後に結果JSONを読む人が両者を
