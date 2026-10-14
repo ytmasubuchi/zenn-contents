@@ -11,15 +11,29 @@
 
 ここでは `all_probes()` が返す全プローブについて、(1) クラッシュせず
 `ProbeResult` を返すか、既知の`requires`未充足による`SkippedProbe`である
-こと、(2) 完了順が本質的に非決定な`S0_parallel_completion_order`を除き、
-同一プロセス内で2回呼んでもdigestが一致すること、を一括で検証する。
+こと、(2) そのプローブが本質的に非決定(`_SELF_REPORTED_STABILITY`)な
+ものを除き、同一プロセス内で2回呼んでもdigestが一致すること、を一括で
+検証する。
+
+fix round 2 finding D: `S0_glob_order` は呼び出しのたびに新しい
+`TemporaryDirectory` を作るため、2回の`run_probe`呼び出しは**別々の
+ディレクトリ**を列挙した結果であり、digestの一致は構造的に保証されない
+(ext4/XFS/tmpfsでは経験的に一致しても、保証ではない)。このプローブ自身が
+同一ディレクトリに対する2回の`glob.glob`呼び出しを内部で行い、その一致を
+`meta["stable_within_process"]`として既に記録しているので、スモーク
+テストではdigestの一致ではなく、このキーが存在することだけを確認する。
 """
 import reprobench.probes  # モジュールimportの副作用で全プローブを登録する
 from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
 
-# 完了順そのものが測定対象であるため、同一プロセス内の2回の呼び出しが
-# 一致することを要求できない(brief/task-6-report参照)。
-_NON_DETERMINISTIC = {"S0_parallel_completion_order"}
+# これらのプローブは「同一プロセス内の2回のrun_probe呼び出しでdigestが
+# 一致すること」を要求できない: S0_parallel_completion_orderは完了順
+# そのものが測定対象であり、S0_glob_orderは呼び出しのたびに別の
+# TemporaryDirectoryを列挙するため2回のrun_probe呼び出しが別物を比べる
+# ことになる。どちらもプローブ自身が内部で2回実行して
+# `meta["stable_within_process"]`に安定性を記録しているので、ここでは
+# それが存在することだけを確認する。
+_SELF_REPORTED_STABILITY = {"S0_parallel_completion_order", "S0_glob_order"}
 
 
 def test_every_registered_probe_runs_or_skips_cleanly_and_is_stable():
@@ -32,7 +46,10 @@ def test_every_registered_probe_runs_or_skips_cleanly_and_is_stable():
             continue
         assert isinstance(first, ProbeResult), f"{name}: {first!r}"
 
-        if name in _NON_DETERMINISTIC:
+        if name in _SELF_REPORTED_STABILITY:
+            assert "stable_within_process" in first.meta, (
+                f"{name}: expected to self-report in-process stability"
+            )
             continue
 
         second = run_probe(name)
