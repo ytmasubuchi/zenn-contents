@@ -12,21 +12,52 @@ import glob
 import importlib.metadata
 import os
 import platform
+import sys
 from typing import Any
 
 
-def _safe(fn):
+def _safe(name: str, fn):
     """呼び出して失敗したら None を返す。環境採取はどの項目も失敗して
     他の項目を道連れにしてはならないため、個々のフィールドをこれで包む。
+
+    ただし例外を無言で握りつぶすと、「この環境には本当にその項目が無い」
+    場合と「コードのバグで例外を飲んだ」場合が、どちらも同じ `None` に
+    なり区別できなくなる。そこで例外を再送出はしない(返り値の契約は
+    `None` のまま変えない)が、フィールド名と例外(repr)を stderr に
+    出力し、後から原因を追跡できるようにする。
     """
     try:
         return fn()
-    except Exception:
+    except Exception as exc:
+        print(f"envinfo: field {name!r} failed: {exc!r}", file=sys.stderr)
         return None
 
 
 def _host() -> str | None:
+    """計測ホストの識別子。`REPRO_HOST` が設定されていれば優先する
+    (`image`/`config_label` が `REPRO_IMAGE`/`REPRO_CONFIG` を読むのと
+    同じ優先順位)。コンテナ内では `platform.node()` がコンテナ自身の
+    生成ホスト名を返し、4台の実ホスト名(MacBook/anakin/blade/
+    dgxspark)を特定できないため、`REPRO_HOST` 未設定時のみフォール
+    バックとして使う。どちらを使ったかは `_host_source` が返す。
+    """
+    repro_host = os.environ.get("REPRO_HOST")
+    if repro_host:
+        return repro_host
     return platform.node() or None
+
+
+def _host_source() -> str | None:
+    """`_host` がどちらの手段で値を得たかを記録する("REPRO_HOST" /
+    "platform.node")。`_libc` が検出方法を `method` に記録するのと同じ
+    理由で、host は `image`/`config_label` と同じくプレーンな文字列の
+    ままにし、出所は隣接する `host_source` キーに記録する。
+    """
+    if os.environ.get("REPRO_HOST"):
+        return "REPRO_HOST"
+    if platform.node():
+        return "platform.node"
+    return None
 
 
 def _arch() -> str | None:
@@ -138,11 +169,15 @@ def _torch_info() -> dict | None:
         return None
 
     return {
-        "version": _safe(lambda: torch.__version__),
-        "cuda_version": _safe(lambda: torch.version.cuda),
-        "cudnn_version": _safe(lambda: torch.backends.cudnn.version()),
-        "matmul_allow_tf32": _safe(lambda: torch.backends.cuda.matmul.allow_tf32),
-        "cudnn_allow_tf32": _safe(lambda: torch.backends.cudnn.allow_tf32),
+        "version": _safe("torch.version", lambda: torch.__version__),
+        "cuda_version": _safe("torch.cuda_version", lambda: torch.version.cuda),
+        "cudnn_version": _safe("torch.cudnn_version", lambda: torch.backends.cudnn.version()),
+        "matmul_allow_tf32": _safe(
+            "torch.matmul_allow_tf32", lambda: torch.backends.cuda.matmul.allow_tf32
+        ),
+        "cudnn_allow_tf32": _safe(
+            "torch.cudnn_allow_tf32", lambda: torch.backends.cudnn.allow_tf32
+        ),
     }
 
 
@@ -152,14 +187,16 @@ def _cuda_info() -> dict | None:
         return None
 
     return {
-        "available": _safe(lambda: bool(torch.cuda.is_available())),
-        "device_count": _safe(lambda: torch.cuda.device_count()),
+        "available": _safe("cuda.available", lambda: bool(torch.cuda.is_available())),
+        "device_count": _safe("cuda.device_count", lambda: torch.cuda.device_count()),
     }
 
 
 def _gpus() -> list:
     torch = _import_torch()
-    if torch is None or not _safe(lambda: torch.cuda.is_available()):
+    if torch is None:
+        return []
+    if not _safe("gpus.cuda_available_check", lambda: torch.cuda.is_available()):
         return []
 
     gpus = []
@@ -167,10 +204,14 @@ def _gpus() -> list:
         props = torch.cuda.get_device_properties(i)
         gpus.append(
             {
-                "name": _safe(lambda: props.name),
-                "compute_capability": _safe(lambda: f"{props.major}.{props.minor}"),
-                "multi_processor_count": _safe(lambda: props.multi_processor_count),
-                "total_memory": _safe(lambda: props.total_memory),
+                "name": _safe(f"gpus[{i}].name", lambda: props.name),
+                "compute_capability": _safe(
+                    f"gpus[{i}].compute_capability", lambda: f"{props.major}.{props.minor}"
+                ),
+                "multi_processor_count": _safe(
+                    f"gpus[{i}].multi_processor_count", lambda: props.multi_processor_count
+                ),
+                "total_memory": _safe(f"gpus[{i}].total_memory", lambda: props.total_memory),
             }
         )
     return gpus
@@ -201,20 +242,21 @@ def collect_env() -> dict:
     どのフィールドで失敗しても例外は送出しない。
     """
     return {
-        "host": _safe(_host),
-        "arch": _safe(_arch),
-        "libc": _safe(_libc),
-        "kernel": _safe(_kernel),
-        "python": _safe(_python),
-        "packages": _safe(_packages) or {},
-        "numpy_cpu_features": _safe(_numpy_cpu_features),
-        "blas": _safe(_blas),
-        "thread_env": _safe(lambda: _env_subset(_THREAD_ENV_VARS)) or {},
-        "torch": _safe(_torch_info),
-        "cuda": _safe(_cuda_info),
-        "gpus": _safe(_gpus) or [],
+        "host": _safe("host", _host),
+        "host_source": _safe("host_source", _host_source),
+        "arch": _safe("arch", _arch),
+        "libc": _safe("libc", _libc),
+        "kernel": _safe("kernel", _kernel),
+        "python": _safe("python", _python),
+        "packages": _safe("packages", _packages) or {},
+        "numpy_cpu_features": _safe("numpy_cpu_features", _numpy_cpu_features),
+        "blas": _safe("blas", _blas),
+        "thread_env": _safe("thread_env", lambda: _env_subset(_THREAD_ENV_VARS)) or {},
+        "torch": _safe("torch", _torch_info),
+        "cuda": _safe("cuda", _cuda_info),
+        "gpus": _safe("gpus", _gpus) or [],
         "image": os.environ.get("REPRO_IMAGE"),
         "config_label": os.environ.get("REPRO_CONFIG"),
         "pythonhashseed": os.environ.get("PYTHONHASHSEED"),
-        "control_env": _safe(lambda: _env_subset(_CONTROL_ENV_VARS)) or {},
+        "control_env": _safe("control_env", lambda: _env_subset(_CONTROL_ENV_VARS)) or {},
     }

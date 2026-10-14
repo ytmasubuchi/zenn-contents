@@ -1,8 +1,39 @@
 """reprobench.envinfo のテスト: 実行環境メタデータの採取を検証する。"""
 import json
+import platform
 import sys
+import types
 
 from reprobench.envinfo import collect_env
+
+
+def _fake_torch(n_gpus: int = 1, cuda_available: bool = True):
+    """`_torch_info`/`_cuda_info`/`_gpus` が参照する属性パスだけを備えた
+    偽torchモジュール。CUDAを模擬するのが目的ではなく、実装が読みに
+    行く属性パス(キー名のタイプミスを含む)をピン止めするのが目的。
+    """
+    device_props = types.SimpleNamespace(
+        name="Fake GPU",
+        major=8,
+        minor=9,
+        multi_processor_count=42,
+        total_memory=8_000_000_000,
+    )
+    backends = types.SimpleNamespace(
+        cuda=types.SimpleNamespace(matmul=types.SimpleNamespace(allow_tf32=True)),
+        cudnn=types.SimpleNamespace(allow_tf32=False, version=lambda: 90100),
+    )
+    cuda = types.SimpleNamespace(
+        is_available=lambda: cuda_available,
+        device_count=lambda: n_gpus,
+        get_device_properties=lambda i: device_props,
+    )
+    return types.SimpleNamespace(
+        __version__="2.3.1+cpu",
+        version=types.SimpleNamespace(cuda="12.1"),
+        backends=backends,
+        cuda=cuda,
+    )
 
 
 # --- タスクブリーフ記載のテスト(そのまま) ---
@@ -102,3 +133,71 @@ def test_collect_env_survives_torch_module_not_found_error():
     # 異なる自然な欠如ケースをカバーする。
     env = collect_env()
     assert env["torch"] is None
+
+
+# --- レビュー fix round 1: torch/cuda/gpus の辞書形状をピン止めするテスト ---
+
+
+def test_collect_env_torch_dict_has_expected_keys(monkeypatch):
+    monkeypatch.setitem(sys.modules, "torch", _fake_torch())
+    torch_info = collect_env()["torch"]
+    assert set(torch_info) == {
+        "version",
+        "cuda_version",
+        "cudnn_version",
+        "matmul_allow_tf32",
+        "cudnn_allow_tf32",
+    }
+    assert torch_info["version"] == "2.3.1+cpu"
+    assert torch_info["cuda_version"] == "12.1"
+    assert torch_info["cudnn_version"] == 90100
+    assert torch_info["matmul_allow_tf32"] is True
+    assert torch_info["cudnn_allow_tf32"] is False
+
+
+def test_collect_env_cuda_dict_has_expected_keys(monkeypatch):
+    monkeypatch.setitem(sys.modules, "torch", _fake_torch(n_gpus=2))
+    cuda_info = collect_env()["cuda"]
+    assert set(cuda_info) == {"available", "device_count"}
+    assert cuda_info["available"] is True
+    assert cuda_info["device_count"] == 2
+
+
+def test_collect_env_gpus_dicts_have_expected_keys(monkeypatch):
+    monkeypatch.setitem(sys.modules, "torch", _fake_torch(n_gpus=2))
+    gpus = collect_env()["gpus"]
+    assert len(gpus) == 2
+    for gpu in gpus:
+        assert set(gpu) == {
+            "name",
+            "compute_capability",
+            "multi_processor_count",
+            "total_memory",
+        }
+    assert gpus[0]["name"] == "Fake GPU"
+    assert gpus[0]["compute_capability"] == "8.9"
+    assert gpus[0]["multi_processor_count"] == 42
+    assert gpus[0]["total_memory"] == 8_000_000_000
+
+
+def test_collect_env_gpus_empty_when_cuda_unavailable(monkeypatch):
+    monkeypatch.setitem(sys.modules, "torch", _fake_torch(cuda_available=False))
+    assert collect_env()["gpus"] == []
+
+
+# --- レビュー fix round 1: host の REPRO_HOST 優先順位テスト ---
+
+
+def test_collect_env_host_prefers_repro_host_env_var(monkeypatch):
+    monkeypatch.setenv("REPRO_HOST", "anakin")
+    env = collect_env()
+    assert env["host"] == "anakin"
+    assert env["host_source"] == "REPRO_HOST"
+
+
+def test_collect_env_host_falls_back_to_platform_node_when_unset(monkeypatch):
+    monkeypatch.delenv("REPRO_HOST", raising=False)
+    monkeypatch.setattr(platform, "node", lambda: "container-abc123")
+    env = collect_env()
+    assert env["host"] == "container-abc123"
+    assert env["host_source"] == "platform.node"
