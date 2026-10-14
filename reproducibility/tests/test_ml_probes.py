@@ -102,16 +102,19 @@ def test_sklearn_probes_skip_cleanly_without_library(monkeypatch):
 
 
 def test_kmeans_dataset_has_genuine_cluster_structure_and_a_unique_optimum():
-    # finding 2: the classification dataset was not built for clustering, so
-    # k=4 on it had a huge family of near-tied local optima. With the new
-    # well-separated-blobs dataset, repeated fits converge via the identical
-    # path (n_iter_ never varies, measured over 180 fits across 6
-    # thread-count configurations -- see s5_sklearn.py's module docstring)
-    # -- that is the signature of "one dominant optimum", not "a different
-    # local optimum chosen each time". inertia_ itself can still differ by a
-    # tiny relative amount (measured: up to ~3.9e-16, across two independent
-    # 30-fit runs). rel=1e-12 below is a safety bound with a ~2500x margin
-    # over that measurement, not itself a measured tolerance.
+    # finding 2: the classification dataset was built for binary
+    # classification, not clustering, which is why S5_kmeans_centers uses
+    # its own dataset instead (_kmeans_dataset). With that dataset, repeated
+    # fits converge via the identical path: n_iter_ never varies, measured
+    # over 180 fits across 6 thread-count configurations -- see
+    # s5_sklearn.py's module docstring. n_iter_ invariance alone does not
+    # exclude a different optimum also reached in two iterations; the
+    # direct evidence that the two fits land on the same solution is the
+    # inertia_ spread itself (measured: at most ~1-2 ULP, up to ~3.9e-16
+    # relative, across two independent 30-fit runs) and, for a single pair
+    # of fits, the measured max_abs_center_delta of ~6.9e-18. rel=1e-12
+    # below is a safety bound with a ~2500x margin over that measurement,
+    # not itself a measured tolerance.
     pytest.importorskip("sklearn")
     from reprobench.probes.s5_sklearn import _kmeans_dataset
     from sklearn.cluster import KMeans
