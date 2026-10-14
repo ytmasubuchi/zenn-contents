@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 13px; fill: #4b5563; }
+    .panelTitle { font-size: 15px; font-weight: 700; fill: #1e3a5f; }
+    .cellText { font-size: 13px; fill: #111827; }
+    .note { font-size: 13px; fill: #374151; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .inputcell { fill: #e5e7eb; stroke: #9ca3af; stroke-width: 1; }
+    .groupbox { fill: #f3f4f6; stroke: #9ca3af; stroke-width: 1.4; rx: 8; }
+    .combinebox { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 8; }
+    .panel2 { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; rx: 10; }
+    .caveatbox { fill: #fef2f2; stroke: #c62828; stroke-width: 1.3; rx: 8; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="700" fill="#ffffff"/>
+
+  <text x="30" y="38" class="title">F6. SIMD幅が変わると縮約(reduction)の足す順序が変わる</text>
+  <text x="30" y="58" class="subtitle">機構の図解(下の数値はダミー。具体的な数値例ではなく「分割の違い」そのものを示す)。</text>
+  <line x1="30" y1="70" x2="930" y2="70" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- shared input row -->
+  <text x="480" y="92" text-anchor="middle" font-size="13" fill="#374151" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">同じ入力(16要素)</text>
+  <g>
+    <rect x="180" y="98" width="37" height="28" class="inputcell"/><rect x="217" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="254" y="98" width="37" height="28" class="inputcell"/><rect x="291" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="328" y="98" width="37" height="28" class="inputcell"/><rect x="365" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="402" y="98" width="37" height="28" class="inputcell"/><rect x="439" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="476" y="98" width="37" height="28" class="inputcell"/><rect x="513" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="550" y="98" width="37" height="28" class="inputcell"/><rect x="587" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="624" y="98" width="37" height="28" class="inputcell"/><rect x="661" y="98" width="37" height="28" class="inputcell"/>
+    <rect x="698" y="98" width="37" height="28" class="inputcell"/><rect x="735" y="98" width="37" height="28" class="inputcell"/>
+  </g>
+
+  <line x1="330" y1="126" x2="250" y2="160" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="126" x2="700" y2="160" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- left tree: 8-wide -->
+  <text x="50" y="180" class="panelTitle">8並列(例: AVX2、256bit÷32bit = 8要素/レジスタ)</text>
+  <rect x="50" y="192" width="185" height="58" class="groupbox"/>
+  <text x="65" y="216" class="cellText">a0..a7 を合算</text>
+  <text x="65" y="236" class="cellText">→ 部分和 P0</text>
+  <rect x="250" y="192" width="185" height="58" class="groupbox"/>
+  <text x="265" y="216" class="cellText">a8..a15 を合算</text>
+  <text x="265" y="236" class="cellText">→ 部分和 P1</text>
+
+  <line x1="142" y1="250" x2="200" y2="282" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="342" y1="250" x2="280" y2="282" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="100" y="284" width="250" height="64" class="combinebox"/>
+  <text x="130" y="312" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">P0 + P1 = S8</text>
+  <text x="130" y="332" class="cellText">(最終結果)</text>
+
+  <!-- right tree: 16-wide -->
+  <text x="520" y="180" class="panelTitle">16並列(例: AVX-512、512bit÷32bit = 16要素/レジスタ)</text>
+  <rect x="520" y="192" width="360" height="156" class="combinebox"/>
+  <text x="545" y="228" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">a0..a15 を1回のベクトル演算で合算</text>
+  <text x="545" y="250" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">→ S16(最終結果)</text>
+  <text x="545" y="278" class="note">左のような中間の部分和</text>
+  <text x="545" y="296" class="note">(P0・P1)を作らない</text>
+
+  <!-- comparison callout -->
+  <rect x="40" y="366" width="880" height="58" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.2" rx="8"/>
+  <text x="60" y="388" class="note">S8 と S16 は数学的には同じ値の総和だが、グルーピング(足し合わせる順序)が違う。</text>
+  <text x="60" y="408" class="note">浮動小数点の非結合性(F5参照)により、丸め方が変わり、ビットパターンが一致しない場合がある。</text>
+
+  <!-- L3 badge -->
+  <rect x="40" y="436" width="44" height="40" rx="8" fill="#ef6c00"/>
+  <text x="62" y="462" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L3</text>
+  <text x="96" y="461" class="note">SIMDディスパッチ(どの命令セットを使うか)は実行時に環境が選ぶ(→ L3)</text>
+
+  <!-- panel 2: documented evidence -->
+  <rect x="40" y="494" width="880" height="176" class="panel2"/>
+  <text x="60" y="520" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">文書で確認されている実例(NumPy issue #23523)</text>
+  <text x="60" y="544" class="cellText">NumPyのAVX-512と非AVX-512のコードパスで `sin` / `cos` / `exp` / `log` が最大 約4 ULP 異なる。</text>
+  <text x="60" y="564" class="cellText">NumPyメンテナ mattip の発言: 「4 ULPまでの差は許容するトレードオフ」(issue #23523)。</text>
+
+  <rect x="60" y="580" width="840" height="76" class="caveatbox"/>
+  <text x="78" y="602" font-size="13" font-weight="700" fill="#b91c1c" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">注意: これは超越関数(sin/cos/exp/log)での報告であり、`np.sum` 自体が</text>
+  <text x="78" y="622" font-size="13" font-weight="700" fill="#b91c1c" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">AVX2とAVX-512で異なるという文書化された報告は無い(本プロジェクトの調査時点)。</text>
+  <text x="78" y="642" font-size="13" fill="#7f1d1d" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">上の縮約木は非結合性という実在する機構の説明であり、`np.sum` の実測差を主張するものではない。</text>
+
+  <text x="30" y="686" class="footnote">出典: NumPy issue #23523(AVX-512 vs 非AVX-512、sin/cos/exp/log)、NumPy 1.9.0 release notes(pairwise summation)、調査ノート simd_blas_parallel.md 参照。</text>
+</svg>

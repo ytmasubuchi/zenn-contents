@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 800" width="960" height="800">
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 14px; fill: #4b5563; }
+    .headcell { font-size: 15px; font-weight: 700; fill: #111827; }
+    .cell { font-size: 13px; fill: #111827; }
+    .chiplabel { font-size: 24px; font-weight: 700; fill: #ffffff; }
+    .chiplabelDark { font-size: 24px; font-weight: 700; fill: #1f2937; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="800" fill="#ffffff"/>
+
+  <text x="20" y="40" class="title">F3. 再現性の保証レベル L0〜L4</text>
+  <text x="20" y="64" class="subtitle">同じ「乱数ベースの計算」でも、何が・どこまで・なぜ保証されるかはレベルによって違う。各レベルで「何が壊すか」を並べる。</text>
+
+  <!-- header row -->
+  <line x1="20" y1="94" x2="940" y2="94" stroke="#111827" stroke-width="1.5"/>
+  <text x="34" y="86" class="headcell">Lv</text>
+  <text x="100" y="86" class="headcell">保証の出所</text>
+  <text x="310" y="86" class="headcell">代表例</text>
+  <text x="650" y="86" class="headcell">壊れる条件(何が壊すか)</text>
+
+  <!-- ===================== L0 row (y 100-220) ===================== -->
+  <rect x="90"  y="100" width="210" height="120" fill="#1b5e20" fill-opacity="0.06" stroke="#1b5e20" stroke-opacity="0.35"/>
+  <rect x="300" y="100" width="340" height="120" fill="#1b5e20" fill-opacity="0.06" stroke="#1b5e20" stroke-opacity="0.35"/>
+  <rect x="640" y="100" width="300" height="120" fill="#1b5e20" fill-opacity="0.06" stroke="#1b5e20" stroke-opacity="0.35"/>
+  <rect x="20" y="100" width="62" height="120" rx="10" fill="#1b5e20"/>
+  <text x="51" y="168" class="chiplabel" text-anchor="middle">L0</text>
+
+  <text x="100" y="126" class="cell">国際規格・</text>
+  <text x="100" y="144" class="cell">公開アルゴリズム仕様</text>
+
+  <text x="310" y="126" class="cell">IEEE754の + − × ÷ √ FMA</text>
+  <text x="310" y="144" class="cell">(正しく丸め)、</text>
+  <text x="310" y="162" class="cell">MT19937・PCG64・</text>
+  <text x="310" y="180" class="cell">Philoxの生成ビット列</text>
+
+  <text x="650" y="126" class="cell">言語・OS・CPUを</text>
+  <text x="650" y="144" class="cell">跨いでも壊れない</text>
+
+  <!-- ===================== L1 row (y 220-340) ===================== -->
+  <rect x="90"  y="220" width="210" height="120" fill="#558b2f" fill-opacity="0.06" stroke="#558b2f" stroke-opacity="0.35"/>
+  <rect x="300" y="220" width="340" height="120" fill="#558b2f" fill-opacity="0.06" stroke="#558b2f" stroke-opacity="0.35"/>
+  <rect x="640" y="220" width="300" height="120" fill="#558b2f" fill-opacity="0.06" stroke="#558b2f" stroke-opacity="0.35"/>
+  <rect x="20" y="220" width="62" height="120" rx="10" fill="#558b2f"/>
+  <text x="51" y="288" class="chiplabel" text-anchor="middle">L1</text>
+
+  <text x="100" y="246" class="cell">ライブラリが文書で</text>
+  <text x="100" y="264" class="cell">明文の規約として約束</text>
+
+  <text x="310" y="246" class="cell">NumPy NEP19</text>
+  <text x="310" y="264" class="cell">(RandomStateは保証、</text>
+  <text x="310" y="282" class="cell">Generatorは非保証)、</text>
+  <text x="310" y="300" class="cell">PyTorch「リリース間は保証しない」</text>
+
+  <text x="650" y="246" class="cell">バージョンを</text>
+  <text x="650" y="264" class="cell">上げた瞬間</text>
+
+  <!-- ===================== L2 row (y 340-460) ===================== -->
+  <rect x="90"  y="340" width="210" height="120" fill="#f9a825" fill-opacity="0.10" stroke="#f9a825" stroke-opacity="0.45"/>
+  <rect x="300" y="340" width="340" height="120" fill="#f9a825" fill-opacity="0.10" stroke="#f9a825" stroke-opacity="0.45"/>
+  <rect x="640" y="340" width="300" height="120" fill="#f9a825" fill-opacity="0.10" stroke="#f9a825" stroke-opacity="0.45"/>
+  <rect x="20" y="340" width="62" height="120" rx="10" fill="#f9a825"/>
+  <text x="51" y="408" class="chiplabelDark" text-anchor="middle">L2</text>
+
+  <text x="100" y="366" class="cell">文書化なし。</text>
+  <text x="100" y="384" class="cell">実装がたまたま決めている</text>
+
+  <text x="310" y="366" class="cell">正規乱数の変換法</text>
+  <text x="310" y="384" class="cell">(ziggurat / Box-Muller)、</text>
+  <text x="310" y="402" class="cell">np.sumのpairwise</text>
+  <text x="310" y="420" class="cell">summationの閾値</text>
+
+  <text x="650" y="366" class="cell">バージョン差</text>
+  <text x="650" y="384" class="cell">(根拠なく変わりうる)</text>
+
+  <!-- ===================== L3 row (y 460-580) ===================== -->
+  <rect x="90"  y="460" width="210" height="120" fill="#ef6c00" fill-opacity="0.07" stroke="#ef6c00" stroke-opacity="0.4"/>
+  <rect x="300" y="460" width="340" height="120" fill="#ef6c00" fill-opacity="0.07" stroke="#ef6c00" stroke-opacity="0.4"/>
+  <rect x="640" y="460" width="300" height="120" fill="#ef6c00" fill-opacity="0.07" stroke="#ef6c00" stroke-opacity="0.4"/>
+  <rect x="20" y="460" width="62" height="120" rx="10" fill="#ef6c00"/>
+  <text x="51" y="528" class="chiplabel" text-anchor="middle">L3</text>
+
+  <text x="100" y="486" class="cell">実行時に</text>
+  <text x="100" y="504" class="cell">環境が選ぶ</text>
+
+  <text x="310" y="486" class="cell">SIMDディスパッチ</text>
+  <text x="310" y="504" class="cell">(AVX2/AVX-512/SVE2)、</text>
+  <text x="310" y="522" class="cell">BLASスレッド数、</text>
+  <text x="310" y="540" class="cell">libm(glibc/musl/Apple)</text>
+
+  <text x="650" y="486" class="cell">同じコード・同じ版でも</text>
+  <text x="650" y="504" class="cell">CPU・スレッド数・</text>
+  <text x="650" y="522" class="cell">ベースイメージが変われば</text>
+
+  <!-- ===================== L4 row (y 580-700) ===================== -->
+  <rect x="90"  y="580" width="210" height="120" fill="#c62828" fill-opacity="0.06" stroke="#c62828" stroke-opacity="0.4"/>
+  <rect x="300" y="580" width="340" height="120" fill="#c62828" fill-opacity="0.06" stroke="#c62828" stroke-opacity="0.4"/>
+  <rect x="640" y="580" width="300" height="120" fill="#c62828" fill-opacity="0.06" stroke="#c62828" stroke-opacity="0.4"/>
+  <rect x="20" y="580" width="62" height="120" rx="10" fill="#c62828"/>
+  <text x="51" y="648" class="chiplabel" text-anchor="middle">L4</text>
+
+  <text x="100" y="606" class="cell">原理的に非決定。</text>
+  <text x="100" y="624" class="cell">保証なし</text>
+
+  <text x="310" y="606" class="cell">PYTHONHASHSEED、</text>
+  <text x="310" y="624" class="cell">GPUのatomicAdd順序、</text>
+  <text x="310" y="642" class="cell">cuDNN benchmarkの</text>
+  <text x="310" y="660" class="cell">自動アルゴリズム選択</text>
+
+  <text x="650" y="606" class="cell">同じプロセスを</text>
+  <text x="650" y="624" class="cell">2回走らせても</text>
+
+  <line x1="20" y1="700" x2="940" y2="700" stroke="#111827" stroke-width="1.5"/>
+
+  <text x="20" y="732" class="footnote">原理図(実測に依存しない)。本図は本プロジェクトの設計時点で確認した一次情報の要約(NumPy NEP19・`compatibility.html`、PyTorch Reproducibility notes、</text>
+  <text x="20" y="750" class="footnote">OpenMP 5.0/5.1 reduction節 等)に基づく。各レベルの詳細・出典は本文を参照。「代表例」は網羅的な一覧ではない。</text>
+</svg>
