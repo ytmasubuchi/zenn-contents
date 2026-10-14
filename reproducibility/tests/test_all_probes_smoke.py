@@ -22,6 +22,13 @@ fix round 2 finding D: `S0_glob_order` は呼び出しのたびに新しい
 同一ディレクトリに対する2回の`glob.glob`呼び出しを内部で行い、その一致を
 `meta["stable_within_process"]`として既に記録しているので、スモーク
 テストではdigestの一致ではなく、このキーが存在することだけを確認する。
+
+Task 7 fix: `S5_kmeans_centers`も同じ扱いに加えた。sklearnのKMeansは
+`random_state`・スレッド数を固定してもOpenMP並列E-stepのスケジューリング
+依存のULPジッタがあり、`n_init=10`のベスト選択がそれを増幅するため、
+プロセス内の2回の呼び出しでdigestが一致しないことを実機で確認した
+(`reprobench/probes/s5_sklearn.py`のコメント参照)。このプローブ自身が
+内部で2回fitして一致を`meta["stable_within_process"]`に記録している。
 """
 import reprobench.probes  # モジュールimportの副作用で全プローブを登録する
 from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
@@ -33,7 +40,7 @@ from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
 # ことになる。どちらもプローブ自身が内部で2回実行して
 # `meta["stable_within_process"]`に安定性を記録しているので、ここでは
 # それが存在することだけを確認する。
-_SELF_REPORTED_STABILITY = {"S0_parallel_completion_order", "S0_glob_order"}
+_SELF_REPORTED_STABILITY = {"S0_parallel_completion_order", "S0_glob_order", "S5_kmeans_centers"}
 
 
 def test_every_registered_probe_runs_or_skips_cleanly_and_is_stable():
