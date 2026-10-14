@@ -10,6 +10,7 @@
 モジュール自体がimportできなくなり、同じモジュール内の他のプローブも
 道連れになる。
 """
+from reprobench.probes import s0_hidden_inputs  # 副作用: S0プローブ群を登録する
 from reprobench.probes import s1_prng  # 副作用: S1プローブ群を登録する
 from reprobench.probes import s2_reduction  # 副作用: S2プローブ群を登録する
 from reprobench.probes import s3_blas  # 副作用: S3プローブ群を登録する
