@@ -182,66 +182,15 @@ capture_gpu_info() {
 }
 
 # --- run_container: docker run under an outer timeout, with guaranteed
-# cleanup (Task 13 resolutions 10 and 15). Defined as a function so it can
-# be shipped to a remote host verbatim via `declare -f` + ssh, instead of
-# existing twice (once local, once re-typed inside an ssh heredoc) --
-# one implementation, run in two places.
-#
-# fix round 2, CRITICAL: the previous version backgrounded
-# `( sleep "$timeout_secs" && docker kill ... ) &` without redirecting its
-# descriptors, and `kill "$watcher"` below only killed that subshell, not
-# the `sleep` it was blocked on. Two bugs from one line: (1) the subshell
-# inherits this function's stdout/stderr -- on a remote run those are
-# sshd's pipe back to this script, so *any* process still holding them
-# open blocks `ssh` from returning; (2) sending a signal to the subshell
-# while it's inside a `wait` on a separate `sleep` child does not touch
-# that child -- `sleep` is reparented and keeps running as an orphan,
-# continuing to hold those descriptors, for up to the full timeout.
-# Reviewer-verified with the identical pattern piped to `cat`: 6s elapsed
-# with the pipe vs. 0s without. Fixed by (a) redirecting the sleep and
-# the watcher subshell's stdin/stdout/stderr to /dev/null before
-# backgrounding either, and (b) keeping a direct handle on the `sleep`
-# process itself (not just the subshell waiting on it) so it can be
-# killed directly, rather than relying on a signal to the subshell
-# somehow reaching its child.
-#
-# fix round 2, Important 3: `--rm` added. This does not make the watchdog
-# survive an interrupted ssh session (the watcher is still a child of the
-# remote shell and dies with it on SIGHUP, which is a larger, deferred
-# fix -- see the fix-round-2 report), but it guarantees a container that
-# outlives its watcher at least doesn't accumulate as a stopped container
-# on a shared host afterward.
-#
-# This also changed from `docker run -d` + `docker wait` + `docker logs`
-# to a single foreground (attached) `docker run`: with `-d` and `--rm`
-# together, there is a race between `docker wait` returning (the
-# container has exited) and the daemon's own auto-removal completing --
-# `docker logs` right after could then intermittently fail to find the
-# container at all, silently losing the one thing it exists to capture.
-# Attached mode sidesteps this entirely: output streams live as it
-# happens, and `docker run`'s own exit status already mirrors the
-# container's, so neither a separate `docker wait` nor `docker logs` is
-# needed. `docker kill` from the watcher below still reaches the
-# container by name regardless of how the client is attached.
-run_container() {
-  local image="$1"; shift
-  local cname="$1"; shift
-  local timeout_secs="$1"; shift
-  # remaining args ($@): full extra `docker run` flags (-e / -v / --gpus)
-  trap "docker rm -f $cname >/dev/null 2>&1 || true" EXIT
-
-  sleep "$timeout_secs" </dev/null >/dev/null 2>&1 &
-  local sleep_pid=$!
-  ( wait "$sleep_pid" 2>/dev/null && docker kill "$cname" >/dev/null 2>&1 ) </dev/null >/dev/null 2>&1 &
-  local watcher=$!
-
-  local exit_code=0
-  docker run --rm --name "$cname" "$@" "reprobench:$image" python -m reprobench.runner || exit_code=$?
-
-  kill "$sleep_pid" >/dev/null 2>&1 || true
-  kill "$watcher" >/dev/null 2>&1 || true
-  return "$exit_code"
-}
+# cleanup (Task 13 resolutions 10 and 15). Lives in its own sourced file,
+# lib_run_container.sh (fix round 3) -- see that file's header comment
+# for the full history (fix rounds 2 and 3 each fixed one half of this
+# mechanism by breaking the other) and for why it's sourced rather than
+# defined inline: the same function is shipped to a remote host verbatim
+# via `declare -f run_container` + ssh below, AND exercised directly by
+# scripts/test_run_container.sh, so there is exactly one implementation
+# instead of two that could silently drift apart.
+source "$SCRIPT_DIR/lib_run_container.sh"
 
 # --- dry-run: print the plan, check reachability, stop ----------------------
 if [ "$DRY_RUN" -eq 1 ]; then

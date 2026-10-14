@@ -137,6 +137,20 @@ this is expected, not a bug in this Makefile).
   fails to fetch is recorded and the script continues to the rest. Fixes
   the same root-owned-cache-file problem `run_on_host.sh` does, for the
   same reason.
+- `lib_run_container.sh` -- not invoked directly. The outer-timeout
+  mechanism (`run_container`), factored out of `run_on_host.sh` so it is
+  defined in exactly one place: shipped verbatim to a remote host via
+  `declare -f` + ssh, and exercised directly by `test_run_container.sh`
+  below, instead of risking two copies that drift apart.
+- `test_run_container.sh` -- a regression test for `run_container`
+  (entirely local docker, no remote host touched). Asserts both of the
+  behaviours this mechanism has to have: returning promptly when a
+  container finishes on its own, and killing a container that outlives
+  its timeout and still returning promptly (not waiting out the
+  container's full, much longer runtime). Each of fix rounds 2 and 3
+  broke one of these while fixing the other; this test exists so that
+  class of regression gets caught automatically instead of needing a
+  human to think to check the one path nothing else exercises.
 
 These scripts are deliberately considerate of the fact that `anakin`,
 `blade` and `dgxspark` are shared machines other people are actively
