@@ -25,3 +25,11 @@ accelerate==1.15.0
 # transitive transformers dependency -- pinned explicitly for the same
 # reason as threadpoolctl in requirements/base.txt.
 huggingface-hub==2.2.0
+# pytest was missing from this image originally (fix round 1, found while
+# building/running this image on anakin's RTX 4090): `COPY tests/
+# ./tests/` puts the suite in the image but there was nothing to run it
+# with, which made it unrunnable on the one image where the GPU-only
+# probes (S8/S9) and the smoke test's cross-probe checks can actually be
+# exercised before spending a measurement slot. Pinned like every other
+# image.
+pytest==9.1.1

@@ -230,6 +230,25 @@ fi
 
 capture_gpu_info
 
+# Ownership fixup (Task 13 resolution 15, fix round 1): every Dockerfile
+# in this project runs its process as root (no `USER` instruction), so a
+# container writing into a bind-mounted directory leaves root-owned files
+# on the host side. On this Mac's Docker Desktop that happens not to be
+# visible (its VM remaps container-root writes to the invoking macOS
+# user), but on a real Linux host it is a genuine problem: confirmed
+# directly on anakin, the host account could not even `rm` the resulting
+# file without another container. Two fixes were possible here --
+# running the measurement container itself as `--user $(id -u):$(id -g)`,
+# or chowning the mount afterward with a throwaway root container. The
+# former was rejected: it would also require reworking the `gpu` image's
+# Hugging Face cache path, since `/root/.cache/huggingface` is not
+# traversable by a non-root uid (`/root` itself is mode 700), and that
+# risk didn't seem worth taking for every image just to avoid one extra
+# `docker run` per invocation. So: chown-after, via a throwaway container
+# using the image that was just built (already present locally, nothing
+# extra to pull), run as its default root user specifically so it has
+# permission to hand ownership back to the host user -- a regular user
+# cannot chown a file to themselves that root already owns.
 if [ "$HOST" = "local" ]; then
   cd "$REPRO_DIR"
   docker build -f "docker/Dockerfile.$IMAGE" -t "reprobench:$IMAGE" .
@@ -239,7 +258,20 @@ if [ "$HOST" = "local" ]; then
     mkdir -p "$REPRO_DIR/hf-cache"
     RUN_FLAGS+=("-v" "$REPRO_DIR/hf-cache:/root/.cache/huggingface")
   fi
-  run_container "$IMAGE" "$CNAME" "$TIMEOUT_SECS" "${RUN_FLAGS[@]}"
+
+  run_exit=0
+  run_container "$IMAGE" "$CNAME" "$TIMEOUT_SECS" "${RUN_FLAGS[@]}" || run_exit=$?
+
+  uid_gid="$(id -u):$(id -g)"
+  docker run --rm -v "$REPRO_DIR/results:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix
+  if [ "$IMAGE" = "gpu" ]; then
+    docker run --rm -v "$REPRO_DIR/hf-cache:/fix" "reprobench:$IMAGE" chown -R "$uid_gid" /fix
+  fi
+
+  if [ "$run_exit" -ne 0 ]; then
+    echo "run_on_host.sh: measurement container exited non-zero ($run_exit)" >&2
+    exit "$run_exit"
+  fi
   echo "run_on_host.sh: wrote results/${HOST}__${IMAGE}__${CONFIG}.json (if the runner did not refuse/skip -- see the log above)"
 else
   echo "run_on_host.sh: syncing to $HOST:~/reprobench-run/ ..."
@@ -247,15 +279,16 @@ else
 
   ssh "$HOST" "mkdir -p ~/reprobench-run/results ~/reprobench-run/hf-cache && cd ~/reprobench-run && docker build -f docker/Dockerfile.$IMAGE -t reprobench:$IMAGE ." < /dev/null
 
-  # Resolve ~ to a concrete absolute path on the remote side BEFORE
-  # building the run_container call: that call is shipped through
-  # printf %q below, which protects a literal "$HOME" from ever being
-  # expanded remotely (its entire job is to make sure the string it
-  # quotes is reproduced byte-for-byte, not re-interpreted) -- so "$HOME"
-  # would reach the remote docker run as the literal four characters
-  # "$HOME", not the remote user's home directory.
+  # Resolve ~ and the invoking user's uid:gid to concrete values on the
+  # remote side BEFORE building the run_container call: that call is
+  # shipped through printf %q below, which protects a literal "$HOME"
+  # from ever being expanded remotely (its entire job is to make sure the
+  # string it quotes is reproduced byte-for-byte, not re-interpreted) --
+  # so "$HOME" would reach the remote docker run as the literal four
+  # characters "$HOME", not the remote user's home directory.
   remote_home="$(ssh -o BatchMode=yes "$HOST" 'echo $HOME' < /dev/null)"
   remote_repro_dir="$remote_home/reprobench-run"
+  remote_uid_gid="$(ssh -o BatchMode=yes "$HOST" 'echo "$(id -u):$(id -g)"' < /dev/null)"
 
   RUN_FLAGS=("${ENV_FLAGS[@]}" "-v" "$remote_repro_dir/results:/work/results")
   if [ "$IMAGE" = "gpu" ]; then
@@ -271,7 +304,23 @@ else
   for a in "$IMAGE" "$CNAME" "$TIMEOUT_SECS" "${RUN_FLAGS[@]}"; do
     remote_call="$remote_call $(printf '%q' "$a")"
   done
-  ssh "$HOST" "cd ~/reprobench-run && $(declare -f run_container); $remote_call" < /dev/null
+
+  run_exit=0
+  ssh "$HOST" "cd ~/reprobench-run && $(declare -f run_container); $remote_call" < /dev/null || run_exit=$?
+
+  # Ownership fixup on the remote host -- see the file-level comment
+  # above this if/else for why this is a separate, root-run throwaway
+  # container rather than running the measurement container as a
+  # non-root user.
+  ssh "$HOST" "docker run --rm -v $remote_repro_dir/results:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null
+  if [ "$IMAGE" = "gpu" ]; then
+    ssh "$HOST" "docker run --rm -v $remote_repro_dir/hf-cache:/fix reprobench:$IMAGE chown -R $remote_uid_gid /fix" < /dev/null
+  fi
+
+  if [ "$run_exit" -ne 0 ]; then
+    echo "run_on_host.sh: measurement container exited non-zero ($run_exit)" >&2
+    exit "$run_exit"
+  fi
 
   mkdir -p "$REPRO_DIR/results"
   scp "$HOST:~/reprobench-run/results/${HOST}__${IMAGE}__${CONFIG}.json" "$REPRO_DIR/results/"

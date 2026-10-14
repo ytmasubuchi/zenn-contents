@@ -8,16 +8,20 @@
 # dgxspark) run driver 580.x / CUDA 13.0, so this single image covers all
 # three.
 #
-# UNVERIFIED: this image was NOT built or run from this development host
-# (an aarch64 MacBook with no GPU reachable from containers, per Task 12
-# instructions). Only the pinned versions below were confirmed (Task 12)
-# to exist as installable wheels for cp312 on both linux/amd64 and
-# linux/aarch64 -- torch==2.14.1 resolves to torch-2.14.1+cu130 via the
-# cu130 index on both architectures, and numpy/transformers/accelerate/
-# huggingface-hub all have cp312 wheels on both. The Dockerfile itself
-# (apt packages, venv activation, CUDA runtime behaviour) has not been
-# exercised. Treat it as unverified until it is built and run on an
-# actual GPU host (Task 14).
+# Built from this development host only as far as wheel-availability
+# checks (an aarch64 MacBook with no GPU reachable from containers, per
+# Task 12 instructions); built and run for real on anakin's RTX 4090
+# (fix round 1, by the task coordinator, not from here). Confirmed there:
+# the build succeeds, torch.cuda.is_available() is True, `python -m
+# reprobench.runner --probes S7,S8` completes and writes a well-formed
+# results JSON (all ten probes recorded, ~2.2s wall time), and the env
+# block correctly carries the torch/CUDA/cuDNN versions, both TF32 flags,
+# the GPU name/SM count, and CUBLAS_WORKSPACE_CONFIG. The extra-index-url
+# pattern below and the venv-under-PEP-668 handling both held up under
+# that run. One gap found and fixed in that same round: pytest was
+# missing from requirements/gpu.txt, which made the one image where the
+# GPU-only probes (S8/S9) can actually be exercised unable to run its own
+# smoke test before spending a measurement slot.
 FROM nvidia/cuda:13.0.1-runtime-ubuntu24.04
 
 ENV REPRO_IMAGE=gpu

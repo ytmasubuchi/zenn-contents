@@ -84,6 +84,15 @@ for host in $GPU_HOSTS; do
     continue
   fi
 
+  # The download above ran as root (no `USER` in Dockerfile.gpu), so the
+  # cached model files it wrote are root-owned on the host side -- the
+  # same problem run_on_host.sh fixes for results/ (see that script's
+  # header comment), applied here to hf-cache/ for the same reason: left
+  # alone, this is root-owned debris in a colleague's home directory that
+  # their own account cannot clean up without another privileged
+  # container.
+  ssh "$host" "docker run --rm -v ~/reprobench-run/hf-cache:/fix reprobench:gpu chown -R \"\$(id -u):\$(id -g)\" /fix" < /dev/null
+
   echo "fetch_model.sh: $host OK"
 done
 

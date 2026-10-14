@@ -4,6 +4,8 @@ import platform
 import sys
 import types
 
+import pytest
+
 from reprobench.envinfo import collect_env
 
 
@@ -127,10 +129,34 @@ def test_collect_env_packages_reports_known_distribution_versions():
 
 
 def test_collect_env_survives_torch_module_not_found_error():
-    # このテストコンテナにはtorchをインストールしていないため、import torch は
-    # 実際に(monkeypatchなしで)ModuleNotFoundErrorになる。brief記載の
-    # monkeypatchケース(sys.modules["torch"]=None、素のImportError)とは
-    # 異なる自然な欠如ケースをカバーする。
+    # このテストは「torchが実際にインストールされていない」環境でのみ
+    # 意味を持つ: import torch が実際に(monkeypatchなしで)
+    # ModuleNotFoundErrorになる自然な欠如ケースをカバーする。brief記載の
+    # monkeypatchケース(sys.modules["torch"]=None、素のImportError)は
+    # `test_collect_env_survives_missing_torch`がtorchの有無に関わらず
+    # 常に検証しているため、このテストはその補完(自然な欠如ケース)に
+    # すぎない。
+    #
+    # fix round 1(Task 12/13コーディネーターからの指摘。cross-task edit:
+    # このファイルはTask 2が追加したものだが、Task 12のbaseイメージが
+    # ブリーフの要求によりtorchを含むため、このテストをtorchが実在する
+    # 環境で常に走らせると必ず失敗する——`collect_env()["torch"]`が
+    # 本物の辞書を返し`is None`が崩れる。monkeypatch版の姉妹テストが
+    # 同じコードパスをtorchの有無に関わらず既に検証済みであるため、
+    # torchが実際にimport可能な環境ではこのテストをskipする——意味を
+    # 持つのはtorchが本当に存在しない環境(alpineイメージ等)でだけ):
+    try:
+        import torch  # noqa: F401
+    except ImportError:
+        pass
+    else:
+        pytest.skip(
+            "torch is importable in this environment; the genuinely-absent "
+            "path this test exercises only has something to test where "
+            "torch is actually missing (e.g. the alpine image, not base). "
+            "test_collect_env_survives_missing_torch already covers the "
+            "same code path unconditionally via monkeypatch."
+        )
     env = collect_env()
     assert env["torch"] is None
 

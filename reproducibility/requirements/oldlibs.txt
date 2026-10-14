@@ -7,6 +7,10 @@
 # its Python-only counterpart) is pinned to python:3.10-slim rather than
 # base's 3.11.
 #
+# This image's library-version condition is measured on numpy and
+# scikit-learn (S1-S6), not torch -- see Dockerfile.oldlibs for why torch
+# is absent, and fix-round-1 confirmation below.
+#
 # scikit-learn==1.0.2 is the version named in the brief; scipy==1.7.3 is
 # pinned explicitly even though the brief's prose only names numpy/
 # scikit-learn/torch, because scikit-learn 1.0.2 depends on scipy at
@@ -15,14 +19,19 @@
 # exactly the kind of unpinned dependency resolution 6 forbids. 1.7.3 is
 # contemporaneous with scikit-learn 1.0.2 and has a cp310 wheel (verified).
 #
+# lightgbm==4.5.0 -- the same pin used in base/py313/oldpy -- carries S6.
+# Confirmed (fix round 1) that it installs and actually runs (not just
+# imports) against numpy==1.21.6/python 3.10 on both linux/aarch64 and
+# linux/amd64 (emulated): a LogisticRegression fit/predict and a full
+# lgb.train()/predict() round-trip both produced real, non-degenerate
+# output on both architectures. Unlike torch, neither scikit-learn nor
+# lightgbm showed any numpy-C-API version friction.
+#
 # torch is deliberately NOT included in this image: see Dockerfile.oldlibs
-# for the full writeup. In short, every available cp310 torch wheel
-# (1.10.2 through 1.13.1, all tested) was compiled against a numpy C-API
-# version newer than numpy==1.21.6 provides, and `tensor.numpy()` raises
-# `RuntimeError: Numpy is not available` at runtime as a result -- there
-# is no version of torch that is both installable for Python 3.10 and
-# numpy-C-API-compatible with the numpy version resolution 2 requires.
+# for the full writeup, including the fix-round-1 correction of an
+# earlier, architecture-confounded version of this finding.
 numpy==1.21.6
 scipy==1.7.3
 scikit-learn==1.0.2
+lightgbm==4.5.0
 threadpoolctl==3.5.0

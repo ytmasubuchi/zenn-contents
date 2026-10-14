@@ -40,10 +40,29 @@ make test
 | `base` | `python:3.11-slim` | -- (the reference image) | runs on all 4 measurement hosts |
 | `py313` | `python:3.13-slim` | Python version only | same library pins as `base` |
 | `oldpy` | `python:3.10-slim` | Python version only | same library pins as `base` (numpy 2.2.6, not 1.21.6) -- a confound-breaking control, see below |
-| `oldlibs` | `python:3.10-slim` | numpy/scikit-learn version only | numpy==1.21.6, scikit-learn==1.0.2; **no torch** (see "Known issues") |
+| `oldlibs` | `python:3.10-slim` | numpy/scikit-learn version only | numpy==1.21.6, scikit-learn==1.0.2, lightgbm==4.5.0; **no torch, by design** (see below) |
 | `alpine` | `python:3.11-alpine` | libc (musl vs. glibc) | numpy only -- no scipy/scikit-learn/lightgbm/torch |
 | `mkl` | `mambaorg/micromamba` + conda-forge | BLAS implementation (MKL vs. OpenBLAS) | **x86_64 only**; `make build`/`make build-all-cpu` skip it on aarch64 |
-| `gpu` | `nvidia/cuda:13.0.1-runtime-ubuntu24.04` | adds CUDA 13 + torch (cu130) + transformers | **unverified from this development host** (see below) |
+| `gpu` | `nvidia/cuda:13.0.1-runtime-ubuntu24.04` | adds CUDA 13 + torch (cu130) + transformers | built and run successfully on anakin's RTX 4090 (not this development host -- see below) |
+
+`oldlibs`'s library-version condition is measured on numpy and
+scikit-learn (and lightgbm), not torch. Its purpose is the NEP 19
+stream-compatibility condition (NumPy's documented stream-breaking
+changes at `1.19.0` and `1.22.0`), which S1 through S4 already cover with
+numpy alone; S5 and S6 (scikit-learn, lightgbm) ride along because both
+install and actually run against numpy==1.21.6/Python 3.10 without any
+version friction (confirmed: a real `LogisticRegression` fit/predict and
+a full `lgb.train()`/`predict()` round-trip, not just a clean import, on
+both linux/aarch64 and linux/amd64). torch is left out on purpose: adding
+an old torch here would measure torch's own version compatibility, which
+the article makes no claim about, not the numpy/scikit-learn condition
+this image exists for. See `docker/Dockerfile.oldlibs`'s comment for the
+investigation into whether a compatible old torch exists at all (short
+answer: the earlier claim that none does was an artifact of testing on
+aarch64 -- on x86_64, the architecture `oldlibs` actually runs on
+(blade), a numpy==1.21.6-compatible torch wheel does exist. That finding
+doesn't change this image's contents; it's recorded for accuracy, not
+because it changes the decision.)
 
 `oldpy` exists specifically to break a confound: `base` (Python 3.11,
 numpy 2.2.6) vs. `oldpy` (Python 3.10, numpy 2.2.6) isolates the
@@ -93,7 +112,14 @@ this is expected, not a bug in this Makefile).
   into `results/`. Runs the container under an 8-minute outer timeout
   (the runner has no in-process watchdog by design -- see
   `reprobench/runner.py`'s module docstring) and always cleans up the
-  container it creates.
+  container it creates. Every Dockerfile in this project runs its process
+  as root, so the measurement container's writes into `results/` (and,
+  for `gpu`, the Hugging Face cache) land root-owned on the host --
+  confirmed directly on anakin, a real Linux host, where the invoking
+  account couldn't even delete the resulting file without another
+  container. `run_on_host.sh` fixes this itself after every run, via a
+  throwaway container (the same image, already built) that chowns the
+  mount back to the invoking user.
 - `run_all.sh [--dry-run]` -- drives the full host/image/config matrix
   this project's design spec lays out, by calling `run_on_host.sh` once
   per combination. `--dry-run` is the pre-flight check: it reaches every
@@ -103,7 +129,9 @@ this is expected, not a bug in this Makefile).
   (the fixed LLM this project measures) into each GPU host's Hugging Face
   cache, so a `gpu`-image run finds it already cached instead of
   attempting a ~1GB download inside the measurement window. A host that
-  fails to fetch is recorded and the script continues to the rest.
+  fails to fetch is recorded and the script continues to the rest. Fixes
+  the same root-owned-cache-file problem `run_on_host.sh` does, for the
+  same reason.
 
 These scripts are deliberately considerate of the fact that `anakin`,
 `blade` and `dgxspark` are shared machines other people are actively
@@ -113,34 +141,33 @@ the containers they start (never left running).
 
 ## Known issues / unverified
 
-- **`gpu` was never built or run from this development host.** This
-  project's own development machine is an aarch64 MacBook with no GPU
-  reachable from a container. Only the pinned package versions were
-  confirmed installable (as wheels, for the right Python/architecture
-  combination) from here -- the Dockerfile's apt/venv steps and CUDA
-  runtime behaviour are unexercised. Treat it as unverified until it is
-  built and run on an actual GPU host.
+- **`gpu` was built and run on anakin's RTX 4090 (CUDA 13, driver 580.x),
+  not from this development host.** This project's own development
+  machine is an aarch64 MacBook with no GPU reachable from a container,
+  so the build/run itself had to happen on a real GPU host. Confirmed
+  there: the build succeeds, `torch.cuda.is_available()` is `True`,
+  `python -m reprobench.runner --probes S7,S8` completes and writes a
+  well-formed results JSON (all ten probes recorded, ~2.2s wall time),
+  and the env block correctly carries the torch/CUDA/cuDNN versions, both
+  TF32 flags, the GPU name/SM count, and `CUBLAS_WORKSPACE_CONFIG`. **An
+  image built from this Dockerfile is left cached on anakin** so Task 14
+  does not have to re-pull the multi-gigabyte CUDA base image again;
+  remove it once measurements there are finished.
 - **`mkl` was never built, only dry-run solved.** `mkl` is x86_64-only
   and this host is aarch64; `micromamba create --dry-run` (run under
   linux/amd64 QEMU emulation) confirmed conda-forge resolves the exact
   pinned version set together, linked against MKL, but the image itself
   was never built.
-- **`oldlibs` has no torch.** Every torch wheel available for Python 3.10
-  (checked: 1.10.2 -- the oldest cp310 wheel that exists -- 1.12.1, and
-  1.13.1) was compiled against a newer numpy C-API than numpy==1.21.6
-  provides; `tensor.numpy()` raises `RuntimeError: Numpy is not
-  available` at runtime as a result (verified directly against all
-  three). Since numpy is fixed at 1.21.6 for this image (see above), there
-  is no version of torch that is both installable for Python 3.10 and
-  numpy-C-API-compatible with it. S7 (and any other torch-requiring
-  probe) records a clean `missing requirement: torch` skip on this image
-  instead of a misleading crash.
-- **One pre-existing unit test conflicts with this image's own brief.**
+- **One pre-existing unit test conflicted with `base`'s own brief, now
+  fixed.**
   `tests/test_envinfo.py::test_collect_env_survives_torch_module_not_found_error`
-  asserts that `collect_env()["torch"]` is `None` by relying on torch
+  asserted that `collect_env()["torch"]` is `None` by relying on torch
   genuinely being absent from whatever environment runs the suite -- but
-  the `base` image is required (by this same Task's brief) to include
-  torch. `make test` against `base` therefore shows 178 passed, 1 failed,
-  not a clean pass; see the Task 12/13 report for the full writeup. This
-  is a reported conflict, not something silently patched over by editing
-  that test.
+  `base` is required (by this same Task's brief) to include torch. Fixed
+  by skipping this test when torch is importable: the monkeypatched
+  sibling test (`test_collect_env_survives_missing_torch`) already covers
+  the same code path unconditionally, so this test now only has something
+  left to prove on an image that genuinely lacks torch (`alpine`).
+  `make test` against `base` passes cleanly as a result. See the Task
+  12/13 report for the cross-task-edit note (this test file belongs to
+  Task 2).
