@@ -38,6 +38,13 @@ reseedする(モデルのキャッシュと「プロセス内で2回呼んでも
 後継の`dtype=`を使う。この変更はtransformers 5.19.0(本プローブの検証に
 使ったバージョン)で確認済み。`dtype=`を受け付けない古いtransformersを
 Task 12が固定ピン留めする場合は、ここを`torch_dtype=`に戻す必要がある。
+同じtransformers 5.19.0で、`do_sample=False`時に`top_k`/`top_p`を渡すと
+`[transformers] The following generation flags are not valid and may be
+ignored: ['top_k']`という(Pythonの`warnings`経由ではなくライブラリの
+ログ経由の)メッセージが出ることも確認した——`-W error`には引っかからない
+ため実害は無いが、Task 12が別バージョンをピン留めした際にこの出力が
+変わる(あるいは`warnings`経由の例外に変わる)可能性があるので、
+`dtype=`の件と合わせてここに記録しておく(fix round 2、deferred)。
 
 **fix round 1 finding 4**: Qwen2.5-0.5B-Instructの`generation_config.json`
 は既定で`top_p=0.8, top_k=20, repetition_penalty=1.05`を出荷しており、

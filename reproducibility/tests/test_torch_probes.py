@@ -149,7 +149,7 @@ def test_s8_matmul_and_training_probes_generate_inputs_on_cpu_and_record_their_d
     for name in ("S8_mlp_train10_cuda", "S8_mlp_train10_cuda_bf16"):
         r = run_probe(name)
         if isinstance(r, ProbeResult):
-            assert set(r.meta["input_digests"]) == {"x", "target"}
+            assert set(r.meta["input_digests"]) == {"x_float32_source", "target_float32_source"}
     r = run_probe("S8_matmul_tf32_on")
     if isinstance(r, ProbeResult):
         assert "input_a_digest" in r.meta

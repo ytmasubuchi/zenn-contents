@@ -190,9 +190,17 @@ def _train10_cuda(torch, dtype=None):
 
     params = torch.cat([p.detach().flatten().float() for p in model.parameters()])
     arr = params.cpu().numpy().astype(np.float64)
+    # fix round 2 small finding: these digest the CPU-generated float32
+    # source tensors, *before* the optional `.to(dtype)` cast on line 177 --
+    # for S8_mlp_train10_cuda_bf16 this is not what the model actually
+    # consumed (that was the bf16-cast version). Named accordingly so a
+    # reader does not mistake this for "the bf16 input"; the cast itself is
+    # a deterministic truncation of this same float32 source, so comparing
+    # this digest across hosts still answers "did the inputs match" for the
+    # bf16 probe too, just one step upstream of what the GPU actually saw.
     input_digests = {
-        "x": digest(x_cpu.numpy().astype(np.float64)),
-        "target": digest(target_cpu.numpy().astype(np.float64)),
+        "x_float32_source": digest(x_cpu.numpy().astype(np.float64)),
+        "target_float32_source": digest(target_cpu.numpy().astype(np.float64)),
     }
     return arr, losses, input_digests
 

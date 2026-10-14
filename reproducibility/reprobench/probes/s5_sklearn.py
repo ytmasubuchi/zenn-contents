@@ -17,29 +17,39 @@ importする(モジュール先頭には置かない。パッケージdocstring�
 (データ生成のseedと数値は同じだが、役割は別——前者はnumpyのPCG64を、
 後者はsklearn/各推定器内部の`RandomState`をシードする)。
 
-**実測で判明した事実(fix round 1で訂正)**: `S5_kmeans_centers`は、スレッド
-数を明示的に固定しない(=環境変数未設定の)既定状態では、同一プロセス内の
-2回の呼び出しで`cluster_centers_`のdigestが一致しない。`OMP_NUM_THREADS`を
-**固定値(1でも4でも)に明示的に設定すると、5回連続で完全に一致**する
-——固定前の版のコメントは「1スレッドに固定しても再現した」と書いていたが、
-これは誤りであり(fix round 1 finding 1で指摘された)、実測の転記ミスだった。
-正しくは「スレッド数を固定すれば安定し、固定しなければ安定しない」である。
+**実測の記録(fix round 2で再訂正。以下は測定した相関のみを述べる——
+推定した仕組みは述べない。fix round 1はここで二度、測定していない仕組みを
+書いて二度とも誤りだったため、このモジュールでは今後そうしない)**:
 
-さらに、最初の実装は`_dataset()`(構造の無い単一の等方ガウス分布、分類用)を
-そのままKMeansに通しており、k=4の局所最適解がほぼ無数に近接して並ぶ
-退化したケースを測っていた(fix round 1 finding 2)。`S5_kmeans_centers`
-専用に真のクラスタ構造を持つデータセット(`_kmeans_dataset`)を用意して
-20回連続でフィットし直した結果、**収束反復数(`n_iter_`)は20回とも完全に
-同一(常に2)**——つまり「どの局所最適解を選ぶか」が揺れているのではなく、
-収束経路そのものは毎回同一である。一方`inertia_`自体は20回中4回、
-相対誤差にしておよそ2e-16(=float64の機械イプシロン相当、1ULP)だけ
-他と異なる値を取った。これは「違う解に収束した」のではなく、同じ解を
-表現する浮動小数点の最終縮約(距離二乗和・クラスタごとの点群平均)の
-加算順序がわずかに揺れているだけだと読める——n_iter_が一度も揺れていない
-ことがその根拠である。つまり本当の原因は「KMeansが別の局所最適解に落ちる」
-ことではなく、S2/S3と同じ「縮約の浮動小数点非結合性」がKMeansの内部実装
-(OpenMP並列化されたE-step)を経由して現れているだけであり、スレッド数を
-固定すれば消える(`_kmeans_centers`のコメント参照)。
+`_kmeans_dataset()`(4つの分離されたクラスタ)を使い、30回ずつフィットして
+`_canonical_centers()`適用後のdigestの一致率・`n_iter_`・`inertia_`の相対
+ばらつきを測定した結果は次の通り(`python:3.11-slim` + `scikit-learn==1.7.2`、
+8 CPUコンテナ):
+
+| 設定 | 30回中の重複digest数 | `n_iter_` | `inertia_`相対ばらつき |
+|---|---|---|---|
+| `OMP_NUM_THREADS=1` | 1種類(30/30一致) | 常に2 | 0 |
+| `OMP_NUM_THREADS=2` | 1種類(30/30一致) | 常に2 | 0 |
+| `OMP_NUM_THREADS=4` | 1種類(30/30一致) | 常に2 | 0 |
+| `OMP_NUM_THREADS=8`(=nproc固定) | 16種類 | 常に2 | 約3.9e-16 |
+| 未設定 + `OMP_DYNAMIC=FALSE` | 15種類 | 常に2 | 約3.9e-16 |
+| 未設定(既定) | 17種類 | 常に2 | 約1.9e-16 |
+
+測定できた相関はこれだけである: **スレッド数1・2・4では安定し、
+8(=このコンテナのnproc)では不安定**。`OMP_DYNAMIC=FALSE`を足しても
+不安定さは変わらない。`n_iter_`は上記180回のフィット全てで2のまま一度も
+変わらず、`inertia_`の相対ばらつきは高々3.9e-16(float64で1〜2ULP相当)
+に留まる。さらに、スレッド数1・2・4のそれぞれは**それ自体は安定している
+が、互いに異なる**digestを返す(1→`972e0934…`、2→`42e031c0…`、
+4→`034d84cd…`)。
+
+**ここから先、仕組み(なぜ8だけ不安定か、`cluster_centers_`のどの演算が
+揺れているか等)は一切主張しない**——測定していないため。測定した事実
+だけから言えるのは、(1)スレッド数が1・2・4で安定し8で不安定という相関が
+確認されたこと、(2)`n_iter_`が揺れていない以上この不安定さが収束先の
+クラスタ割り当てそのものの違いではないこと、(3)そのためスレッド数の違う
+2ホストの`S5_kmeans_centers`を比較する際は`meta["effective_thread_count"]`
+が一致していることを前提にすべきこと、の3点のみである。
 """
 import os
 
@@ -62,18 +72,48 @@ def _n_jobs() -> int:
     return int(raw) if raw else 1
 
 
+def _thread_pool_info() -> list[dict]:
+    """`threadpoolctl.threadpool_info()`の全エントリを決定的な順序で返す。
+
+    `threadpoolctl.threadpool_info()`自体のリスト順は実行ごとに変わりうる
+    (fix round 2で指摘: 同じ環境で`[openmp, blas, blas]`の順になることも
+    `[blas, blas, openmp]`の順になることもある)。`_effective_thread_count`
+    が単一の値に潰す前の生データをそのまま残し、かつ常に同じ順序で並べる
+    ことで、潰す前の情報も失わず、選び方自体の非決定性も混入させない。
+    """
+    import threadpoolctl
+
+    info = threadpoolctl.threadpool_info()
+    return sorted(
+        (
+            {
+                "user_api": i.get("user_api"),
+                "internal_api": i.get("internal_api"),
+                "num_threads": i.get("num_threads"),
+            }
+            for i in info
+        ),
+        key=lambda i: (str(i["user_api"]), str(i["internal_api"])),
+    )
+
+
 def _effective_thread_count() -> int | None:
     """OpenMP/BLASが実際に使うスレッド数を`threadpoolctl`経由で読む。
 
     `REPRO_THREADS`/`OMP_NUM_THREADS`は未設定のことが多く(fix round 1
     finding 7)、その場合「環境変数の値」を記録しても`None`にしかならず、
-    KMeansの非決定性の原因がスレッド数だと主張する以上、実際に有効な
-    スレッド数を記録しないと議論ができない。threadpoolctlはscikit-learnの
-    必須依存であるため、sklearnが使える環境では常にimportできる。
-    """
-    import threadpoolctl
+    KMeansの不安定さとスレッド数の相関を見る以上、実際に有効なスレッド数を
+    記録しないと議論ができない。threadpoolctlはscikit-learnの必須依存で
+    あるため、sklearnが使える環境では常にimportできる。
 
-    info = threadpoolctl.threadpool_info()
+    `_thread_pool_info()`で順序を固定した後に"openmp"エントリを選ぶため、
+    1つのOpenMPランタイムしか無い環境(検証コンテナで確認したのはこれの
+    み——4台の実測ホストでは未確認)では常に同じ値を返す。2つ以上の
+    OpenMPランタイムが同時に読み込まれる環境では、ここで選ばれなかった
+    方の値は`thread_pool_info`フィールド(`_kmeans_centers`のmeta参照)に
+    残る。
+    """
+    info = _thread_pool_info()
     openmp = [i["num_threads"] for i in info if i.get("user_api") == "openmp"]
     if openmp:
         return int(openmp[0])
@@ -238,22 +278,14 @@ def _random_forest_pred() -> ProbeResult:
 
 @register("S5_kmeans_centers", requires=("sklearn",))
 def _kmeans_centers() -> ProbeResult:
-    # fix round 1で再測定・訂正(モジュールdocstring参照): 真のクラスタ
-    # 構造を持つ`_kmeans_dataset()`を使うと、20回連続フィットで`n_iter_`は
-    # 常に2(=KMeansが別の局所最適解を選んでいるのではなく、収束経路自体は
-    # 毎回同一)。`inertia_`自体はまれに1ULP相当(相対誤差約2e-16)だけ
-    # 揺れることがあるが、n_iter_が揺れないことから「別の解」ではなく
-    # 最終縮約の丸めの揺れだと判断できる。`cluster_centers_`(クラスタ
-    # ごとの点群の平均という縮約演算)のdigestは、スレッド数を明示的に
-    # 固定しない既定状態では同一プロセス内の呼び出し間でもっとはっきり
-    # 一致しない。`OMP_NUM_THREADS`を1にも4にも固定すると5回とも完全一致
-    # するため、原因は「スレッド数そのもの」ではなく「スレッド数が固定
-    # されていないこと」——プロセス内の呼び出しごとに縮約の浮動小数点
-    # 加算順序が変わりうることだと判断できる(S2/S3が検出する非結合性と
-    # 同じ現象が、sklearnのOpenMP並列E-stepという別の経路で現れている
-    # だけ)。本プローブはこの効果を握り潰す方向(強制的にスレッド数を
-    # 固定する)には倒さず、S0_parallel_completion_order/S0_glob_orderと
-    # 同じ流儀で「プローブ自身が2回実行して一致したかを自己申告する」形に
+    # 測定した相関のみ(モジュールdocstring参照、fix round 2): このプロセス
+    # が使う有効スレッド数(`meta["effective_thread_count"]`)が1・2・4の
+    # ときは安定、8(=コンテナのnproc)のときは不安定、という相関を30回×6
+    # 設定の実測で確認した。`n_iter_`は全180回のフィットで一度も変わって
+    # いない。これ以上の仕組み(なぜ8だけか等)は測定していないので書かない。
+    # 本プローブはこの不安定さを握り潰す方向(強制的にスレッド数を固定
+    # する)には倒さず、S0_parallel_completion_order/S0_glob_orderと同じ
+    # 流儀で「プローブ自身が2回実行して一致したかを自己申告する」形に
     # する(resolution 3)。
     from sklearn.cluster import KMeans
 
@@ -273,6 +305,12 @@ def _kmeans_centers() -> ProbeResult:
         np.array_equal(first_centers, second_centers)
         and first.inertia_ == second.inertia_
     )
+    # fix round 2 finding I1: `stable`は真偽値1個に潰れてしまい、
+    # `stable_within_process=False`が返ってきたとき、記録からは「n_iter_が
+    # 変わったのか(収束先そのものが違う)」と「inertia_/中心座標だけが
+    # ULP程度揺れたのか(縮約の丸め)」を区別できない。測定ホストでの
+    # 1回限りの実行になるため、2回目のfitの値も生で残す。
+    max_abs_center_delta = float(np.max(np.abs(first_centers - second_centers)))
 
     scalars = {"inertia": float(first.inertia_)}
     meta = _hexed(
@@ -281,9 +319,15 @@ def _kmeans_centers() -> ProbeResult:
             "n_clusters": n_clusters,
             "n_init": 10,
             "n_iter": int(first.n_iter_),
+            "n_iter_second": int(second.n_iter_),
+            "inertia_second": float(second.inertia_),
+            "inertia_second_hex": float(second.inertia_).hex(),
+            "max_abs_center_delta": max_abs_center_delta,
+            "max_abs_center_delta_hex": max_abs_center_delta.hex(),
             "stable_within_process": stable,
             "omp_num_threads_env": os.environ.get("OMP_NUM_THREADS"),
             "effective_thread_count": _effective_thread_count(),
+            "thread_pool_info": _thread_pool_info(),
             "centers_canonicalized": "lexsort_rows",
         },
         scalars,

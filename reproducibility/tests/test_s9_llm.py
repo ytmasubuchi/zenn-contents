@@ -5,6 +5,8 @@ transformers/torch/HFキャッシュ済みモデルはこのテストコンテ�
 `SkippedProbe`を返す。`first_divergence`は純粋関数でありtorch等に依存
 しないため、ガード無しでそのまま実行できる。
 """
+import json
+
 import reprobench.probes  # モジュールimportの副作用でS9プローブ群を登録する
 from reprobench import registry
 from reprobench.registry import ProbeResult, SkippedProbe, run_probe
@@ -67,7 +69,7 @@ def test_greedy_probes_use_do_sample_false_not_temperature_zero():
 # --- fix round 1 (coordinator review) ---
 
 
-def test_every_s9_probe_records_generation_config_and_device(monkeypatch):
+def test_every_s9_probe_records_generation_config_and_device():
     # finding 4: generation_config.json ships top_p/top_k/repetition_penalty
     # that are not neutral; recording it is what lets a reader notice.
     # finding 7: the model must run on CUDA when available, and every probe
@@ -84,6 +86,27 @@ def test_every_s9_probe_records_generation_config_and_device(monkeypatch):
         if isinstance(r, ProbeResult):
             assert "generation_config" in r.meta, name
             assert "device" in r.meta, name
+
+
+def test_every_s9_probe_meta_survives_a_json_round_trip():
+    # fix round 2 small finding: generation_config.to_dict() is produced by
+    # a library we do not control, and nothing previously checked that the
+    # dict it returns is actually JSON-serializable. This is exactly the
+    # class of bug finding 9 (int-keyed meta["digests"] in S8) was -- a meta
+    # field that looks fine in-process but breaks (or silently changes
+    # shape) the moment a later task's results.json round-trips it.
+    names = [
+        "S9_greedy_batch1", "S9_greedy_batch8", "S9_greedy_fp32",
+        "S9_greedy_bf16", "S9_greedy_fp16", "S9_temperature_zero_api_semantics",
+        "S9_sampling_t0_7_seed", "S9_sampling_t0_7_seed_isolated",
+        "S9_sampling_t1_2_seed", "S9_sampling_t1_2_seed_isolated",
+        "S9_logit_margin",
+    ]
+    for name in names:
+        r = run_probe(name)
+        if isinstance(r, ProbeResult):
+            round_tripped = json.loads(json.dumps(r.meta))
+            assert round_tripped["generation_config"] == r.meta["generation_config"], name
 
 
 def test_sampling_probes_have_isolated_and_realistic_variants():

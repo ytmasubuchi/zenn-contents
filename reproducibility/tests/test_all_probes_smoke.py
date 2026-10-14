@@ -23,15 +23,14 @@ fix round 2 finding D: `S0_glob_order` は呼び出しのたびに新しい
 `meta["stable_within_process"]`として既に記録しているので、スモーク
 テストではdigestの一致ではなく、このキーが存在することだけを確認する。
 
-Task 7 fix(fix round 1で再測定・訂正): `S5_kmeans_centers`も同じ扱いに
-加えた。スレッド数を明示的に固定しない既定状態では、プロセス内の2回の
-呼び出しで`cluster_centers_`のdigestが一致しない。`OMP_NUM_THREADS`を
-固定値(1でも4でも)に設定すれば消えるため、原因はKMeansが別の局所
-最適解を選ぶことではなく(真のクラスタ構造を持つデータセットで再測定
-した結果、収束反復数は常に同一だった)、スレッド数固定の有無による
-縮約の浮動小数点加算順序の揺れである(詳細は
-`reprobench/probes/s5_sklearn.py`のモジュールdocstring参照)。このプローブ
-自身が内部で2回fitして一致を`meta["stable_within_process"]`に記録している。
+Task 7 fix(fix round 2で再々訂正——測定した相関のみを書く): `S5_kmeans_centers`
+も同じ扱いに加えた。有効スレッド数が1・2・4のときは30回連続で安定、
+8(測定に使ったコンテナのnproc)のときは30回中16種のdigestに分かれる、
+という相関を実測した(`n_iter_`は全180回のフィットで一度も変わっていない)。
+これ以上の仕組み(なぜ8だけ不安定かなど)は測定していないため主張しない
+(詳細・数値は`reprobench/probes/s5_sklearn.py`のモジュールdocstring参照)。
+このプローブ自身が内部で2回fitして一致を`meta["stable_within_process"]`に
+記録している。
 
 Task 8 fix round 1 finding 0: `S8_index_add_atomics`も同じ扱いに加えた。
 `atomicAdd`を使うCUDAの`index_add_`はスレッド実行順に加算順序が依存する

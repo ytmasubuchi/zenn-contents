@@ -20,13 +20,14 @@ from reprobench.registry import ProbeResult, SkippedProbe, run_probe
 
 
 def test_sklearn_probes_deterministic_within_process():
-    # fix: 実測の結果、S5_kmeans_centersは`random_state`・スレッド数を
-    # 固定してもプロセス内の2回の呼び出しでdigestが一致しない(sklearnの
-    # OpenMP並列E-stepのスレッドスケジューリング依存のULPジッタを、
-    # n_init=10のベスト選択が増幅する)。これはこのプローブ自身が
+    # fix round 2 finding 1: 測定した相関のみを書く。S5_kmeans_centersは
+    # 有効スレッド数が1・2・4のときは安定、8(測定環境のnproc)のときは
+    # 不安定という相関を30回×6設定の実測で確認した(s5_sklearn.pyの
+    # モジュールdocstring参照)。既定(未設定)の環境では不安定な側に
+    # 入るため、ここでdigestの一致を前提にはできない。このプローブ自身が
     # `meta["stable_within_process"]`として自己申告する対象であり
-    # (s5_sklearn.pyのコメント・test_all_probes_smoke.pyの
-    # `_SELF_REPORTED_STABILITY`参照)、ここでdigestの一致を前提にはしない。
+    # (test_all_probes_smoke.pyの`_SELF_REPORTED_STABILITY`参照)、ここでは
+    # それが存在することだけを確認する。
     pytest.importorskip("sklearn")
     for name in ("S5_logreg_coef", "S5_train_test_split_index"):
         assert run_probe(name).digest == run_probe(name).digest
@@ -101,13 +102,13 @@ def test_kmeans_dataset_has_genuine_cluster_structure_and_a_unique_optimum():
     # finding 2: the original dataset was a single isotropic Gaussian with
     # no real cluster structure, so k=4 had a huge family of near-tied local
     # optima. With the new well-separated-blobs dataset, repeated fits
-    # converge via the identical path (n_iter_ never varies) -- that is the
-    # signature of "one dominant optimum", not "a different local optimum
-    # chosen each time". inertia_ itself can still show ~1 ULP (~2e-16
-    # relative) floating-point jitter from the parallel reduction (see
-    # s5_sklearn.py's module docstring for the 20-repeat measurement this
-    # tolerance is based on); that jitter is the separate, correctly-scoped
-    # finding this fix produced, not a regression back to "different optimum".
+    # converge via the identical path (n_iter_ never varies, measured over
+    # 180 fits across 6 thread-count configurations -- see s5_sklearn.py's
+    # module docstring) -- that is the signature of "one dominant optimum",
+    # not "a different local optimum chosen each time". inertia_ itself can
+    # still differ by a tiny relative amount (measured: up to ~3.9e-16); the
+    # tolerance below reflects that measurement, not a claimed mechanism for
+    # it.
     pytest.importorskip("sklearn")
     from reprobench.probes.s5_sklearn import _kmeans_dataset
     from sklearn.cluster import KMeans
