@@ -23,19 +23,31 @@ from reprobench.compare import (
 )
 
 
-def _res(label, digests=None, samples=None, meta=None, skips=None, image=None, config=None):
+def _res(
+    label,
+    digests=None,
+    samples=None,
+    meta=None,
+    skips=None,
+    image=None,
+    config=None,
+    rounds=None,
+):
     """テスト用: `reprobench.runner.run()`が返すのと同じ形の辞書を組み立てる。
 
     `digests`は{プローブ名: digest文字列}、`samples`は{プローブ名:
     encode_sample済みのbase64文字列}、`meta`は{プローブ名: metaの辞書}、
     `skips`は{プローブ名: skip理由文字列(例: "raised: ValueError('x')")}。
     同じプローブ名を`digests`と`skips`の両方に入れてはならない(呼び出し側の
-    責務とし、ここでは検証しない)。
+    責務とし、ここでは検証しない)。`rounds`を渡すと、runner.pyの
+    `--repeat`出力と同じ形(各ラウンドぶんの`probes`相当のリストのリスト)
+    でそのまま`out["rounds"]`に付く。
 
     ラベルは`label_for`が`env`から`{host}/{image}/{config_label}`として
     組み立てる契約(compare.py参照)なので、`image`/`config`を省略すれば
     `host`だけがラベルになり、呼び出し側が渡した`label`文字列がそのまま
-    ラベルになる。
+    ラベルになる。同じ`label`で`_res`を複数回呼んでリストに入れれば、
+    「同じラベルに対応する結果ファイルが複数ある」状況を再現できる。
     """
     digests = digests or {}
     samples = samples or {}
@@ -54,12 +66,15 @@ def _res(label, digests=None, samples=None, meta=None, skips=None, image=None, c
         )
     for name, reason in skips.items():
         probes.append({"probe": name, "skipped": reason, "wall_time_s": 0.001})
-    return {
+    out = {
         "schema": 1,
         "env": {"host": label, "image": image, "config_label": config},
         "probe_order": list(digests.keys()) + list(skips.keys()),
         "probes": probes,
     }
+    if rounds is not None:
+        out["rounds"] = rounds
+    return out
 
 
 def _b64(arr: np.ndarray) -> str:
@@ -227,6 +242,12 @@ def test_linked_pair_is_annotated_both_ways():
     report = build_report(rs)
     assert report["rows"]["S0_dict_from_set"]["policy"]["linked_with"] == "S0_set_iteration_order"
     assert report["rows"]["S0_set_iteration_order"]["policy"]["linked_with"] == "S0_dict_from_set"
+    # fix round 1 small finding: 報告dictだけでなく、記事に貼るMarkdown側に
+    # も[linked: ...]の注記が実際に出ていることを確認する(resolution 4が
+    # 気にしているのはレンダリングされた表の方)。
+    md = to_markdown(report)
+    assert "[linked: S0_set_iteration_order]" in md
+    assert "[linked: S0_dict_from_set]" in md
 
 
 def test_raised_skip_is_separated_from_missing_requirement_skip():
@@ -283,7 +304,9 @@ def test_build_report_is_json_safe():
         ),
     ]
     report = build_report(rs)
-    json.dumps(report)  # 例外を送出しないこと自体が検証
+    # fix round 1 small finding: allow_nan=Falseを付けないとInfinity/NaNが
+    # 例外無く書き出されてしまい、resolution 10が捕まえたい値を見逃す。
+    json.dumps(report, allow_nan=False)  # 例外を送出しないこと自体が検証
 
 
 def test_build_report_is_json_safe_from_real_probe_output():
@@ -296,7 +319,31 @@ def test_build_report_is_json_safe_from_real_probe_output():
     out_a["env"]["host"] = "real-a"
     out_b["env"]["host"] = "real-b"
     report = build_report([out_a, out_b])
-    json.dumps(report)
+    json.dumps(report, allow_nan=False)
+
+
+def test_build_report_json_safe_handles_shape_mismatch_infinity():
+    # 解決事項10 + fix round 1 small finding: compare_arraysはshape不一致
+    # のときfloat("inf")を返す(reprobench.digest参照)。json.dumpsは既定
+    # ではInfinityを例外無く書き出してしまうため、allow_nan=Falseで初めて
+    # 検出できる。報告の境界でinf/nanを文字列へ変換していることを確認する。
+    rs = [
+        _res(
+            "a",
+            {"S2_sum_float64": "d1"},
+            samples={"S2_sum_float64": _b64(np.arange(8.0))},
+        ),
+        _res(
+            "b",
+            {"S2_sum_float64": "d2"},
+            samples={"S2_sum_float64": _b64(np.arange(4.0))},  # 形が違う
+        ),
+    ]
+    report = build_report(rs)
+    pair = report["rows"]["S2_sum_float64"]["agreement"]["numeric"]["a|b"]
+    assert pair["max_abs"] == "inf"
+    assert pair["max_rel"] == "inf"
+    json.dumps(report, allow_nan=False)  # Infinityが残っていれば例外になる
 
 
 def test_load_results_reads_files(tmp_path):
@@ -370,3 +417,237 @@ def test_all_missing_probe_does_not_render_as_agreement():
     line = next(line for line in md.splitlines() if line.startswith("| S7_x"))
     cells = [c.strip() for c in line.split("|")]
     assert cells[2] != "✓"
+
+
+# --- レビュー fix round 1 に対する追加テスト ---
+
+
+def test_grouped_single_observation_does_not_render_as_agreement():
+    # CRITICAL: 1件しか観測が無いグループを"✓"(一致)として出してはならない。
+    # 1件は一致の証拠にならない。
+    rs = [
+        _res(
+            "a",
+            {"S5_kmeans_centers": "d1"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 8}},
+        ),
+    ]
+    report = build_report(rs)
+    group = report["rows"]["S5_kmeans_centers"]["groups"]["8"]
+    assert group["all_equal"] is True  # データ層(agreement)の契約自体は変えない
+    md = to_markdown(report)
+    line = next(line for line in md.splitlines() if line.startswith("| S5_kmeans_centers ["))
+    cells = [c.strip() for c in line.split("|")]
+    assert cells[2] == "n=1"  # レンダリング層では"✓"ではなく観測1件と分かる表示にする
+    assert cells[2] != "✓"
+
+
+def test_grouped_missing_label_is_shown_not_hidden_as_nothing_missing():
+    # CRITICAL: ホストがそもそもこのプローブを実行しなかった(sklearn無し
+    # 等)場合、そのホストの欠落がどのグループの行からも消えてはならない
+    # (旧実装はagg["missing"]を使っており、サブグループのagreement()には
+    # 構造的にmissingが出ないため、常に「欠落無し」に見えていた)。
+    rs = [
+        _res(
+            "a",
+            {"S5_kmeans_centers": "d1"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 1}},
+        ),
+        _res("b", {}, skips={"S5_kmeans_centers": "missing requirement: sklearn"}),
+    ]
+    md = to_markdown(build_report(rs))
+    line = next(line for line in md.splitlines() if line.startswith("| S5_kmeans_centers ["))
+    assert "missing_requirement:b" in line
+
+
+def test_kmeans_none_thread_count_labels_are_not_grouped_together():
+    # Important 1: effective_thread_countを特定できなかった(None)ラベル
+    # 同士は、どちらも"不明"というだけで同じスレッド数だったとは限らない
+    # ため、同じグループとして比較してはならない。
+    rs = [
+        _res(
+            "a",
+            {"S5_kmeans_centers": "d1"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": None}},
+        ),
+        _res(
+            "b",
+            {"S5_kmeans_centers": "d2"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": None}},
+        ),
+    ]
+    report = build_report(rs)
+    row = report["rows"]["S5_kmeans_centers"]
+    assert row["groups"] == {}  # Noneな値同士で勝手にグループを作らない
+    assert sorted(row["ungroupable"]) == ["a", "b"]
+    md = to_markdown(report)
+    assert "no_group_value:a,b" in md
+
+
+def test_normal_row_single_observation_does_not_render_as_agreement():
+    # Important 2: グループ化されていない通常のプローブでも、観測1件を
+    # "✓"として出してはならない。
+    md = to_markdown(build_report([_res("a", {"S1_x": "d"})]))
+    line = next(line for line in md.splitlines() if line.startswith("| S1_x"))
+    cells = [c.strip() for c in line.split("|")]
+    assert cells[2] == "n=1"
+
+
+def test_agreement_surfaces_label_collision_instead_of_last_write_wins():
+    # Important 3: 同じラベル(同じhost/image/config_label)に対応する結果
+    # ファイルが2つあり、互いにdigestが食い違う場合(同じ構成を2回計測して
+    # ファイル間で結果が変わった、あるいはglobが同じ構成を2回拾った)、
+    # 最後に読んだ方で前のものを無言で上書きしてはならない。
+    rs = [_res("a", {"S5_x": "d1"}), _res("a", {"S5_x": "d2"})]
+    g = agreement(rs, "S5_x")
+    assert g["all_equal"] is False
+    assert g["label_conflicts"] == {"a": ["d1", "d2"]}
+
+
+def test_agreement_label_collision_with_matching_digests_is_not_flagged():
+    # 同じラベルに2件あっても、digestが一致していれば衝突ではない
+    # (再実行してたまたま同じファイルを2回読んだ、等の無害なケース)。
+    rs = [_res("a", {"S5_x": "d1"}), _res("a", {"S5_x": "d1"})]
+    g = agreement(rs, "S5_x")
+    assert g["all_equal"] is True
+    assert g["label_conflicts"] == {}
+
+
+def test_to_markdown_shows_label_conflicts():
+    rs = [_res("a", {"S5_x": "d1"}), _res("a", {"S5_x": "d2"})]
+    md = to_markdown(build_report(rs))
+    line = next(line for line in md.splitlines() if line.startswith("| S5_x"))
+    cells = [c.strip() for c in line.split("|")]
+    assert cells[6] == "a:d1,d2"  # ラベル衝突列
+
+
+def test_rounds_cross_round_stability_is_computed_and_rendered():
+    # Important 4: --repeatで記録したrounds(runner.pyの`rounds`キー)は、
+    # これまで比較器のどこからも読まれていなかった。同一プロセス内の
+    # 複数ラウンドでdigestが揃うかを、ラベルごとに報告・描画する。
+    stable_entry = {"probe": "S1_x", "digest": "d", "scalars": {}, "sample_b64": None, "meta": {}}
+    other_entry = {
+        "probe": "S1_x",
+        "digest": "different",
+        "scalars": {},
+        "sample_b64": None,
+        "meta": {},
+    }
+    rs = [
+        _res("stable-host", {"S1_x": "d"}, rounds=[[stable_entry], [stable_entry]]),
+        _res("unstable-host", {"S1_x": "d"}, rounds=[[stable_entry], [other_entry]]),
+        _res("no-repeat-host", {"S1_x": "d"}),
+    ]
+    report = build_report(rs)
+    rounds = report["rows"]["S1_x"]["rounds"]
+    assert rounds["stable-host"]["stable"] is True
+    assert rounds["unstable-host"]["stable"] is False
+    assert "no-repeat-host" not in rounds
+
+    md = to_markdown(report)
+    line = next(line for line in md.splitlines() if line.startswith("| S1_x"))
+    assert "stable-host:stable" in line
+    assert "unstable-host:unstable" in line
+
+
+def test_grouped_raised_label_is_not_duplicated_across_group_lines():
+    # small fix: 1つのクラッシュがグループの数だけ行に繰り返し出ると、
+    # あたかもN回クラッシュしたかのように読めてしまう(linked-pair方針が
+    # 気を付けている二重計上と同じ問題)。先頭行にのみ出す。
+    rs = [
+        _res(
+            "a",
+            {"S5_kmeans_centers": "d1"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 1}},
+        ),
+        _res(
+            "b",
+            {"S5_kmeans_centers": "d2"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 8}},
+        ),
+        _res("c", {}, skips={"S5_kmeans_centers": "raised: ValueError('boom')"}),
+    ]
+    md = to_markdown(build_report(rs))
+    lines = [line for line in md.splitlines() if line.startswith("| S5_kmeans_centers [")]
+    assert len(lines) == 2
+    raised_cells = [line.split("|")[5].strip() for line in lines]
+    assert raised_cells.count("⚠ c") == 1
+
+
+def test_grouped_missing_is_not_duplicated_across_group_lines():
+    # small fix (同じ理由、欠落側): プローブ全体で1件しかないホストの欠落が
+    # グループの数だけ繰り返し出ると、あたかもそのホストが全グループで
+    # 欠落しているかのように水増しして読めてしまう。先頭行にのみ出す。
+    rs = [
+        _res(
+            "a",
+            {"S5_kmeans_centers": "d1"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 1}},
+        ),
+        _res(
+            "b",
+            {"S5_kmeans_centers": "d2"},
+            meta={"S5_kmeans_centers": {"effective_thread_count": 8}},
+        ),
+        _res("c", {}, skips={"S5_kmeans_centers": "missing requirement: sklearn"}),
+    ]
+    md = to_markdown(build_report(rs))
+    lines = [line for line in md.splitlines() if line.startswith("| S5_kmeans_centers [")]
+    assert len(lines) == 2
+    missing_cells = [line.split("|")[4].strip() for line in lines]
+    assert missing_cells.count("missing_requirement:c") == 1
+    assert missing_cells.count("") == 1
+
+
+def test_self_reported_stability_missing_value_is_not_rendered_as_unstable():
+    # small fix: 自己申告フィールド自体が無い(None)ケースを"unstable"
+    # (測定された不安定性)として出してはならない——欠測を測定値に化けさせる。
+    rs = [_res("a", {"S0_glob_order": "d"}, meta={"S0_glob_order": {}})]
+    report = build_report(rs)
+    assert report["rows"]["S0_glob_order"]["stability"] == {"a": None}
+    md = to_markdown(report)
+    line = next(line for line in md.splitlines() if line.startswith("| S0_glob_order"))
+    assert "a:unknown" in line
+    assert "a:unstable" not in line
+
+
+def test_unknown_skip_reason_is_not_folded_into_harmless_missing_column():
+    # small fix: runner.pyの契約に無いスキップ理由は「想定内で無害」な
+    # missing_requirement/missing_env_varとは違う。欠落列ではなくクラッシュ
+    # 列(目立つ側)に出す。
+    rs = [_res("a", {}, skips={"S7_x": "weird: something"})]
+    report = build_report(rs)
+    assert report["rows"]["S7_x"]["skips"]["unknown"] == {"a": "weird: something"}
+    md = to_markdown(report)
+    line = next(line for line in md.splitlines() if line.startswith("| S7_x"))
+    cells = [c.strip() for c in line.split("|")]
+    assert "a" not in cells[4]  # 欠落列には出ない
+    assert "unknown_skip" in cells[5]  # クラッシュ列に出る
+
+
+def test_linked_pair_premise_violation_is_surfaced():
+    # reviewerの偽陰性監査からの追加: 「構造的に同一」という前提そのものを
+    # 検査する。崩れたら静かに見逃さず、Markdownで目立たせる。
+    rs = [
+        _res("a", {"S0_dict_from_set": "same", "S0_set_iteration_order": "same"}),
+        _res("b", {"S0_dict_from_set": "x", "S0_set_iteration_order": "y"}),  # 前提が崩れている
+    ]
+    report = build_report(rs)
+    assert report["rows"]["S0_dict_from_set"]["linked_mismatch"] == ["b"]
+    assert report["rows"]["S0_set_iteration_order"]["linked_mismatch"] == ["b"]
+    md = to_markdown(report)
+    # 凡例ではなく実際のプローブ行の方に警告が出ていることを確認する
+    # (凡例は常にこの文言の意味を説明するため、凡例だけでは検証にならない)。
+    line = next(line for line in md.splitlines() if line.startswith("| S0_dict_from_set"))
+    assert "LINKED PREMISE VIOLATED" in line and "b" in line
+
+
+def test_linked_pair_no_violation_does_not_render_warning():
+    rs = [_res("a", {"S0_dict_from_set": "d", "S0_set_iteration_order": "d"})]
+    report = build_report(rs)
+    assert report["rows"]["S0_dict_from_set"]["linked_mismatch"] == []
+    md = to_markdown(report)
+    # 凡例自体はこの文言の意味を説明するため常に含むので、凡例ではなく
+    # 実際のプローブ行の方にその警告が出ていないことを確認する。
+    line = next(line for line in md.splitlines() if line.startswith("| S0_dict_from_set"))
+    assert "LINKED PREMISE VIOLATED" not in line

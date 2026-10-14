@@ -7,7 +7,7 @@ Task 10のランナーがホスト・イメージ・構成ごとに書き出し�
 このモジュールの出力は、記事が「これは再現する・これはしない」と述べる
 唯一の根拠になる。したがって最優先の失敗モードは、一致していないものを
 一致と報告すること・不一致ではないものを不一致と報告することであり、
-とりわけ次の3点を誤ると実在しない知見を記事に刻んでしまう:
+とりわけ次の5点を誤ると実在しない知見を記事に刻んでしまう:
 
 (1) そのラベルにこのプローブの結果が無い(欠損)ことを「一致」として
     数えてしまうこと(resolution 8)。
@@ -19,6 +19,16 @@ Task 10のランナーがホスト・イメージ・構成ごとに書き出し�
     違う2ランを比較してしまうこと(resolution 2)。スレッド数1・2・4
     では安定、8では不安定という相関が実測で確認されている(測定条件・
     実測値は`reprobench.probes.s5_sklearn`のモジュールdocstring参照)。
+    このフィールドの値が特定できなかった(`None`)ラベル同士も、同じ
+    "不明"というだけで同じスレッド数だったとは限らないため、同様に
+    比較してはならない(fix round 1 finding 1)。
+(4) 比較対象の観測が1件しかないのに「全ラベルが一致した」と読める表示を
+    すること(fix round 1 finding 0, critical)。1件の観測は一致の証拠に
+    ならない。
+(5) 同じラベル(同一`{host}/{image}/{config_label}`)に対応する結果
+    ファイルが複数あるとき、後から読んだファイルで前のものを無言で
+    上書きしてしまうこと(fix round 1 finding 3)。これは構成を再実行して
+    結果が変わった、というファイル間再現性の失敗を握り潰すことになる。
 
 このモジュールはこれらを「比較方針テーブル」(`_POLICY`)として宣言的に
 持ち、各プローブがなぜ特別扱いされているかをソースだけでなく
@@ -80,6 +90,38 @@ def _probe_entry(result: dict, probe: str) -> dict | None:
     return None
 
 
+def _occurrences_by_label(results: list[dict], probe: str) -> dict[str, list[dict]]:
+    """1プローブについて、ラベルごとの全エントリ(結果 or スキップ)を
+    出現順のリストで返す。
+
+    同じラベル(同じ`{host}/{image}/{config_label}`)に対応する結果
+    ファイルが複数あっても、後から読んだ方で前のものを無言で上書きしない
+    (fix round 1 finding 3): 同一構成を2回計測してファイル間で結果が
+    変わる、あるいはパス指定・globが同じファイルを2回拾う、のどちらも
+    現実にあり得る。この関数はラベルごとに全エントリを保持するだけで、
+    一致判定(`agreement`)・衝突検出は呼び出し側の責務とする。
+    """
+    occurrences: dict[str, list[dict]] = {}
+    for result in results:
+        label = label_for(result.get("env", {}))
+        entry = _probe_entry(result, probe)
+        if entry is not None:
+            occurrences.setdefault(label, []).append(entry)
+    return occurrences
+
+
+def _ordered_labels(results: list[dict]) -> list[str]:
+    """`results`に出現する順でラベルを重複無く返す。"""
+    order: list[str] = []
+    seen: set[str] = set()
+    for result in results:
+        label = label_for(result.get("env", {}))
+        if label not in seen:
+            seen.add(label)
+            order.append(label)
+    return order
+
+
 # --- 素のdigest比較 ---
 
 
@@ -88,7 +130,8 @@ def agreement(results: list[dict], probe: str) -> dict:
     突き合わせる。
 
     返り値: `{"groups": {digest: [labels]}, "all_equal": bool,
-    "missing": [labels], "numeric": {(label_a, label_b): compare_arrays(...)}}`。
+    "missing": [labels], "numeric": {(label_a, label_b): compare_arrays(...)},
+    "label_conflicts": {label: [digest, ...]}}`。
 
     スキップされたラベル(理由を問わない)と、このプローブのエントリが
     そもそも無いラベルは、どちらも「比較に使えるdigestが無い」という点で
@@ -100,23 +143,37 @@ def agreement(results: list[dict], probe: str) -> dict:
     `all_equal`は`missing`を除いた、実際にdigestを持つラベルだけで判定
     する。`numeric`は`sample_b64`を両方が持つラベルの組だけに計算する
     (resolution 9: `compare_arrays`を使い、ULP比較を再実装しない)。
+
+    同じラベルに対応するエントリが複数あるとき(fix round 1 finding 3)、
+    それらのdigestが一致していれば1つにまとめ、食い違っていれば
+    `label_conflicts`に記録したうえで**両方の**digestをそのラベルの
+    `groups`所属として残す(最後に読んだファイルで前のものを上書きしない)。
+    その結果、1つのラベルが2つの`groups`キーにまたがって出現しうる——
+    これは実在する食い違いを表しており、`len(groups) > 1`を通じて
+    `all_equal=False`に自然に反映される。
     """
-    present: dict[str, dict] = {}
+    occurrences = _occurrences_by_label(results, probe)
+    order = _ordered_labels(results)
+
+    present: dict[str, list[dict]] = {}
     missing: list[str] = []
-    order: list[str] = []
-    for result in results:
-        label = label_for(result.get("env", {}))
-        order.append(label)
-        entry = _probe_entry(result, probe)
-        if entry is not None and "skipped" not in entry:
-            present[label] = entry
+    for label in order:
+        entries = [e for e in occurrences.get(label, []) if "skipped" not in e]
+        if entries:
+            present[label] = entries
         else:
             missing.append(label)
 
     groups: dict[str, list[str]] = {}
+    label_conflicts: dict[str, list[str]] = {}
     for label in order:
-        if label in present:
-            groups.setdefault(present[label]["digest"], []).append(label)
+        if label not in present:
+            continue
+        digests = sorted({e["digest"] for e in present[label]})
+        if len(digests) > 1:
+            label_conflicts[label] = digests
+        for d in digests:
+            groups.setdefault(d, []).append(label)
 
     all_equal = len(groups) <= 1
 
@@ -124,14 +181,54 @@ def agreement(results: list[dict], probe: str) -> dict:
     sampled = [
         label
         for label in order
-        if label in present and present[label].get("sample_b64") is not None
+        if label in present and any(e.get("sample_b64") is not None for e in present[label])
     ]
     for a, b in itertools.combinations(sampled, 2):
-        arr_a = decode_sample(present[a]["sample_b64"])
-        arr_b = decode_sample(present[b]["sample_b64"])
-        numeric[(a, b)] = compare_arrays(arr_a, arr_b)
+        # fix round 1 finding 3の対象外: 同じラベルに複数ファイルがあり
+        # なおかつサンプルを持つものが複数あるケースの数値比較までは扱わず
+        # (由来の衝突は上の`label_conflicts`が既に捕捉している)、最初に
+        # 見つかったサンプルを使う。(次回レビューで指摘された
+        # `decode_sample`の重複呼び出しもここでは手を付けない——4ラベル
+        # 程度の規模では無視できるため、別レビューに委ねる。)
+        sample_a = next(e["sample_b64"] for e in present[a] if e.get("sample_b64") is not None)
+        sample_b = next(e["sample_b64"] for e in present[b] if e.get("sample_b64") is not None)
+        numeric[(a, b)] = compare_arrays(decode_sample(sample_a), decode_sample(sample_b))
 
-    return {"groups": groups, "all_equal": all_equal, "missing": missing, "numeric": numeric}
+    return {
+        "groups": groups,
+        "all_equal": all_equal,
+        "missing": missing,
+        "numeric": numeric,
+        "label_conflicts": label_conflicts,
+    }
+
+
+def _json_safe_float(x: float):
+    """非有限値(`inf`/`-inf`/`nan`)をJSON安全な文字列へ変換する。
+
+    `compare_arrays`はshape/dtype不一致のとき`max_abs`/`max_rel`に
+    `float("inf")`を返す(`reprobench.digest`参照)——これは`json.dumps`の
+    既定設定では例外を送出せず非標準の`Infinity`トークンをそのまま書き
+    出してしまう(`allow_nan=False`を付けて初めて検出できる。fix round 1
+    small finding)。報告の境界でここを明示的に有限な文字列表現へ変換し、
+    厳密なJSONパーサでも安全に読めるようにする。
+    """
+    if x != x:  # NaN
+        return "nan"
+    if x == float("inf"):
+        return "inf"
+    if x == float("-inf"):
+        return "-inf"
+    return x
+
+
+def _json_safe_metrics(metrics: dict) -> dict:
+    return {
+        "bit_equal": metrics["bit_equal"],
+        "max_abs": _json_safe_float(metrics["max_abs"]),
+        "max_rel": _json_safe_float(metrics["max_rel"]),
+        "max_ulp": metrics["max_ulp"],
+    }
 
 
 def _json_safe_agreement(agg: dict) -> dict:
@@ -142,14 +239,89 @@ def _json_safe_agreement(agg: dict) -> dict:
     Noneのみ自動的に文字列化される)。`"|"`区切りの文字列へ変換する
     (ラベル自体に`"|"`が混ざる運用は想定していない——ラベルは
     `{host}/{image}/{config_label}`の組み立てであり、現行の全ホスト名・
-    イメージ名・構成ラベルに`"|"`を使わない)。
+    イメージ名・構成ラベルに`"|"`を使わない)。`numeric`の各値も
+    `_json_safe_metrics`で非有限値を文字列化する。
     """
     return {
         "groups": agg["groups"],
         "all_equal": agg["all_equal"],
         "missing": agg["missing"],
-        "numeric": {f"{a}|{b}": v for (a, b), v in agg["numeric"].items()},
+        "numeric": {f"{a}|{b}": _json_safe_metrics(v) for (a, b), v in agg["numeric"].items()},
+        "label_conflicts": agg["label_conflicts"],
     }
+
+
+def _linked_mismatch(results: list[dict], probe: str, other_probe: str) -> list[str]:
+    """`probe`と`other_probe`が"linked"(構造的に同一の情報を運ぶはず)と
+    宣言されているとき、実際に同じラベルでdigestが一致しているかを
+    検証する(reviewerの偽陰性監査からの追加: 「構造的に同一」という
+    前提は文書化するだけでなく検査する)。
+
+    一致していないラベルの一覧を返す(空リストなら前提は保たれている)。
+    どちらかのプローブがそのラベルで欠損/スキップの場合は、比較対象が
+    無いのでそのラベルは検証対象から除く(欠損は別途`absent`/`skips`が
+    扱う)。
+    """
+    occ_a = _occurrences_by_label(results, probe)
+    occ_b = _occurrences_by_label(results, other_probe)
+    mismatched = []
+    for label, entries_a in occ_a.items():
+        entries_b = occ_b.get(label)
+        if not entries_b:
+            continue
+        digests_a = {e["digest"] for e in entries_a if "skipped" not in e}
+        digests_b = {e["digest"] for e in entries_b if "skipped" not in e}
+        if not digests_a or not digests_b:
+            continue
+        if digests_a != digests_b:
+            mismatched.append(label)
+    return sorted(mismatched)
+
+
+def _round_digests(result: dict, probe: str) -> list[str | None] | None:
+    """1件の結果ファイルについて、`rounds`(`--repeat`の記録)があれば
+    各ラウンドでのこのプローブのdigestを順に並べて返す(スキップされた
+    ラウンドは`None`)。`rounds`キー自体が無ければ`None`を返す——
+    ラウンド間比較ができないことと、1ラウンドだけで安定していることは
+    別の事実であり、前者を後者のように見せてはならない。
+    """
+    rounds = result.get("rounds")
+    if not rounds:
+        return None
+    out: list[str | None] = []
+    for round_probes in rounds:
+        entry = next((e for e in round_probes if e.get("probe") == probe), None)
+        out.append(None if entry is None or "skipped" in entry else entry["digest"])
+    return out
+
+
+def _round_info_by_label(results: list[dict], probe: str) -> dict[str, dict]:
+    """ラベルごとのラウンド内安定性を計算する(fix round 1 finding 4:
+    `--repeat`で記録した`rounds`は、これまで比較器のどこからも読まれて
+    いなかった)。
+
+    同じラベルに複数の結果ファイルがある場合は、`rounds`を持つ最初の
+    1件だけを見る(ラウンド内安定性はそもそも「1プロセス内での繰り返し」
+    の指標であり、複数ファイルをまたいだラウンドの合算は別の問いに
+    なるため、このラウンドではスコープに含めない)。
+    """
+    info: dict[str, dict] = {}
+    for result in results:
+        label = label_for(result.get("env", {}))
+        if label in info:
+            continue
+        digests = _round_digests(result, probe)
+        if digests is None:
+            continue
+        present_digests = [d for d in digests if d is not None]
+        unique = sorted(set(present_digests))
+        info[label] = {
+            "n_rounds": len(digests),
+            "n_present": len(present_digests),
+            "stable": (len(unique) <= 1) if present_digests else None,
+            "digests": digests,
+        }
+    return info
 
 
 # --- 比較方針テーブル ---
@@ -165,13 +337,16 @@ class ProbePolicy:
             判定する。
         "grouped" — `group_by_meta`で指定したmetaフィールドの値ごとに
             ラベルをグループ化し、グループ内でのみ判定する
-            (resolution 2)。
+            (resolution 2)。値が特定できない(`None`)ラベルはどの
+            グループにも属さず、比較不能として扱う(fix round 1
+            finding 1)。
         "self_reported_stability" — プローブ自身が
             `meta["stable_within_process"]`を自己申告する。環境間の
             digest不一致を不一致として判定しない(resolution 3)。
         "linked" — 別の1プローブ(`linked_with`)と構造的に同一になる
             ことが分かっている。判定自体は"normal"と同じだが、その旨を
-            注記する(resolution 4)。
+            注記し、かつ実際に両者のdigestが一致しているかを検査する
+            (resolution 4、reviewer追加)。
 
     `note`には測定した事実のみを書き、仕組みの推測は書かない
     (プロジェクトの標準方針: 実測と食い違った仮説を過去に複数回
@@ -199,7 +374,9 @@ _POLICY: dict[str, ProbePolicy] = {
             "effective_thread_countが1・2・4のときは30フィット中digestが"
             "1種類に揃い、8のときは複数種類に割れた。異なる"
             "effective_thread_count同士を比較しても意味を持たないため、"
-            "このフィールドの値ごとに分けて判定する。"
+            "このフィールドの値ごとに分けて判定する。値が特定できなかった"
+            "(None)ラベル同士も、同じ'不明'というだけで同じスレッド数"
+            "だったとは限らないため比較しない。"
         ),
     ),
     "S0_parallel_completion_order": ProbePolicy(
@@ -302,6 +479,9 @@ _CROSS_PROBE_CAVEATS = (
 def _skip_category(reason: str) -> str:
     """スキップ理由文字列の接頭辞から種別を判定する(runner.pyの契約:
     "missing requirement: "/"missing env var: "/"raised: "のいずれか)。
+    契約に無い理由文字列は"unknown"になる——これは本来起こらないはずの
+    状態であり、"missing requirement:"等と同じ「想定内で無害」な欠損
+    としては扱わない(fix round 1 small finding)。
     """
     for prefix, category in (
         ("missing requirement: ", "missing_requirement"),
@@ -310,7 +490,7 @@ def _skip_category(reason: str) -> str:
     ):
         if reason.startswith(prefix):
             return category
-    return "unknown"  # runner.pyの契約外の理由文字列(本来起こらないはず)
+    return "unknown"
 
 
 def _policy_dict(policy: ProbePolicy) -> dict:
@@ -325,19 +505,14 @@ def _policy_dict(policy: ProbePolicy) -> dict:
 def _build_probe_row(results: list[dict], probe: str, labels: list[str]) -> dict:
     """1プローブぶんの報告行を組み立てる。
 
-    `absent`/`skips`(missing_requirement/missing_env_var/raised)は
-    方針(kind)に関わらず常に計算する——自己申告系・グループ化系の
-    プローブであっても、あるラベルでクラッシュ(`raised:`)していれば
-    それは常に目立たせるべき実在の知見だから(resolution 7)。
+    `absent`/`skips`(missing_requirement/missing_env_var/raised/unknown)・
+    `rounds`(ラウンド内安定性)は方針(kind)に関わらず常に計算する——
+    自己申告系・グループ化系のプローブであっても、あるラベルで
+    クラッシュ(`raised:`)していればそれは常に目立たせるべき実在の
+    知見だから(resolution 7)。
     """
     policy = _POLICY.get(probe, _DEFAULT_POLICY)
-
-    entries: dict[str, dict] = {}
-    for result in results:
-        label = label_for(result.get("env", {}))
-        entry = _probe_entry(result, probe)
-        if entry is not None:
-            entries[label] = entry
+    occurrences = _occurrences_by_label(results, probe)
 
     absent: list[str] = []
     skips: dict[str, dict] = {
@@ -346,50 +521,77 @@ def _build_probe_row(results: list[dict], probe: str, labels: list[str]) -> dict
         "raised": {},
         "unknown": {},
     }
+    present: dict[str, list[dict]] = {}
     for label in labels:
-        entry = entries.get(label)
-        if entry is None:
+        entries = occurrences.get(label, [])
+        if not entries:
             absent.append(label)
-        elif "skipped" in entry:
-            skips.setdefault(_skip_category(entry["skipped"]), {})[label] = entry["skipped"]
+            continue
+        for entry in entries:
+            if "skipped" in entry:
+                skips.setdefault(_skip_category(entry["skipped"]), {})[label] = entry["skipped"]
+        present_entries = [e for e in entries if "skipped" not in e]
+        if present_entries:
+            present[label] = present_entries
 
     row: dict = {
         "probe": probe,
         "policy": _policy_dict(policy),
         "absent": absent,
         "skips": skips,
+        "rounds": _round_info_by_label(results, probe),
     }
 
     if policy.kind == "self_reported_stability":
-        stability = {}
-        digests = {}
-        for label, entry in entries.items():
-            if "skipped" in entry:
-                continue
-            stability[label] = entry.get("meta", {}).get("stable_within_process")
-            digests[label] = entry["digest"]
+        stability: dict[str, bool | None] = {}
+        digests: dict[str, str | None] = {}
+        label_conflicts: dict[str, list[str]] = {}
+        for label, entries in present.items():
+            unique_digests = sorted({e["digest"] for e in entries})
+            if len(unique_digests) > 1:
+                label_conflicts[label] = unique_digests
+            digests[label] = unique_digests[0] if len(unique_digests) == 1 else None
+            # 複数ファイルの自己申告が食い違った場合、どちらか一方を無言で
+            # 選ばず"不明"(None)にする(fix round 1 finding 3と同じ流儀)。
+            stabilities = {e.get("meta", {}).get("stable_within_process") for e in entries}
+            stability[label] = next(iter(stabilities)) if len(stabilities) == 1 else None
         row["stability"] = stability
         row["digests"] = digests
+        row["label_conflicts"] = label_conflicts
         return row
 
     if policy.kind == "grouped":
         field = policy.group_by_meta
         by_group: dict[str, list[str]] = {}
-        for label, entry in entries.items():
-            if "skipped" in entry:
+        ungroupable: list[str] = []
+        for label, entries in present.items():
+            # グループ化フィールドの値が複数ファイル間で食い違うケースまで
+            # は扱わない(ここで見ているのは1プロセス内のmetaであり、その
+            # 食い違いはdigest自体の食い違いとは別の軸——スコープ外として
+            # 最初のエントリの値を使う)。値そのものが無い(None)場合は
+            # 「不明」というだけで同じスレッド数だったとは限らないため、
+            # どのグループにも入れない(fix round 1 finding 1, Important)。
+            raw_value = entries[0].get("meta", {}).get(field)
+            if raw_value is None:
+                ungroupable.append(label)
                 continue
-            value = str(entry.get("meta", {}).get(field))
-            by_group.setdefault(value, []).append(label)
+            by_group.setdefault(str(raw_value), []).append(label)
         group_reports = {}
         for value, group_labels in by_group.items():
             sub_results = [r for r in results if label_for(r.get("env", {})) in group_labels]
-            group_reports[value] = _json_safe_agreement(agreement(sub_results, probe))
+            group_reports[value] = {
+                **_json_safe_agreement(agreement(sub_results, probe)),
+                "group_labels": sorted(group_labels),
+            }
         row["group_by"] = field
         row["groups"] = group_reports
+        row["ungroupable"] = sorted(ungroupable)
         return row
 
     # "normal" / "linked": 単一の agreement() で判定する。
     row["agreement"] = _json_safe_agreement(agreement(results, probe))
+    if policy.kind == "linked" and policy.linked_with:
+        row["linked_mismatch"] = _linked_mismatch(results, probe, policy.linked_with)
     return row
 
 
@@ -400,13 +602,7 @@ def build_report(results: list[dict]) -> dict:
     `results[i]["probe_order"]`の和集合から作る(あるホストが選択
     実行した範囲の外のプローブは、そのホストでは単に`absent`になる)。
     """
-    labels: list[str] = []
-    seen_labels: set[str] = set()
-    for result in results:
-        label = label_for(result.get("env", {}))
-        if label not in seen_labels:
-            seen_labels.add(label)
-            labels.append(label)
+    labels = _ordered_labels(results)
 
     probe_names: list[str] = sorted(
         {name for result in results for name in result.get("probe_order", [])}
@@ -426,18 +622,39 @@ def build_report(results: list[dict]) -> dict:
 
 _LEGEND = """## 記号の意味
 
-- `✓` 比較対象の全ラベルでdigestが一致した。
+- `✓` 比較対象の全ラベルでdigestが一致した(観測が2件以上ある)。
 - `✗` 比較対象のラベル間でdigestが不一致だった。
+- `n=1` 比較対象の観測が1件しか無い。一致・不一致のどちらも主張できない
+  (1件だけでは「一致した」と読めないため`✓`とは区別する。fix round 1
+  finding 0, critical)。
 - `△` 自己申告された安定性でのみ判定する(プローブ自身が同一プロセス内で
   繰り返し実行した結果を比較し、`stable_within_process`として記録した値。
   環境間のdigest不一致はこのプローブの測定対象そのものであり不一致として
-  扱わない)。
+  扱わない)。`unknown`は自己申告自体が無い、または同じラベルの複数
+  ファイル間で自己申告が食い違った場合。
 - `–` 比較できるラベルが無い(全てのラベルで欠損/スキップ)。
 - 「欠落」列: そのラベルにこの行の結果が無い(ファイルに無い、または
   `missing requirement:`/`missing env var:`でスキップされた——いずれも
-  想定内で無害)。
+  想定内で無害)。グループ化されたプローブでは、プローブ全体を通じての
+  欠落をグループの先頭行にのみ表示する(同じ欠落を全グループ行へ
+  繰り返さない)。
 - 「クラッシュ」列(`⚠`): そのラベルで`raised:`によりスキップされた
-  (計測ホスト上で実際に例外を送出した——調査が必要な実在の知見)。
+  (計測ホスト上で実際に例外を送出した——調査が必要な実在の知見)、または
+  runner.pyの契約に無い未知のスキップ理由(`unknown_skip:`)だった場合
+  (これも想定外であり無害とは言えない)。
+- 「ラベル衝突」列: 同じラベル(同一host/image/config_label)に対応する
+  結果ファイルが複数あり、それらのdigestが互いに食い違った場合
+  (fix round 1 finding 3)。最後に読んだファイルで前のものを無言で
+  上書きしない——これ自体がファイル間(構成を再実行して結果が変わる)
+  再現性の実在の知見になる。
+- 「ラウンド内安定性」列: `--repeat`で複数ラウンドを記録したファイルに
+  ついて、同一プロセス内の全ラウンドでdigestが一致したか
+  (`stable`/`unstable`/`unknown`=ラウンドはあるが欠損だらけ、または
+  このプローブがそのラウンドに無い)。`rounds`を持たないファイルの
+  ラベルはこの列に出てこない(fix round 1 finding 4)。
+- `[linked: ...]`: 構造的に同一になるはずの別プローブが注記されている
+  (resolution 4)。実際に両者のdigestが一致しているかは検査済みであり、
+  崩れていれば`⚠ LINKED PREMISE VIOLATED`がPolicy列の先頭に出る。
 """
 
 
@@ -459,19 +676,65 @@ def _fmt_missing(absent: list[str], skips: dict) -> str:
         parts.append("missing_requirement:" + ",".join(skips["missing_requirement"]))
     if skips.get("missing_env_var"):
         parts.append("missing_env_var:" + ",".join(skips["missing_env_var"]))
-    if skips.get("unknown"):
-        parts.append("unknown_skip:" + ",".join(skips["unknown"]))
     return "; ".join(parts) if parts else "–"
 
 
 def _fmt_raised(skips: dict) -> str:
+    # "unknown"(runner.pyの契約に無いスキップ理由)も、想定内で無害な
+    # missing_requirement/missing_env_varとは違い、ここに出す
+    # (fix round 1 small finding: 欠落列に「いずれも想定内で無害」と
+    # 書いておきながらunknownを紛れ込ませていたのを分離した)。
+    parts = []
     raised = skips.get("raised") or {}
-    return ("⚠ " + ", ".join(raised.keys())) if raised else "–"
+    if raised:
+        parts.append("⚠ " + ", ".join(raised.keys()))
+    unknown = skips.get("unknown") or {}
+    if unknown:
+        parts.append("⚠ unknown_skip: " + ", ".join(unknown.keys()))
+    return "; ".join(parts) if parts else "–"
+
+
+def _fmt_conflicts(conflicts: dict) -> str:
+    if not conflicts:
+        return "–"
+    return "; ".join(
+        f"{label}:{','.join(d[:8] for d in digests)}" for label, digests in conflicts.items()
+    )
+
+
+def _fmt_stable(ok) -> str:
+    if ok is True:
+        return "stable"
+    if ok is False:
+        return "unstable"
+    return "unknown"  # 自己申告自体が無い、または複数ファイル間で食い違った
+
+
+def _fmt_rounds(round_info: dict) -> str:
+    if not round_info:
+        return "–"
+    parts = []
+    for label, info in round_info.items():
+        state = "unknown" if info["stable"] is None else ("stable" if info["stable"] else "unstable")
+        parts.append(f"{label}:{state}(n={info['n_rounds']})")
+    return "; ".join(parts)
 
 
 def _verdict_symbol(agg: dict) -> str:
-    if not agg["groups"]:
-        return "–"  # 比較できるラベルが1つも無い: "一致"と誤って読める表示はしない
+    """観測数に応じてverdictを出し分ける。
+
+    `agg["groups"]`に含まれるラベルの総数(=比較できた観測の数。同じ
+    ラベルが衝突で2つのdigestにまたがっていれば2としてカウントされ、
+    その場合は`len(groups) > 1`により自然に`✗`になる)が0なら比較対象が
+    無く、1なら観測が1件だけで一致・不一致のどちらも主張できない
+    (fix round 1 finding 0, critical / finding 2, important)。2件以上
+    そろって初めて`✓`/`✗`を主張する。
+    """
+    present_count = sum(len(v) for v in agg["groups"].values())
+    if present_count == 0:
+        return "–"
+    if present_count == 1:
+        return "n=1"
     return "✓" if agg["all_equal"] else "✗"
 
 
@@ -479,55 +742,96 @@ def _render_row(probe: str, row: dict) -> list[str]:
     policy = row["policy"]
     note = policy["note"]
     if policy["linked_with"]:
-        note = f"[linked: {policy['linked_with']}] " + note
+        prefix = f"[linked: {policy['linked_with']}] "
+        if row.get("linked_mismatch"):
+            # reviewerの偽陰性監査からの追加: 「構造的に同一」という前提が
+            # 実際に崩れていたら、静かな[linked: ...]注記の裏に隠さず
+            # 先頭で叫ぶ。
+            prefix = (
+                f"⚠ LINKED PREMISE VIOLATED for {', '.join(row['linked_mismatch'])} ⚠ " + prefix
+            )
+        note = prefix + note
     missing_col = _fmt_missing(row["absent"], row["skips"])
     raised_col = _fmt_raised(row["skips"])
+    all_rounds = row.get("rounds", {})
 
     if policy["kind"] == "self_reported_stability":
         if row["stability"]:
-            detail = "; ".join(
-                f"{label}:{'stable' if ok else 'unstable'}" for label, ok in row["stability"].items()
-            )
+            detail = "; ".join(f"{label}:{_fmt_stable(ok)}" for label, ok in row["stability"].items())
         else:
             detail = "–"
-        return [f"| {probe} | △ | {detail} | {missing_col} | {raised_col} | {note} |"]
+        conflict_col = _fmt_conflicts(row.get("label_conflicts", {}))
+        rounds_col = _fmt_rounds(all_rounds)
+        return [
+            f"| {probe} | △ | {detail} | {missing_col} | {raised_col} | "
+            f"{conflict_col} | {rounds_col} | {note} |"
+        ]
 
     if policy["kind"] == "grouped":
         lines = []
+        ungroupable = row.get("ungroupable") or []
+        group_missing_col = missing_col
+        if ungroupable:
+            # fix round 1 finding 1: グループ化フィールドの値が特定できな
+            # かった(None)ラベルは、グループ化もされず、かといって
+            # "absent"でもないので、欠落列に別枠で明記する。
+            extra = "no_group_value:" + ",".join(ungroupable)
+            group_missing_col = extra if missing_col == "–" else f"{missing_col}; {extra}"
         # キーは辞書式順序で並べる(数値としての大小順ではない——プロジェクトの
         # 他箇所(reprobench.probes.s5_sklearnの`_thread_pool_info`)と同じ
         # 流儀: ここで求めているのは何らかの固定順序であって、2桁以上の値が
         # 混ざったときの数値順を保証するものではない)。
-        for group_value, agg in sorted(row["groups"].items()):
+        for i, (group_value, agg) in enumerate(sorted(row["groups"].items())):
             verdict = _verdict_symbol(agg)
             detail = _fmt_groups(agg["groups"])
-            group_missing = _fmt_labels(agg["missing"])
+            conflict_col = _fmt_conflicts(agg.get("label_conflicts", {}))
+            group_rounds = {
+                label: info
+                for label, info in all_rounds.items()
+                if label in agg.get("group_labels", ())
+            }
+            rounds_col = _fmt_rounds(group_rounds)
+            # fix round 1 small finding: 欠落・クラッシュはプローブ全体で
+            # 1つの事実であり、グループの数だけ行を出しても繰り返し起きた
+            # わけではない。先頭行にだけ出し、以降は空欄にする(linked-pair
+            # 方針が二重計上を避けるのと同じ理由)。
+            shown_missing = group_missing_col if i == 0 else ""
+            shown_raised = raised_col if i == 0 else ""
             lines.append(
                 f"| {probe} [{row['group_by']}={group_value}] | {verdict} | {detail} | "
-                f"{group_missing} | {raised_col} | {note} |"
+                f"{shown_missing} | {shown_raised} | {conflict_col} | {rounds_col} | {note} |"
             )
         if not lines:
-            lines.append(f"| {probe} | – | –(グループ無し) | {missing_col} | {raised_col} | {note} |")
+            lines.append(
+                f"| {probe} | – | –(グループ無し) | {group_missing_col} | {raised_col} | "
+                f"– | {_fmt_rounds(all_rounds)} | {note} |"
+            )
         return lines
 
     # "normal" / "linked"
     agg = row["agreement"]
     verdict = _verdict_symbol(agg)
     detail = _fmt_groups(agg["groups"])
-    return [f"| {probe} | {verdict} | {detail} | {missing_col} | {raised_col} | {note} |"]
+    conflict_col = _fmt_conflicts(agg.get("label_conflicts", {}))
+    rounds_col = _fmt_rounds(all_rounds)
+    return [
+        f"| {probe} | {verdict} | {detail} | {missing_col} | {raised_col} | "
+        f"{conflict_col} | {rounds_col} | {note} |"
+    ]
 
 
 def to_markdown(report: dict) -> str:
     """`build_report`の結果を、記事に貼れる○×表のMarkdownへ整形する。
 
     状態の区別(ドミナントな失敗モード対策として、以下は互いに潰れない
-    別々の列・記号として出す): 全ラベルが一致/不一致/自己申告安定性のみで
-    判定(△)/一部ラベルで欠落/一部ラベルでクラッシュ(raised)。
-    `S5_kmeans_centers`のようにグループ化されたプローブは、単一のverdict
-    ではなくグループごとの行を出す(resolution 2)。
+    別々の列・記号として出す): 全ラベルが一致/不一致/観測1件のみ(n=1)/
+    自己申告安定性のみで判定(△)/一部ラベルで欠落/一部ラベルでクラッシュ
+    (raised)/ラベル衝突/ラウンド内安定性。`S5_kmeans_centers`のように
+    グループ化されたプローブは、単一のverdictではなくグループごとの行を
+    出す(resolution 2)。
     """
-    lines = ["## 比較結果", "", _LEGEND, "| Probe | Verdict | Detail | 欠落 | クラッシュ | Policy |"]
-    lines.append("|---|---|---|---|---|---|")
+    header = "| Probe | Verdict | Detail | 欠落 | クラッシュ | ラベル衝突 | ラウンド内安定性 | Policy |"
+    lines = ["## 比較結果", "", _LEGEND, header, "|---|---|---|---|---|---|---|---|"]
     for probe in report["probes"]:
         lines.extend(_render_row(probe, report["rows"][probe]))
 
