@@ -19,3 +19,4 @@ from reprobench.probes import s5_sklearn  # 副作用: S5プローブ群を登�
 from reprobench.probes import s6_lightgbm  # 副作用: S6プローブ群を登録する
 from reprobench.probes import s7_torch_cpu  # 副作用: S7プローブ群を登録する
 from reprobench.probes import s8_torch_gpu  # 副作用: S8プローブ群を登録する
+from reprobench.probes import s9_llm  # 副作用: S9プローブ群を登録する
