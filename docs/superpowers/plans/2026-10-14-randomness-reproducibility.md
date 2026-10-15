@@ -21,6 +21,16 @@
 - バージョンは全イメージで**完全ピン留め**(`==`)。ピン留めしない依存を入れない。
 - **実測が仮説と食い違ったら、記事の筋の方を実測に合わせる。** 仮説に合う実測を選びに行かない。
 
+
+### 記事の文体規約(2026-10-15 に依頼者が追加。Task 17 / 18 に適用)
+
+- **`yomiyasu` スキルを使って推敲する**(`~/.claude/skills/yomiyasu/`、MIT)。技術記事なので `references/domains/tech.md` も読む。
+- **1 文は 2 行まで**(全角 120 字以内を機械判定の基準とする)。
+- **箇条書きを積極的に使う。**
+- **1 段落は 3〜5 文に収める**(6 文以上は不可)。
+- **各章の冒頭に章の要約を置く。** `##` 見出しの直後に引用ブロック(`> ` 始まり)で 1〜3 文。その章で何が分かるかを書き、本文の繰り返しにしない。
+- 衝突時の優先順位: **依頼者の指示 > yomiyasu**。`references/domains/tech.md` の「箇条書きは全体の 15%以下」「太字は 1,000 字あたり 1〜2 箇所」のうち、**箇条書きについてのみ上書きして上限を設けない**。太字の抑制、本文・見出しでの絵文字の不使用(frontmatter の `emoji` は Zenn 必須項目なので対象外)、装飾記号(`—` `─` `━`)の排除、不自然な比喩の排除、曖昧な主述の修正、コピー調の排除は yomiyasu に従う。
+
 ## Review Focus
 
 - **torch / lightgbm / transformers が存在しない環境(alpine、CPU専用イメージ)** — プローブの import 失敗が実行全体を巻き添えにしてはいけない。該当プローブだけが `skipped` として結果 JSON に残り、他は完走すること。→ Task 3 でテスト。
@@ -804,24 +814,48 @@ git commit -m "feat(repro): add measurement-driven figures"
 
 **Files:**
 - Create: `articles/reproducibility-of-randomness.md`
+- Create: `reproducibility/tests/test_article_style.py`, `reproducibility/reprobench/style_check.py`
 
-- [ ] **Step 1: spec §2 の章立てで全章を書く**
+**REQUIRED SUB-SKILL: 執筆エージェントは `yomiyasu` スキルを使うこと。** `SKILL.md` に加えて `references/domains/tech.md` を読む。Global Constraints の「記事の文体規約」と、そこに書いた優先順位(依頼者の指示 > yomiyasu)に従う。
 
-frontmatter は既存記事に合わせる(`title / emoji / type: "tech" / topics / published: false`)。
-材料は `reports/`(理論の一次情報)と `results/matrix.md`(実測)のみ。**本文中の数値は必ず `results/` の実測値から取る。**
+**材料は以下に限る。**
+- `docs/superpowers/decision-log-2026-10-14.md` — ruling 48 件と実測分析のすべて
+- `docs/superpowers/RESUME.md` の「記事に書く確定事実」と「書いてはいけないこと」
+- `research_notes/乱数の再現性と保証レベル/` — 理論の一次情報 7 本(全主張に出典 URL と取得日)
+- `reproducibility/results/` — 30 ラン分の生 JSON と `report.json`
+- `images/reproducibility-of-randomness/*.png` — 図版 11 枚
 
-- [ ] **Step 2: 全図版を本文に差し込む** — パスは `/images/reproducibility-of-randomness/<name>.png`
+**執筆の規律(RESUME.md より。最重要)**
+> 本文・図のラベルに書いてよいのは、**実際に測った相関か、出典が言っていること**だけ。
+> 変化させなかった因子を原因として名指ししてはならない。
+> RESUME.md の「書いてはいけないこと」7 項目に抵触しないこと。
+> **外れた仮説(`np.sum` が割れなかった / アーキではなく SIMD 世代が効いた / LLM の batch 1 vs 8 は一致した / dtype は greedy 出力を変えなかった)は、隠さずそのまま書く。**
 
-- [ ] **Step 3: 第8章に判定フローと納品文言テンプレートを書く** — L0〜L4 ごとに、そのまま納品文書に貼れる条件文を実測の裏づけ付きで
+- [ ] **Step 1: `style_check.py` と失敗するテストを書く**
 
-- [ ] **Step 4: 記事内の全数値を `results/` と突き合わせて検算** — 一致しない数値が1つも無いこと
-
-- [ ] **Step 5: コミット**
-
-```bash
-git add articles/reproducibility-of-randomness.md
-git commit -m "feat: add randomness reproducibility article"
+```python
+def test_frontmatter_has_required_keys()           # title, emoji, type, topics, published
+def test_all_referenced_images_exist()             # 本文の /images/... が実在する
+def test_no_placeholder_numbers()                  # XX, TODO, TBD, ??? が無い
+def test_mentions_all_five_levels()                # L0〜L4 が全部出る
+def test_has_decision_flow_and_wording_template()  # 第8章に文言テンプレのコードブロック
+def test_no_sentence_longer_than_two_lines()       # long_sentences(md, limit=120) == []
+def test_no_paragraph_over_five_sentences()        # fat_paragraphs(md, limit=5) == []
+def test_every_chapter_starts_with_summary()       # chapters_without_summary(md) == []
+def test_body_has_no_emoji()                       # frontmatter を除く本文
+def test_no_decorative_dashes()                    # — ─ ━
 ```
+
+`style_check.py` の公開関数: `paragraphs(md) -> list[str]`(コードブロック・表・箇条書き・見出し・引用・frontmatter を除いた地の文)、`sentences(para) -> list[str]`、`long_sentences(md, limit=120)`、`fat_paragraphs(md, limit=5)`、`chapters_without_summary(md)`。
+
+- [ ] **Step 2: テストが失敗することを確認**(記事が無いので FAIL)
+- [ ] **Step 3: spec §2 の 9 章を書く** — frontmatter は既存記事に合わせる。図版は `/images/reproducibility-of-randomness/<name>.png`
+- [ ] **Step 4: 第 8 章に判定フローと納品文言テンプレートを書く** — L0〜L4 ごとに、そのまま納品文書に貼れる条件文を実測の裏づけ付きで
+- [ ] **Step 5: 記事内の全数値を `results/` と突き合わせて検算** — 一致しない数値が 1 つも無いこと
+- [ ] **Step 6: yomiyasu で全文を推敲する**
+- [ ] **Step 7: lint を通す** — Run: `python3 ~/.claude/skills/yomiyasu/scripts/yomiyasu_lint.py --strict articles/reproducibility-of-randomness.md` / Expected: 終了コード 0。箇条書き比率の指摘だけは優先順位により意図的に無視してよく、無視した指摘はコミットメッセージに列挙する
+- [ ] **Step 8: スタイルテスト通過を確認**(コンテナ内で実行)/ Expected: 10 passed
+- [ ] **Step 9: コミット**
 
 ---
 
