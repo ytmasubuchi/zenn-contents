@@ -1,6 +1,6 @@
 # 再開メモ — 乱数の再現性 Zenn 記事
 
-最終更新: 2026-10-14 / 中断時点の HEAD: `f9766fd`
+最終更新: 2026-10-15 / 中断時点の HEAD: `c697647`
 
 ## これは何
 
@@ -10,21 +10,30 @@
 
 - 設計書: `docs/superpowers/specs/2026-10-14-randomness-reproducibility-design.md`
 - 実装計画: `docs/superpowers/plans/2026-10-14-randomness-reproducibility.md`(全18タスク)
+- **判断記録: `docs/superpowers/decision-log-2026-10-14.md`(ruling 48件 + 実測の分析すべて)**
 - 作業ブランチ: `feature/randomness-reproducibility`
 - ワークツリー: `/Users/ljmb20260017/Documents/zenn-contents-wt/randomness-reproducibility`
-  (メインは `/Users/ljmb20260017/Documents/zenn-contents`、main ブランチ)
+
+## 進捗: 18タスク中16完了
+
+| | タスク | 状態 |
+|---|---|---|
+| 調査 | 理論の一次情報 7本 | **完了** `research_notes/乱数の再現性と保証レベル/`(368KB、全主張に出典URLと取得日) |
+| T1〜T13 | ハーネス一式 | **完了**・レビュー clean(53プローブ、165 passed) |
+| T14 | **4ホスト30ランの実測** | **完了**・失敗ゼロ `results/` にコミット済み |
+| T15 | 原理図 SVG 7枚 | **完了**・レビュー clean |
+| T16 | 実測図 F4/F8/F9 | **実装完了・コミット済み(`c697647`)だがタスクレビュー未実施** |
+| T17 | 記事執筆 | 未着手 |
+| T18 | 事実確認レビューと PR | 未着手 |
 
 ## 再開のしかた
 
-1. ワークツリーに入る(セッションは `EnterWorktree` で `path` 指定、上記パス)
-2. 台帳 `.superpowers/sdd/2026-10-14-randomness-reproducibility/progress.md` を読む
-   — **15個の ruling(私が代理で下した判断)が全部ここにある**。git では追跡していない
-   スクラッチなので、ワークツリーを消すと失われる点に注意
-3. `superpowers:subagent-driven-development` スキルで Task 3 から再開
-4. 各タスクの brief は `.superpowers/sdd/.../task-N-brief.md` に18本すべて生成済み
+1. ワークツリーに入る(`EnterWorktree` で `path` 指定)
+2. `docs/superpowers/decision-log-2026-10-14.md` を読む — 48件の ruling と実測分析が全部ここにある
+3. **まず T16 のタスクレビューを回す**(`c33ae45..c697647` の diff、PNG を必ず目で見る)
+4. その後 T17(執筆)→ T18(事実確認・PR)
 
-テストは必ずコンテナ内で回す(ホスト直実行は禁止)。現時点のコマンド:
-
+テストは必ずコンテナ内で:
 ```
 docker run --rm -e PYTHONPATH=/w \
   -v "/Users/ljmb20260017/Documents/zenn-contents-wt/randomness-reproducibility/reproducibility":/w \
@@ -32,79 +41,106 @@ docker run --rm -e PYTHONPATH=/w \
   sh -c "pip install -q numpy==2.2.6 pytest && pytest -q -W error"
 ```
 
-## 進捗
+## 記事に書く確定事実(すべて一次実測)
 
-| | タスク | 状態 |
-|---|---|---|
-| 調査 | 理論の一次情報調査 7本 | **完了**。`research_notes/乱数の再現性と保証レベル/` に7ファイル(368KB)。全主張に出典URLと取得日、未検証項目は Gaps に明示 |
-| T1 | ダイジェストと数値比較の基盤 | **完了** `3ded887..5b8a9ea` レビュー clean |
-| T2 | 環境情報の採取 | **完了** `5b8a9ea..f9766fd` レビュー clean |
-| T3 | プローブ登録と契約 | **中断** — 下記参照 |
-| T4〜T18 | | 未着手 |
+### 冒頭に置く:対照実験で原因を特定できた
+同じ Docker イメージ・同じ seed・どちらも x86_64 の2台(anakin / blade)で `exp` と `log` の
+結果がビット不一致。**blade で AVX-512 を無効化すると、anakin と全プローブでビット一致**。
+原因が SIMD ディスパッチであることを推測ではなく実験で確定している。
 
-## T3 の中断状態(重要)
+### 外れた仮説(そのまま書く)
+- **`np.sum` は割れなかった** — AVX2 / AVX-512 / aarch64 で全一致。縮約は頑健。
+- **アーキテクチャは効かなかった。SIMD 世代が効いた** — x86_64 vs aarch64 は全一致、
+  同じ x86_64 同士の AVX2 vs AVX-512 で割れる。
+- **LLM の batch 1 vs batch 8 は一致した** — 3 GPU すべてで 68 トークン完全一致。
+  Thinking Machines が Qwen3-235B で報告した batch-invariance は**この規模では再現せず**。
+- **dtype は greedy 出力を変えなかった**(同一 GPU 内で fp32/bf16/fp16 一致)。
 
-実装エージェントを**自己レビューとコミットの直前で停止**させた。作業は捨てていない。
+### 層の切り分け
+`exp`/`log` は **SIMD 依存・libc 非依存**、`sin` は **libc 依存・SIMD 非依存**。
+2つの実験(3b と 2d)が相補的に示している。機構は未測定なので**測った相関として書く**。
 
-- 未追跡のまま残っているファイル: `reproducibility/reprobench/registry.py`,
-  `reproducibility/reprobench/probes/`, `reproducibility/tests/test_registry.py`
-- 停止直前の報告: **フルスイート 58 passed**(既存40 + 新規18)、`-W error` で出力クリーン
-- 未実施: 実装者の自己レビュー、コミット、タスクレビュー
+### NEP 19 の外科的な実証
+numpy 2.2.6 → 1.21.6 で **`S1_generator_random_float32` だけ**が不一致。stdlib MT19937 /
+RandomState / PCG64 / Philox は全一致。**legacy は動かず Generator だけが動いた**。
 
-再開の選択肢は2つ。
-- (a) 新しい実装エージェントに「ファイルは既にある、58テスト通過済み、自己レビューして
-  コミットせよ」と指示する(速いが、前エージェントの意図を引き継げない)
-- (b) 未追跡ファイルを消して `task-3-brief.md` から作り直す(確実だが数分の手戻り)
+### GPU の目玉:閾値つきの未文書化挙動
+`S8_curand_randn_sizes`、SM 数 48 / 128 / 188 の3台:
 
-どちらでも、その後は通常どおり タスクレビュー → fix ループ → 完了。
+| n | RTX 4090 (SM 128) | RTX PRO 6000 (SM 188) | GB10 (SM 48) |
+|---|---|---|---|
+| 1,024 | c9020ce1 | c9020ce1 | c9020ce1 |
+| 65,536 | fb9b6d89 | fb9b6d89 | fb9b6d89 |
+| 4,194,304 | 947daf61 | **abf64dd5** | **9e849c24** |
+| 67,108,864 | 9638c416 | **383fa914** | **12803be3** |
 
-## 残りのフェーズ
+閾値は 65,536 と 4,194,304 の間。超えると**同一 seed から3通りの異なる乱数**(丸めではなく値そのもの)。
+PyTorch issue #194676、docs 追記 PR は未マージ = **未文書化**。
 
-- T4〜T11: プローブ群とランナーと比較器(**T4+T5+T6 と T7+T8+T9 はバッチ化して1ディスパッチにする方針**。
-  Ruling 13 参照)
-- T12〜T13: Docker イメージ7種と4ホストへの配布スクリプト
-- T14: 実測の実行(4ホスト・12ラン)← ここが本番
-- T15〜T16: 図版(原理図7枚 + 実測図3枚)
-- T17: 記事執筆
-- T18: 事実確認レビューと PR
+### GPU の非決定性は atomics に局在する
+RTX 4090 実測: MLP(Linear+ReLU)10step は5回ともビット一致。`index_add_` は一致せず
+最大差 8.24e-04。`use_deterministic_algorithms(True)` でビット一致に戻る。
+→ 「GPU は非決定的」は誤り。**大半は決定的で、非決定性は atomics を使う演算に局在する。**
 
-## 計測ホスト(全台 docker + ssh 疎通確認済み)
+### bf16 にすると GPU 世代が効き始める
+fp32 の greedy は 3 GPU 完全一致。**bf16 では anakin(Ada cc 8.9)が Blackwell 2台と割れる**
+(Blackwell 同士は一致)。
 
-| ホスト | CPU | Arch | SIMD | GPU |
+### 第7章(temperature)の一次引用
+transformers に `temperature=0` を渡すと ValueError:
+「`temperature` (=0.0) has to be a strictly positive float, otherwise your next token scores
+will be invalid. If you're looking for greedy decoding strategies, set `do_sample=False`.」
+**ライブラリ自身が「その慣用句は存在しない」と言っている。**
+
+単離の効果: t=1.2 で同梱デフォルト 119 トークン vs 単離 65 トークン、**最初の分岐はトークン0**。
+同梱の `top_p=0.8` / `top_k=20` / `repetition_penalty=1.1` を中和しない限り temperature を測っていない。
+
+margin(脆さの定量、3 GPU 同一): n=84、min=0.0037、median=2.1005、**0.1 未満が 3.6%**。
+
+### その他の確定事実
+- Python 3.10 vs 3.11(numpy 同一)は S1 全一致
+- OpenBLAS vs MKL は行列積が不一致、libm は一致
+- スレッド数 1 vs 8 で float32 GEMM が不一致、**float64 は一致**、`np.sum` も一致
+- `PYTHONHASHSEED` 未設定 vs 0 で S0 全3本が不一致
+- KMeans はスレッド数を固定すれば 1/2/4 で安定、8 CPU 機で 8 にすると不安定(縮約の丸め、
+  `n_iter_` は180フィット全てで 2、inertia の広がりは最大 2 ULP)
+- 同一 GPU・同一 CUDA 13 で **torch 2.11 と 2.14 のダイジェストが全一致**
+  (公式は「リリース間の再現性を保証しない」— 保証が無いことと実際に壊れることは別)
+
+## 計測ホスト(base イメージ基準)
+
+| ホスト | arch | libc | SIMD | GPU |
 |---|---|---|---|---|
-| このMac | Apple M5 Pro (18c) | aarch64 | NEON | コンテナからは不可 |
-| anakin | i9-13900K (32t) | x86_64 | **AVX2 まで** | RTX 4090 (Ada) |
-| blade | Xeon w7-3565X (64t) | x86_64 | **AVX-512 あり** | RTX PRO 6000 (Blackwell) |
-| dgxspark | GB10 Grace (20c) | aarch64 | **SVE2 あり** | GB10, CC (12,1) |
+| local (Mac) | aarch64 | glibc 2.41 | NEON, ASIMD | コンテナからは不可 |
+| anakin | x86_64 | glibc 2.41 | **AVX2 のみ** | RTX 4090 SM=128 cc=8.9 |
+| blade | x86_64 | glibc 2.41 | **AVX2+AVX512F+AVX512_SKX** | RTX PRO 6000 SM=188 cc=12.0 |
+| dgxspark | aarch64 | glibc 2.41 | NEON, ASIMD, **SVE** | GB10 SM=48 cc=12.1 |
 
-全ホスト共用マシン。占有は各10分以内・GPUメモリ8GB以下。
-GPU イメージは **CUDA 13 + torch cu130 必須**(GB10 は sm_121 で cu12 ビルドでは動かない)。
+alpine イメージは両ホストとも musl(`musl_loader_glob` で検出)= 2d の条件は本物。
 
-## 調査で確定した、記事に効く事実(詳細は台帳と research_notes)
+## 執筆時の規律(最重要)
 
-- IEEE 754 WG 自身が「**規格は準拠システム間で同一結果を保証しない**」と明記。第4章の冒頭引用に使う
-- 超越関数が「推奨」止まりな理由は **Table Maker's Dilemma**
-- glibc 2.27 マニュアルで `log2`(double)が **AArch64 1 ULP / x86_64 2 ULP** — クロスアーキ差の文書化された実例
-- NumPy の AVX-512 と非 AVX-512 で **sin/cos/exp/log が最大 ~4 ULP 違う**(issue #23523、メンテナ公認)。
-  一方 `np.sum` 自体の SIMD 差は文書化された報告が見つからない → **冒頭ネタは S4 が本命、S2 は要実測**
-- **MT19937 の仕様は state→出力のみを固定し、seed→state は固定しない**。CPython / RandomState /
-  Generator(MT19937) の3経路が同一 seed で3つの異なるストリームを出す
-- NEP 19 原文: RandomState は「SHALL NOT be made」、Generator は X.Y で破壊を許容。**"frozen" とは書いていない**
-- PyTorch 公式「identical seed でも CPU と GPU の間で再現しないことがある」
-- cuBLAS のビット再現性は「単一 CUDA ストリーム時のみ」かつ「同一アーキ**かつ同一 SM 数**」
-- **PyTorch の CUDA RNG は SM 数依存** — 要素数が閾値を超えると同じ seed でも GPU モデルが違えば
-  乱数の値そのものが変わる(issue #194676)。**公式 docs への追記 PR #196733 は未マージ = 未文書化**
-- transformers に `temperature=0` という決定的モードは**存在しない**(`do_sample=False` が正)。
-  vLLM は `temperature<1e-5` を greedy に落とし `0<t<0.01` を 0.01 にクランプ
-- ACM の Repeatability/Reproducibility/Replicability は **v1.0(2016)と v1.1(2020)で意味が入れ替わっている**
-- ACM 原文に「完全一致は要求しない、許容誤差内で一致し主要な主張を変えなければよい」
-  → **第8章の納品文言テンプレの一次的な根拠**
+**コメント・docstring・図のラベル・本文に書いてよいのは、実際に測った相関か出典が言っていることだけ。
+変化させなかった因子を原因として名指ししてはならない。**
 
-## 執筆時の禁止事項(調査で裏が取れなかったもの)
+このプロジェクトは測っていない機構を自信を持って説明して**4回**修正している
+(当初の「スレッドスケジューリング」、「1スレッドでも再現」、その置き換え、
+そして図版の「cuBLAS は atomicAdd を使わない(NVIDIA文書)」という未出典の帰属)。
 
-- IEEE 754 の細かい subclause 番号を書かない(primary PDF から抽出できず二次情報由来)
-- Apple Accelerate/vecLib の ULP を断定しない(公式文書が存在しない)
-- 「コンテナはホストのカーネル CSPRNG を共有する」を断定しない(一次情報なし)
-- LLM の分岐率の定量値は**未査読プレプリント**由来であることを明記する
-- scikit-learn に「バージョン間で保証しない」という文は**存在しない**。要約で創作しない
-- Stream-K には言及しない(一次情報が見つからなかった)
+### 書いてはいけないこと(調査で裏が取れなかった)
+- IEEE 754 の subclause 番号(primary PDF から抽出できず二次情報由来)
+- Apple Accelerate/vecLib の ULP(公式文書が存在しない)
+- 「コンテナはホストのカーネル CSPRNG を共有する」(一次情報なし。かつ Mac では
+  コンテナは Linux VM 配下でホストのカーネルは macOS ではない)
+- LLM の分岐率の定量値を査読済みとして扱うこと(すべて 2026 年のプレプリント)
+- scikit-learn に「バージョン間で保証しない」という文が存在するかのように書くこと(存在しない)
+- Stream-K への言及(一次情報が見つからなかった)
+- `np.sum` が SIMD 世代で割れるという主張(文書化報告が無く、**本実測でも割れなかった**)
+
+## 残務と注意
+
+- **T16 のタスクレビューが未実施。** `c33ae45..c697647`。PNG(F4/F8/F9)を必ず目で見ること。
+- `results/` は 31MB(30ラン分の生データ)。記事の全主張の証拠なので意図的にコミットしている。
+- リモートホストに残置: anakin に `~/reprobench-run/`、各ホストに `reprobench:*` イメージと
+  `repro-gpu:check`、GPU ホストに HF キャッシュ(約1GB)。**記事完成後に削除すること。**
+- 繰り越し済みの軽微な指摘は decision-log の "minor (deferred)" 行を参照。T18 でトリアージする。
