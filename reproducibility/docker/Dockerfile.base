@@ -21,8 +21,34 @@ WORKDIR /work
 # `OSError: libgomp.so.1: cannot open shared object file` and every S6
 # probe records a `raised:` skip instead of running (verified: this
 # failure was observed and fixed during Task 12's own `make test` run).
+#
+# fonts-noto-cjk (+ the fontconfig/freetype/etc. it pulls in) is added
+# for Task 16's reprobench/figures.py: matplotlib's own bundled font
+# (DejaVu Sans) has no Japanese glyphs, so without a CJK font every
+# Japanese label in F4/F8 would render as tofu boxes -- the same problem
+# scripts/svg_to_png.sh solves for the SVG conceptual figures, solved
+# here the same way (same fonts-noto-cjk version, since this base image
+# and that script's throwaway render image both start from the same
+# `python:3.11-slim` digest -- see that script's own comment block).
+# Every package below is pinned to the exact version apt resolved on
+# this base digest (verified via `dpkg-query -W` immediately after this
+# install, same methodology as svg_to_png.sh): fontconfig/fonts-noto-cjk
+# themselves plus the transitive closure apt pulls in on top of the
+# libgomp1 install above (fontconfig-config, fonts-dejavu-core/mono,
+# libbrotli1, libexpat1, libfontconfig1, libfreetype6, libpng16-16t64).
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgomp1 \
+    && apt-get install -y --no-install-recommends \
+         libgomp1=14.2.0-19 \
+         fontconfig=2.15.0-2.3 \
+         fontconfig-config=2.15.0-2.3 \
+         fonts-dejavu-core=2.37-8 \
+         fonts-dejavu-mono=2.37-8 \
+         fonts-noto-cjk=1:20240730+repack1-1 \
+         libbrotli1=1.1.0-2+b7 \
+         libexpat1=2.8.3-1~deb13u1 \
+         libfontconfig1=2.15.0-2.3 \
+         libfreetype6=2.13.3+dfsg-1+deb13u1 \
+         libpng16-16t64=1.6.48-1+deb13u6 \
     && rm -rf /var/lib/apt/lists/*
 
 # torch is installed from the official CPU wheel index (as an EXTRA

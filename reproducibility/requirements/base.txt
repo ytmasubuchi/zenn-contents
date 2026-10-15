@@ -17,3 +17,8 @@ lightgbm==4.5.0
 # pinned explicitly so its version cannot drift silently between builds.
 threadpoolctl==3.5.0
 pytest==9.1.1
+# Task 16: reprobench/figures.py renders F4/F8 with matplotlib. Pinned
+# version resolved and verified (installed together with numpy==2.2.6
+# above in one `pip install -r` call) to not move the numpy pin --
+# matplotlib's own numpy floor (>=1.25) is satisfied by 2.2.6 as-is.
+matplotlib==3.11.2
