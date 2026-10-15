@@ -436,8 +436,8 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 
 ### PRNGの仕様と方針
 
-- Matsumoto, M. and Nishimura, T. (1998) "Mersenne Twister: A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator." ACM Transactions on Modeling and Computer Simulation, Vol.8, No.1(査読論文)。https://dl.acm.org/doi/10.1145/272991.272995 (取得日: 2026-10-14)
-- Salmon, J. K., Moraes, M. A., Dror, R. O. and Shaw, D. E. (2011) "Parallel Random Numbers: As Easy as 1, 2, 3." Proceedings of SC11(ACM Best Paper Award、査読論文)。https://dl.acm.org/doi/10.1145/2063384.2063405 (取得日: 2026-10-14)
+- Matsumoto, M. and Nishimura, T. (1998) "Mersenne Twister: A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator." ACM Transactions on Modeling and Computer Simulation, Vol.8, No.1(査読論文)。https://dl.acm.org/doi/10.1145/272991.272995 (取得日: 2026-10-14)。ACMは有料のため、著者による公開ページも挙げる。https://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/emt.html (取得日: 2026-10-15)
+- Salmon, J. K., Moraes, M. A., Dror, R. O. and Shaw, D. E. (2011) "Parallel Random Numbers: As Easy as 1, 2, 3." Proceedings of SC11(ACM Best Paper Award、査読論文)。https://dl.acm.org/doi/10.1145/2063384.2063405 (取得日: 2026-10-14)。ACMは有料のため、著者による公開PDFも挙げる。https://www.thesalmons.org/john/random123/papers/random123sc11.pdf (取得日: 2026-10-15)
 - NEP 19「Random Number Generator Policy」(NumPy公式文書、著者Robert Kern、Status: Final)。https://numpy.org/neps/nep-0019-rng-policy.html (取得日: 2026-10-14)
 - NumPy公式ドキュメント「What's New or Different」(Generatorでは正規分布等の正確な乱数値を再現できないと明記)。https://numpy.org/doc/stable/reference/random/new-or-different.html (取得日: 2026-10-14)
 - NumPy 1.22.0 リリースノート(公式文書。float32一様乱数の最下位ビットが常に0になるバグの修正を記載)。https://numpy.org/doc/stable/release/1.22.0-notes.html (取得日: 2026-10-14)
