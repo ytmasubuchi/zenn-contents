@@ -95,7 +95,8 @@ will be invalid. If you're looking for greedy decoding strategies, set `do_sampl
 単離の効果: t=1.2 で同梱デフォルト 119 トークン vs 単離 65 トークン、**最初の分岐はトークン0**。
 同梱の `top_p=0.8` / `top_k=20` / `repetition_penalty=1.1` を中和しない限り temperature を測っていない。
 
-margin(脆さの定量、3 GPU 同一): n=84、min=0.0037、median=2.1005、**0.1 未満が 3.6%**。
+margin(脆さの定量、3 GPU 同一): n=84、min=0.0037、median=2.0748(`np.median`)、**0.1 未満が 3.6%**。
+ULP差(float32): anakin-blade 完全一致17/84・差の中央値18 ULP・最大49,152 ULP、anakin-dgxspark 完全一致5/84・中央値32 ULP・最大40,960 ULP、blade-dgxspark 完全一致10/84・中央値24 ULP・最大8,192 ULP。
 
 ### その他の確定事実
 - Python 3.10 vs 3.11(numpy 同一)は S1 全一致
