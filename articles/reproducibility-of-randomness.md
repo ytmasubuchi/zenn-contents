@@ -423,3 +423,56 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 
 本記事の実測ハーネスと生データは、そのままリポジトリに残している。
 同じ手順で、読者自身の環境でも再実行できる。
+
+---
+
+## 参考文献
+
+> 本文が依拠した外部の出典を、テーマ別に種別を区別して列挙する。規格・公式文書・Issue/PR・査読論文・エンジニアリングブログを同格には扱わず、種別を明記した。URLと取得日はすべてresearch_notesの調査記録に基づく。
+
+### 規格
+
+- IEEE 754-2019 背景資料「Differences Among IEEE 754 Implementations」(IEEE Microprocessor Standards Committee名義。背景説明用の二次資料で、ワーキンググループ内での正式な位置づけは未確認)。https://grouper.ieee.org/groups/msc/ANSI_IEEE-Std-754-2019/background/addendum.html (取得日: 2026-10-14)
+
+### PRNGの仕様と方針
+
+- Matsumoto, M. and Nishimura, T. (1998) "Mersenne Twister: A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator." ACM Transactions on Modeling and Computer Simulation, Vol.8, No.1(査読論文)。https://dl.acm.org/doi/10.1145/272991.272995 (取得日: 2026-10-14)
+- Salmon, J. K., Moraes, M. A., Dror, R. O. and Shaw, D. E. (2011) "Parallel Random Numbers: As Easy as 1, 2, 3." Proceedings of SC11(ACM Best Paper Award、査読論文)。https://dl.acm.org/doi/10.1145/2063384.2063405 (取得日: 2026-10-14)
+- NEP 19「Random Number Generator Policy」(NumPy公式文書、著者Robert Kern、Status: Final)。https://numpy.org/neps/nep-0019-rng-policy.html (取得日: 2026-10-14)
+- NumPy公式ドキュメント「What's New or Different」(Generatorでは正規分布等の正確な乱数値を再現できないと明記)。https://numpy.org/doc/stable/reference/random/new-or-different.html (取得日: 2026-10-14)
+- NumPy 1.22.0 リリースノート(公式文書。float32一様乱数の最下位ビットが常に0になるバグの修正を記載)。https://numpy.org/doc/stable/release/1.22.0-notes.html (取得日: 2026-10-14)
+
+### SIMD・BLAS・libm
+
+- Goldberg, D. (1991) "What Every Computer Scientist Should Know About Floating-Point Arithmetic." ACM Computing Surveys, Vol.23, No.1(査読論文。浮動小数点加算の非結合則の例)。https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html (取得日: 2026-10-14)
+- NumPy Issue #23523「BUG: AVX-512 results differ from non-AVX-512 for sin, cos, exp, log, etc.」(GitHub Issue。メンテナmattip氏による4 ULP許容の発言)。https://github.com/numpy/numpy/issues/23523 (取得日: 2026-10-14)
+- NumPy公式ドキュメント「CPU build options」(NPY_DISABLE_CPU_FEATURES / NPY_ENABLE_CPU_FEATURESの仕様)。https://numpy.org/doc/stable/reference/simd/build-options.html (取得日: 2026-10-14)
+
+### GPUとCUDA
+
+- NVIDIA cuBLAS Documentation「Results Reproducibility」(公式ドキュメント)。https://docs.nvidia.com/cuda/cublas/ (取得日: 2026-10-14)
+- NVIDIA cuDNN Backend Documentation「Odds and Ends」(公式ドキュメント。異なるアーキテクチャ間のビット再現性は非保証と明記)。https://docs.nvidia.com/deeplearning/cudnn/backend/latest/developer/misc.html (取得日: 2026-10-14)
+- PyTorch GitHub Issue #194676「CUDA RNG is not reproducible across GPU models above a launch-geometry threshold」。https://github.com/pytorch/pytorch/issues/194676 (取得日: 2026-10-14)
+- PyTorch GitHub PR #196733「[docs] CUDA generator output depends on the device's SM count」(レビュー承認済み、2026年10月14日時点で未マージ)。https://github.com/pytorch/pytorch/pull/196733 (取得日: 2026-10-14)
+
+### LLM推論
+
+- He, H. et al.「Defeating Nondeterminism in LLM Inference」Thinking Machines Lab, Connectionism Blog, 2025年9月10日(査読を経ていないエンジニアリングブログ)。https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/ (取得日: 2026-10-14)
+- vLLM公式ドキュメント「SamplingParams」v0.11.0(temperature<1e-5をgreedy扱いにする仕様を記載)。https://docs.vllm.ai/en/v0.11.0/api/vllm/sampling_params.html (取得日: 2026-10-14)
+
+### 再現性の用語
+
+- ACM「Artifact Review and Badging」Version 1.1、2020年8月24日(ACM公式サイトが自動取得を拒否するため、Wayback Machineのアーカイブを参照した)。http://web.archive.org/web/20240102044447/https://www.acm.org/publications/policies/artifact-review-and-badging-current (取得日: 2026-10-14)
+
+### OS・ハードウェア乱数
+
+- Intel「Digital Random Number Generator (DRNG) Software Implementation Guide」(公式ドキュメント。RDRAND/RDSEEDの仕様とSP 800-90A/B/C準拠、再シード間隔)。https://www.intel.com/content/www/us/en/developer/articles/guide/intel-digital-random-number-generator-drng-software-implementation-guide.html (取得日: 2026-10-14)
+- NIST SP 800-90A Rev.1「Recommendation for Random Number Generation Using Deterministic Random Bit Generators」(規格文書)。https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-90ar1.pdf (取得日: 2026-10-14)
+- NIST SP 800-90B「Recommendation for the Entropy Sources Used for Random Bit Generation」(規格文書)。https://nvlpubs.nist.gov/nistpubs/SpecialPublications/nist.sp.800-90b.pdf (取得日: 2026-10-14)
+- NIST SP 800-90C「Recommendation for Random Bit Generator (RBG) Constructions」(規格文書)。https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90C.pdf (取得日: 2026-10-14)
+- ARM Architecture Reference Manual、AArch64システムレジスタRNDR/RNDRRSの記述(第三者による転記サイトで確認。ARM公式サイトでは未確認)。https://arm.jonpalmisc.com/latest_sysreg/AArch64-rndrrs (取得日: 2026-10-14)
+- man7.org「random(4)」マニュアルページ(Linux 5.6以降、/dev/randomが起動直後を除き非ブロック化したと明記)。https://man7.org/linux/man-pages/man4/random.4.html (取得日: 2026-10-14)
+- kernel-internals.org「Random Number Generation」(コミュニティによる技術解説記事。kernel.org公式ページではない)。https://kernel-internals.org/crypto/rng/ (取得日: 2026-10-14)
+- The Register「New Linux kernel has improved random-number generation」2022年3月21日(ニュース記事)。https://www.theregister.com/2022/03/21/new_linux_kernel_has_improved/ (取得日: 2026-10-14)
+- PEP 456「Secure and interchangeable hash algorithm」(Python公式文書。SipHash24採用とハッシュフラッディング対策を記載)。https://peps.python.org/pep-0456/ (取得日: 2026-10-14)
+- CVE-2012-1150(共通脆弱性識別子。ハッシュ衝突によるDoS)。https://app.opencve.io/cve/CVE-2012-1150 (取得日: 2026-10-14)
