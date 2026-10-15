@@ -1,0 +1,74 @@
+# base image: python:3.11-slim (glibc/Debian) + numpy 2.2.6 and friends.
+#
+# This is the reference image: it is the one `make test` runs the unit
+# suite in, the one `make report`/`make figures` run in, and it is the
+# only image that runs on all four measurement hosts (MacBook / anakin /
+# blade / dgxspark). Every other CPU image in this directory differs from
+# this one along exactly one axis (see each Dockerfile's own comment).
+FROM python:3.11-slim
+
+ENV REPRO_IMAGE=base
+# Matches the mandated verification command's `-e PYTHONPATH=/w`: with no
+# conftest.py/pyproject.toml in this project, pytest's rootless import
+# mode would otherwise add only tests/ to sys.path, not WORKDIR, and
+# `import reprobench` would fail.
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+# lightgbm's compiled core library is linked against libgomp (OpenMP) and
+# does not bundle it; python:3.11-slim does not ship it by default.
+# Without this, `import lightgbm` raises
+# `OSError: libgomp.so.1: cannot open shared object file` and every S6
+# probe records a `raised:` skip instead of running (verified: this
+# failure was observed and fixed during Task 12's own `make test` run).
+#
+# fonts-noto-cjk (+ the fontconfig/freetype/etc. it pulls in) is added
+# for Task 16's reprobench/figures.py: matplotlib's own bundled font
+# (DejaVu Sans) has no Japanese glyphs, so without a CJK font every
+# Japanese label in F4/F8 would render as tofu boxes -- the same problem
+# scripts/svg_to_png.sh solves for the SVG conceptual figures, solved
+# here the same way (same fonts-noto-cjk version, since this base image
+# and that script's throwaway render image both start from the same
+# `python:3.11-slim` digest -- see that script's own comment block).
+# Every package below is pinned to the exact version apt resolved on
+# this base digest (verified via `dpkg-query -W` immediately after this
+# install, same methodology as svg_to_png.sh): fontconfig/fonts-noto-cjk
+# themselves plus the transitive closure apt pulls in on top of the
+# libgomp1 install above (fontconfig-config, fonts-dejavu-core/mono,
+# libbrotli1, libexpat1, libfontconfig1, libfreetype6, libpng16-16t64).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+         libgomp1=14.2.0-19 \
+         fontconfig=2.15.0-2.3 \
+         fontconfig-config=2.15.0-2.3 \
+         fonts-dejavu-core=2.37-8 \
+         fonts-dejavu-mono=2.37-8 \
+         fonts-noto-cjk=1:20240730+repack1-1 \
+         libbrotli1=1.1.0-2+b7 \
+         libexpat1=2.8.3-1~deb13u1 \
+         libfontconfig1=2.15.0-2.3 \
+         libfreetype6=2.13.3+dfsg-1+deb13u1 \
+         libpng16-16t64=1.6.48-1+deb13u6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# torch is installed from the official CPU wheel index (as an EXTRA
+# index, not exclusive) with the "+cpu" local version pinned explicitly:
+# on x86_64 the default PyPI "torch" wheel bundles CUDA, while on aarch64
+# it is already CPU-only -- pinning "+cpu" and adding this index keeps the
+# resolved build identical across architectures instead of depending on
+# which default wheel PyPI happens to publish for a given arch. The index
+# is added as EXTRA (not exclusive --index-url) so pip can still resolve
+# torch's own dependencies (typing-extensions, jinja2, etc.) from default
+# PyPI: an exclusive --index-url here was tried and fails on Python 3.10
+# specifically with a metadata Name-normalization mismatch that forces a
+# typing_extensions sdist build requiring `flit_core`, which this index
+# does not carry (verified during Task 12's own build; see Dockerfile.
+# oldlibs for the one case, old torch on this same index, where the
+# reverse -- exclusive --index-url -- is required instead).
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch==2.14.1+cpu
+
+COPY requirements/base.txt ./requirements/base.txt
+RUN pip install --no-cache-dir -r requirements/base.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

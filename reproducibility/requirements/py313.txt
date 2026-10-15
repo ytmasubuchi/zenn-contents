@@ -1,0 +1,13 @@
+# py313 image pins (python:3.13-slim). Deliberately identical to base.txt:
+# py313 differs from base ONLY in the Python interpreter version (resolution
+# 1 / spec G2-2a), so every library version below must match base.txt
+# exactly or the comparison would also move the library-version axis.
+#
+# torch is NOT listed here, see Dockerfile.py313 (same reasoning as
+# requirements/base.txt).
+numpy==2.2.6
+scipy==1.15.2
+scikit-learn==1.7.2
+lightgbm==4.5.0
+threadpoolctl==3.5.0
+pytest==9.1.1

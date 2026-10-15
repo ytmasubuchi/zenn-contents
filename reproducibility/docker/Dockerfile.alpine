@@ -1,0 +1,20 @@
+# alpine image: python:3.11-alpine (musl libc) + numpy only.
+#
+# Deliberately NOT scipy/scikit-learn/lightgbm/torch (Task 12 resolution
+# 4): this image exists to isolate the musl-vs-glibc libm difference (S4),
+# and those packages either have no musllinux wheel for the set this
+# project needs or would pull in a glibc-shaped dependency chain that
+# defeats the point. Probes requiring them record a clean
+# `missing requirement: ...` skip on this image -- that skip is the
+# measurement, not a failure.
+FROM python:3.11-alpine
+
+ENV REPRO_IMAGE=alpine
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+COPY requirements/alpine.txt ./requirements/alpine.txt
+RUN pip install --no-cache-dir -r requirements/alpine.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

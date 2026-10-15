@@ -1,0 +1,15 @@
+# oldpy image pins (python:3.10-slim). Deliberately identical to base.txt:
+# oldpy is the confound-breaking control image (resolution 1) -- it moves
+# ONLY the Python version relative to base (3.11 -> 3.10) and ONLY the
+# numpy version relative to oldlibs (2.2.6 -> 1.21.6). Every library
+# version below must match base.txt exactly, or oldpy would no longer
+# isolate the Python-version axis from the numpy-version axis.
+#
+# torch is NOT listed here, see Dockerfile.oldpy (same reasoning as
+# requirements/base.txt).
+numpy==2.2.6
+scipy==1.15.2
+scikit-learn==1.7.2
+lightgbm==4.5.0
+threadpoolctl==3.5.0
+pytest==9.1.1

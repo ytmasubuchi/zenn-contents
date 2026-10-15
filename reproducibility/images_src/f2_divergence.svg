@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580" width="960" height="580">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .boxTitle { font-size: 17px; font-weight: 700; fill: #111827; }
+    .boxSub { font-size: 13px; fill: #374151; }
+    .ok { font-size: 14px; font-weight: 700; fill: #1b5e20; }
+    .bad { font-size: 14px; font-weight: 700; fill: #c62828; }
+    .note { font-size: 13px; fill: #4b5563; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .sharedbox { fill: #ecfdf3; stroke: #1b5e20; stroke-width: 1.8; rx: 10; }
+    .calcbox { fill: #fff7ed; stroke: #ef6c00; stroke-width: 1.5; rx: 10; }
+    .resultbox { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1.5; rx: 10; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="580" fill="#ffffff"/>
+
+  <text x="30" y="40" class="title">F2. 乱数が一致しても、最終結果が一致するとは限らない</text>
+  <line x1="30" y1="54" x2="930" y2="54" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- shared stage: same seed, identical PRNG stream (L0) -->
+  <rect x="50" y="170" width="300" height="150" class="sharedbox"/>
+  <text x="70" y="200" class="boxTitle">同じseedを指定</text>
+  <text x="70" y="226" class="boxSub">PRNGが生成する乱数列</text>
+  <text x="70" y="252" class="ok">ビット列は一致 ✓</text>
+  <text x="70" y="272" class="note">(L0: MT19937/PCG64/Philoxの</text>
+  <text x="70" y="288" class="note">仕様が保証する範囲)</text>
+
+  <line x1="350" y1="220" x2="430" y2="110" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="350" y1="260" x2="430" y2="330" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- lane A -->
+  <rect x="430" y="70" width="230" height="80" class="calcbox"/>
+  <text x="448" y="100" class="boxTitle">乱数を使った計算</text>
+  <text x="448" y="122" class="boxSub">環境A(例: SIMD幅・</text>
+  <text x="448" y="138" class="boxSub">スレッド数・BLAS実装)</text>
+  <line x1="660" y1="110" x2="710" y2="110" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="710" y="70" width="210" height="80" class="resultbox"/>
+  <text x="728" y="105" class="boxTitle">最終結果 A</text>
+  <text x="728" y="128" class="boxSub">ある値に丸められる</text>
+
+  <!-- lane B -->
+  <rect x="430" y="290" width="230" height="80" class="calcbox"/>
+  <text x="448" y="320" class="boxTitle">乱数を使った計算</text>
+  <text x="448" y="342" class="boxSub">環境B(例: 別のSIMD幅・</text>
+  <text x="448" y="358" class="boxSub">別のスレッド数・BLAS実装)</text>
+  <line x1="660" y1="330" x2="710" y2="330" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="710" y="290" width="210" height="80" class="resultbox"/>
+  <text x="728" y="325" class="boxTitle">最終結果 B</text>
+  <text x="728" y="348" class="boxSub">別の値に丸められる</text>
+
+  <!-- comparison marker (right-anchored so labels never cross the canvas edge) -->
+  <line x1="900" y1="150" x2="900" y2="290" stroke="#c62828" stroke-width="2" stroke-dasharray="5 4"/>
+  <circle cx="900" cy="220" r="22" fill="#ffffff" stroke="#c62828" stroke-width="2.2"/>
+  <text x="900" y="228" font-size="20" font-weight="700" fill="#c62828" text-anchor="middle" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">≠</text>
+  <text x="875" y="196" text-anchor="end" class="bad">最下位ビットが</text>
+  <text x="875" y="246" text-anchor="end" class="bad">一致しない</text>
+
+  <text x="30" y="420" class="note">同じseedでも、ここから先(乱数を使った計算)は実行環境(SIMD幅・スレッド数・BLAS実装 等)に依存する。</text>
+  <text x="30" y="460" class="note">PRNGが生成する乱数そのもの(ビット列)の一致と、それを使った計算の最終結果の一致は、別の保証である。</text>
+  <text x="30" y="482" class="note">前者はアルゴリズム仕様(L0)、後者は実行環境(L3/L4)に左右される。浮動小数点の非結合性については F5 を参照。</text>
+
+  <text x="30" y="532" class="footnote">原理図(実測に依存しない)。出典: NumPy `compatibility.html`「異なるCPUは浮動小数点演算を異なる形で実装しており、これが特定の</text>
+  <text x="30" y="550" class="footnote">エッジケースで差を生み、ストリームの残りに波及することがある」(調査ノート prng_specs_and_policies.md 参照)。</text>
+</svg>

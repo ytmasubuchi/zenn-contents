@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 850" width="960" height="850">
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 13px; fill: #4b5563; }
+    .rowlabel { font-size: 14px; font-weight: 700; fill: #111827; }
+    .rowsub { font-size: 12px; fill: #374151; }
+    .runlabel { font-size: 11px; fill: #6b7280; }
+    .caption { font-size: 13px; font-weight: 700; fill: #111827; }
+    .badgetext { font-size: 12px; fill: #111827; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .rowbox { fill: #fafafa; stroke: #d1d5db; stroke-width: 1.2; rx: 10; }
+    .mechbox { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; rx: 10; }
+    .nuancebox { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.3; rx: 8; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="850" fill="#ffffff"/>
+
+  <text x="30" y="38" class="title">F7. GPU上の非決定性 — atomic演算を使う処理は毎回変わりうる</text>
+  <text x="30" y="58" class="subtitle">実測: RTX 4090、PyTorch、同一プロセス内で5回実行(本プロジェクト自身の実測、2026-10-14)。</text>
+  <text x="30" y="75" class="subtitle">GPU上の非決定性の原因は複数ある(例: cuDNN benchmarkの自動アルゴリズム選択。F3参照)。本図はatomic演算の経路のみを扱う。</text>
+  <line x1="30" y1="87" x2="930" y2="87" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- Row 1: MLP (cuBLAS GEMM) -->
+  <rect x="20" y="106" width="920" height="130" class="rowbox"/>
+  <text x="40" y="138" class="rowlabel">Linear+ReLUのMLPを</text>
+  <text x="40" y="158" class="rowlabel">10ステップ学習</text>
+  <text x="40" y="178" class="rowsub">(cuBLAS GEMM中心)</text>
+
+  <g font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">
+    <circle cx="330" cy="155" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M318,155 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="330" y="192" text-anchor="middle" class="runlabel">run1</text>
+
+    <circle cx="420" cy="155" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M408,155 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="420" y="192" text-anchor="middle" class="runlabel">run2</text>
+
+    <circle cx="510" cy="155" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M498,155 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="510" y="192" text-anchor="middle" class="runlabel">run3</text>
+
+    <circle cx="600" cy="155" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M588,155 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="600" y="192" text-anchor="middle" class="runlabel">run4</text>
+
+    <circle cx="690" cy="155" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M678,155 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="690" y="192" text-anchor="middle" class="runlabel">run5</text>
+  </g>
+  <text x="510" y="222" text-anchor="middle" class="caption" fill="#1b5e20">5回ともbit-identical(実測)</text>
+
+  <!-- Row1 badge: this is an L1 promise (cuBLAS's own written reproducibility
+       statement) whose conditions are L3 facts (architecture, SM count,
+       stream configuration are run-time environment properties) — fix
+       round 1, Critical 2 / Important 10. The two level colours are
+       reused inline via tspans, matching F3's palette, rather than
+       asserting a single flat level for what is really two things. -->
+  <rect x="760" y="126" width="150" height="90" rx="8" class="nuancebox"/>
+  <text x="775" y="150" font-size="14" font-weight="700" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif"><tspan fill="#558b2f">L1</tspan><tspan fill="#111827">の約束×</tspan><tspan fill="#ef6c00">L3</tspan><tspan fill="#111827">の条件</tspan></text>
+  <text x="775" y="172" class="badgetext">同一アーキ・SM数</text>
+  <text x="775" y="190" class="badgetext">単一ストリームの下</text>
+  <text x="775" y="208" class="badgetext">(cuBLAS文書)</text>
+
+  <!-- Row 2: index_add_ default (atomics) -->
+  <rect x="20" y="252" width="920" height="130" class="rowbox"/>
+  <text x="40" y="284" class="rowlabel">重複indexへの</text>
+  <text x="40" y="304" class="rowlabel">`index_add_`</text>
+  <text x="40" y="324" class="rowsub">(既定設定、atomicAdd経路)</text>
+
+  <g font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">
+    <circle cx="330" cy="301" r="26" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+    <line x1="318" y1="289" x2="342" y2="313" stroke="#c62828" stroke-width="3"/>
+    <line x1="342" y1="289" x2="318" y2="313" stroke="#c62828" stroke-width="3"/>
+    <text x="330" y="338" text-anchor="middle" class="runlabel">run1</text>
+
+    <circle cx="420" cy="301" r="26" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+    <line x1="408" y1="289" x2="432" y2="313" stroke="#c62828" stroke-width="3"/>
+    <line x1="432" y1="289" x2="408" y2="313" stroke="#c62828" stroke-width="3"/>
+    <text x="420" y="338" text-anchor="middle" class="runlabel">run2</text>
+
+    <circle cx="510" cy="301" r="26" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+    <line x1="498" y1="289" x2="522" y2="313" stroke="#c62828" stroke-width="3"/>
+    <line x1="522" y1="289" x2="498" y2="313" stroke="#c62828" stroke-width="3"/>
+    <text x="510" y="338" text-anchor="middle" class="runlabel">run3</text>
+
+    <circle cx="600" cy="301" r="26" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+    <line x1="588" y1="289" x2="612" y2="313" stroke="#c62828" stroke-width="3"/>
+    <line x1="612" y1="289" x2="588" y2="313" stroke="#c62828" stroke-width="3"/>
+    <text x="600" y="338" text-anchor="middle" class="runlabel">run4</text>
+
+    <circle cx="690" cy="301" r="26" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+    <line x1="678" y1="289" x2="702" y2="313" stroke="#c62828" stroke-width="3"/>
+    <line x1="702" y1="289" x2="678" y2="313" stroke="#c62828" stroke-width="3"/>
+    <text x="690" y="338" text-anchor="middle" class="runlabel">run5</text>
+  </g>
+  <!-- "5回でビット一致せず" — not "5回とも不一致": pairwise distinctness
+       of all five runs is not in the record, only that they do not all
+       match and the max |diff| across them is 8.24e-04 (fix round 1,
+       small fix). -->
+  <text x="510" y="360" text-anchor="middle" font-size="13" font-weight="700" fill="#c62828">5回でビット一致せず / 最大差 |Δ|=8.24×10⁻⁴(実測)</text>
+
+  <rect x="760" y="272" width="150" height="90" rx="8" fill="#c62828" fill-opacity="0.10" stroke="#c62828" stroke-width="1.3"/>
+  <text x="775" y="294" font-size="13" font-weight="700" fill="#c62828">L4</text>
+  <text x="775" y="314" class="badgetext">保証なし</text>
+  <text x="775" y="334" class="badgetext">(atomicAddの</text>
+  <text x="775" y="350" class="badgetext">加算順序に依存)</text>
+
+  <!-- Row 3: index_add_ deterministic -->
+  <rect x="20" y="398" width="920" height="130" class="rowbox"/>
+  <text x="40" y="428" class="rowlabel">同じ `index_add_` を</text>
+  <text x="40" y="448" class="rowlabel">`use_deterministic_</text>
+  <text x="40" y="468" class="rowlabel">algorithms(True)` 下で実行</text>
+
+  <g font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">
+    <circle cx="330" cy="447" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M318,447 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="330" y="484" text-anchor="middle" class="runlabel">run1</text>
+
+    <circle cx="420" cy="447" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M408,447 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="420" y="484" text-anchor="middle" class="runlabel">run2</text>
+
+    <circle cx="510" cy="447" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M498,447 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="510" y="484" text-anchor="middle" class="runlabel">run3</text>
+
+    <circle cx="600" cy="447" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M588,447 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="600" y="484" text-anchor="middle" class="runlabel">run4</text>
+
+    <circle cx="690" cy="447" r="26" fill="#ffffff" stroke="#1b5e20" stroke-width="2.5"/>
+    <path d="M678,447 l9,9 l17,-19" fill="none" stroke="#1b5e20" stroke-width="3"/>
+    <text x="690" y="484" text-anchor="middle" class="runlabel">run5</text>
+  </g>
+  <text x="510" y="506" text-anchor="middle" class="caption" fill="#1b5e20">5回ともbit-identical(実測)</text>
+
+  <rect x="760" y="418" width="150" height="90" rx="8" fill="#6b7280" fill-opacity="0.10" stroke="#6b7280" stroke-width="1.3"/>
+  <text x="775" y="440" font-size="13" font-weight="700" fill="#374151">対策後: 安定</text>
+  <text x="775" y="460" class="badgetext">新しい保証レベルを</text>
+  <text x="775" y="476" class="badgetext">作るものではない</text>
+  <text x="775" y="492" class="badgetext">(工学的な回避策)</text>
+
+  <!-- mechanism callout -->
+  <rect x="20" y="548" width="920" height="226" class="mechbox"/>
+  <text x="40" y="574" font-size="15" font-weight="700" fill="#111827">なぜ Row2 だけ変わるのか(出典: PyTorch `torch.use_deterministic_algorithms` ドキュメント)</text>
+  <text x="40" y="600" font-size="13" fill="#111827">`index_add_` などのCUDA実装は `atomicAdd` を使う。`atomicAdd` は読み書きの不可分性(他スレッドに割り込まれ</text>
+  <text x="40" y="620" font-size="13" fill="#111827">ないこと)は保証するが、どのスレッドが何番目に足すかという順序は保証しない。</text>
+  <text x="40" y="644" font-size="13" fill="#111827">GPUのスレッドスケジューリングは毎回変わりうるため加算の順序が変わり、浮動小数点の非結合性</text>
+  <text x="40" y="664" font-size="13" fill="#111827">(F5参照)と合わさって最終値も変わりうる。</text>
+  <!-- fix round 1, Critical 1: the previous version closed with "cuBLAS
+       GEMMはatomicAddを使わない" attributed to the cuBLAS doc — nothing
+       in that document says this (its own research note's Gaps section
+       flags "op X uses atomicAdd" as inference, not documentation), and
+       cuBLAS ships cublasSetAtomicsMode precisely because some routines
+       do use atomics. Restated as what was measured (bit-identical over
+       5 runs) and what cuBLAS actually documents (the quoted condition),
+       with no claim about atomics either way. -->
+  <text x="40" y="696" font-size="13" fill="#111827">一方 Row1 は本実測(5回)でbit-identicalだった。NVIDIA cuBLAS文書は「同一toolkitバージョンのcuBLAS APIルーチンは、</text>
+  <text x="40" y="716" font-size="13" fill="#111827">同一アーキテクチャ・同一SM数のGPU上で実行する限りrun-to-runでビット単位の結果が一致する」と明記しており、</text>
+  <text x="40" y="736" font-size="13" fill="#111827">この保証は複数のCUDAストリームが同時に有効な場合は成り立たない(本実測は単一ストリームで実行した)。</text>
+
+  <text x="30" y="800" class="footnote">出典: 本プロジェクトの実測(anakin, RTX 4090, 2026-10-14)。PyTorch `torch.use_deterministic_algorithms` ドキュメント、NVIDIA cuBLAS "Results Reproducibility" 節。</text>
+  <text x="30" y="818" class="footnote">詳細は調査ノート gpu_cuda_pytorch.md、プローブ実装 reprobench/probes/s8_torch_gpu.py 参照。</text>
+</svg>

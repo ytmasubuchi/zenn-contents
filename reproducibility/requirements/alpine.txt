@@ -1,0 +1,17 @@
+# alpine image pins (python:3.11-alpine, musl libc). Deliberately numpy
+# only -- no scipy, scikit-learn, lightgbm or torch (Task 12 resolution 4).
+# None of those packages publish musllinux wheels for the full set this
+# project needs, and probes that require them (sklearn/lightgbm/torch)
+# record a clean `missing requirement: ...` skip on this image, which is
+# the point: this image exists to isolate the musl-vs-glibc libm
+# difference (S4), not to run every probe.
+numpy==2.2.6
+# pytest was missing here even though Dockerfile.alpine `COPY tests/
+# ./tests/` -- found in fix round 2 (the same gap already fixed for
+# `gpu`). This is also the one image where
+# test_envinfo.py::test_collect_env_survives_torch_module_not_found_error
+# still has something to prove (torch genuinely absent, not skipped) --
+# without pytest, that could never actually be exercised from this
+# image. pytest is a pure-Python package (py3-none-any wheel), so it
+# needs no musl-specific build.
+pytest==9.1.1

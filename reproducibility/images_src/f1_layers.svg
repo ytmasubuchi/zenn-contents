@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" width="960" height="700">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c62828"/>
+    </marker>
+    <marker id="arrowIndigo" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4338ca"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .boxTitle { font-size: 17px; font-weight: 700; fill: #111827; }
+    .boxSub { font-size: 13px; fill: #374151; }
+    .note { font-size: 13px; fill: #4b5563; }
+    .noteRed { font-size: 13px; fill: #b91c1c; font-weight: 700; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .stackbox { fill: #f3f4f6; stroke: #9ca3af; stroke-width: 1.5; rx: 10; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="700" fill="#ffffff"/>
+
+  <text x="30" y="40" class="title">F1. 乱数生成の階層 — seed固定が切るのは1本の呼び出しだけ</text>
+  <line x1="30" y1="54" x2="930" y2="54" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- main vertical stack: bottom = hardware, top = application -->
+  <!-- App box -->
+  <rect x="70" y="72" width="430" height="88" class="stackbox"/>
+  <text x="90" y="100" class="boxTitle">アプリケーション</text>
+  <text x="90" y="122" class="boxSub">例: Pythonコードが</text>
+  <text x="90" y="140" class="boxSub">`random.seed(42)` を呼ぶ/呼ばない</text>
+
+  <!-- Library PRNG box -->
+  <rect x="70" y="222" width="430" height="88" class="stackbox"/>
+  <text x="90" y="250" class="boxTitle">ライブラリ / ランタイムのPRNG</text>
+  <text x="90" y="272" class="boxSub">例: Pythonの `random`(Mersenne Twister)、</text>
+  <text x="90" y="290" class="boxSub">NumPyの `default_rng`(PCG64)</text>
+
+  <!-- OS CSPRNG box -->
+  <rect x="70" y="372" width="430" height="88" class="stackbox"/>
+  <text x="90" y="400" class="boxTitle">OSのCSPRNG</text>
+  <text x="90" y="422" class="boxSub">例: Linuxの `getrandom()` / `/dev/urandom`</text>
+  <text x="90" y="440" class="boxSub">(macOS/BSDは `getentropy()` 系)</text>
+
+  <!-- HW TRNG box -->
+  <rect x="70" y="522" width="430" height="88" class="stackbox"/>
+  <text x="90" y="550" class="boxTitle">ハードウェア乱数源</text>
+  <text x="90" y="572" class="boxSub">CPU内蔵TRNG(熱雑音、例: Intel DRNG/</text>
+  <text x="90" y="590" class="boxSub">ARM RNDR)・割り込みタイミング 等</text>
+
+  <!-- upward arrows: default path when no seed is fixed -->
+  <line x1="150" y1="522" x2="150" y2="462" stroke="#374151" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <!-- OS -> Library is the severed link: the line stops short of the
+       box (no arrowhead) and does not resume above the X, so the break
+       is what the eye sees, not just an X floating beside an intact
+       line (fix round 1, Critical 3). -->
+  <line x1="150" y1="372" x2="150" y2="362" stroke="#374151" stroke-width="2.5"/>
+  <line x1="150" y1="222" x2="150" y2="162" stroke="#374151" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="200" y="500" class="note">エントロピーは下から上へ供給される</text>
+
+  <!-- the severed link: OS -> Library, marked with a red X directly on
+       the arrow's path (x=150), not beside it -->
+  <circle cx="150" cy="342" r="19" fill="#ffffff" stroke="#c62828" stroke-width="2.5"/>
+  <line x1="141" y1="333" x2="159" y2="351" stroke="#c62828" stroke-width="3"/>
+  <line x1="159" y1="333" x2="141" y2="351" stroke="#c62828" stroke-width="3"/>
+  <text x="185" y="333" class="noteRed">この呼び出し1本だけが</text>
+  <text x="185" y="351" class="noteRed">切れる(OSへ問い合わせない)</text>
+
+  <!-- dashed bypass arrow: App directly supplies the seed to Library.
+       fill="none" is set directly (not via a class) because a CSS class
+       rule's fill overrides the presentation attribute in SVG — a
+       prior version used class="sidebox" with fill:#fef2f2, which
+       painted a solid pale-pink wedge across this whole curve instead
+       of leaving it open (fix round 1, Important 4). Text is placed at
+       x>=575, clear of the curve's own x range (~520-540 at its widest,
+       computed from the Bezier control points below), so the caption no
+       longer crosses the curve (fix round 1, small fix). -->
+  <path d="M 460 120 C 560 180, 560 260, 460 266" fill="none" stroke="#c62828" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowRed)"/>
+  <text x="575" y="175" class="noteRed">seedを固定</text>
+  <text x="575" y="192" class="noteRed">(例: `random.seed(42)`)</text>
+  <text x="575" y="209" class="note" fill="#374151">→ app が値を直接渡す</text>
+
+  <!-- right-side branch: OS/HW keep serving other consumers regardless -->
+  <rect x="610" y="430" width="300" height="130" fill="#eef2ff" stroke="#4338ca" stroke-width="1.5" rx="10"/>
+  <text x="630" y="458" class="boxTitle" fill="#312e81">ここは止まらない</text>
+  <text x="630" y="480" class="boxSub">同じマシン上の他のプロセス・</text>
+  <text x="630" y="498" class="boxSub">他のライブラリ呼び出しのために、</text>
+  <text x="630" y="516" class="boxSub">OSのCSPRNGとHWのTRNGは</text>
+  <text x="630" y="534" class="boxSub">seedの指定と無関係に動き続ける</text>
+
+  <line x1="500" y1="416" x2="610" y2="470" stroke="#4338ca" stroke-width="2" marker-end="url(#arrowIndigo)"/>
+  <line x1="500" y1="566" x2="610" y2="500" stroke="#4338ca" stroke-width="2" marker-end="url(#arrowIndigo)"/>
+
+  <text x="30" y="652" class="footnote">原理図(実測に依存しない)。出典: Intel DRNG Software Implementation Guide、Linux random(4)/getrandom(2) man page、</text>
+  <text x="30" y="670" class="footnote">Python `random.seed` ドキュメント(調査ノート os_hardware_entropy.md 参照)。</text>
+</svg>

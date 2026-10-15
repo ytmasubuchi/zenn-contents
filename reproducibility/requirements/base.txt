@@ -1,0 +1,24 @@
+# base image pins (python:3.11-slim). Every version is pinned with `==`
+# (Task 12 resolution 6) -- nothing here is left to pip's resolver.
+#
+# torch is NOT listed here: it is installed in Dockerfile.base from the
+# official CPU wheel index (https://download.pytorch.org/whl/cpu) in a
+# separate `pip install` step, because the default PyPI "torch" wheel for
+# x86_64 bundles a CUDA runtime while the aarch64 default is CPU-only --
+# pointing every host at the same CPU-only index keeps the resolved build
+# identical across architectures. See Dockerfile.base for the pinned
+# version (torch==2.14.1).
+numpy==2.2.6
+scipy==1.15.2
+scikit-learn==1.7.2
+lightgbm==4.5.0
+# threadpoolctl is a direct import of reprobench/probes/s5_sklearn.py
+# (_thread_pool_info), not only a transitive scikit-learn dependency --
+# pinned explicitly so its version cannot drift silently between builds.
+threadpoolctl==3.5.0
+pytest==9.1.1
+# Task 16: reprobench/figures.py renders F4/F8 with matplotlib. Pinned
+# version resolved and verified (installed together with numpy==2.2.6
+# above in one `pip install -r` call) to not move the numpy pin --
+# matplotlib's own numpy floor (>=1.25) is satisfied by 2.2.6 as-is.
+matplotlib==3.11.2

@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1568.0" width="960" height="1568.0">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 24px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 13px; fill: #4b5563; }
+    .qtext { font-size: 13px; font-weight: 700; fill: #111827; }
+    .qcond { font-size: 11.5px; fill: #4b5563; }
+    .yes { font-size: 13px; font-weight: 700; fill: #1b5e20; }
+    .no { font-size: 13px; font-weight: 700; fill: #6b7280; }
+    .cardtitle { font-size: 14px; font-weight: 700; fill: #111827; }
+    .cardcond { font-size: 12px; fill: #374151; }
+    .tmpllabel { font-size: 11px; font-weight: 700; fill: #4b5563; }
+    .tmpltext { font-size: 12.5px; fill: #111827; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .diamond { fill: #ffffff; stroke: #374151; stroke-width: 1.6; }
+  </style>
+  <rect x="0" y="0" width="960" height="1568.0" fill="#ffffff"/>
+  <text x="30" y="36" class="title">F9. 保証レベルの判定フロー + 納品文言テンプレート</text>
+  <text x="30" y="58" class="subtitle">手元の計算を上から順に当てはめる。各分岐の末尾に、そのままレベル欄の根拠として貼れる一文を置く。レベルL0〜L4の定義はF3、境界の実測根拠はF</text>
+  <text x="30" y="75" class="subtitle">4を参照。</text>
+  <line x1="30" y1="96" x2="930" y2="96" stroke="#e5e7eb" stroke-width="2"/>
+  <rect x="70" y="112" width="190" height="40" rx="8" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.3"/>
+  <text x="165" y="137" class="qtext" text-anchor="middle">手元の計算を1つ選ぶ</text>
+  <line x1="165" y1="152" x2="165" y2="176" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <polygon points="165,176 300,251.0 165,326 30,251.0" class="diamond"/>
+  <text x="165" y="238.0" class="qtext" text-anchor="middle">同一プロセスを2回</text>
+  <text x="165" y="256.0" class="qtext" text-anchor="middle">実行しただけで結果が</text>
+  <text x="165" y="274.0" class="qtext" text-anchor="middle">変わりうるか?</text>
+  <text x="165" y="348.0" class="qcond" text-anchor="middle">(GPU atomicAdd系・PYTHONHASHSEED未設</text>
+  <text x="165" y="363.0" class="qcond" text-anchor="middle">定・並列完了順 等。実測: F4の「同一プロセス</text>
+  <text x="165" y="378.0" class="qcond" text-anchor="middle">内で2回」列)</text>
+  <line x1="300" y1="251.0" x2="325" y2="251.0" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="312.5" y="241.0" class="yes" text-anchor="middle">YES</text>
+  <rect x="335" y="184" width="595" height="180.5" rx="10" fill="#c62828" fill-opacity="0.07" stroke="#c62828" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="351" y="200" width="56" height="56" rx="10" fill="#c62828"/>
+  <text x="379.0" y="235.0" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L4</text>
+  <text x="423" y="216" class="cardtitle">保証なし — 原理的に非決定</text>
+  <text x="423" y="240" class="cardcond">同一プロセスを2回走らせても一致する保証がない。ビット一致は約束できず、許容誤差で</text>
+  <text x="423" y="256" class="cardcond">しか語れない。</text>
+  <text x="423" y="282" class="tmpllabel">納品文言:</text>
+  <text x="423" y="301" class="tmpltext">本処理(GPU上のatomic演算・ハッシュ順序等)は原理的に非決定であり、同一入力</text>
+  <text x="423" y="317.5" class="tmpltext">・同一コードでも結果が一致することは保証されない。一致は許容誤差(atol/rtol等</text>
+  <text x="423" y="334.0" class="tmpltext">)の範囲でのみ論じる。</text>
+  <line x1="165" y1="398" x2="165" y2="460.5" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="185" y="452.5" class="no">NO</text>
+  <polygon points="165,484.5 300,559.5 165,634.5 30,559.5" class="diamond"/>
+  <text x="165" y="537.5" class="qtext" text-anchor="middle">IEEE754の基本演算</text>
+  <text x="165" y="555.5" class="qtext" text-anchor="middle">(+ − × ÷ √ fma)、または</text>
+  <text x="165" y="573.5" class="qtext" text-anchor="middle">公開PRNG仕様の生ビット列</text>
+  <text x="165" y="591.5" class="qtext" text-anchor="middle">(MT19937/PCG64/Philox)だけか?</text>
+  <text x="165" y="656.5" class="qcond" text-anchor="middle">(実測: F4のL0行は全条件でほぼ一致)</text>
+  <line x1="300" y1="559.5" x2="325" y2="559.5" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="312.5" y="549.5" class="yes" text-anchor="middle">YES</text>
+  <rect x="335" y="492.5" width="595" height="180.5" rx="10" fill="#1b5e20" fill-opacity="0.07" stroke="#1b5e20" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="351" y="508.5" width="56" height="56" rx="10" fill="#1b5e20"/>
+  <text x="379.0" y="543.5" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L0</text>
+  <text x="423" y="524.5" class="cardtitle">規格 — 国際規格・公開アルゴリズム仕様</text>
+  <text x="423" y="548.5" class="cardcond">言語・OS・CPUを跨いでも壊れない(実測: anakin/blade/dgxspark/MacBookの4ホスト全</text>
+  <text x="423" y="564.5" class="cardcond">条件で一致)。</text>
+  <text x="423" y="590.5" class="tmpllabel">納品文言:</text>
+  <text x="423" y="609.5" class="tmpltext">本計算はIEEE754の基本演算、またはMT19937/PCG64/Philoxの公開仕様が定める生</text>
+  <text x="423" y="626.0" class="tmpltext">ビット列のみに依存する。ライブラリのバージョンを[X.Y.Z]に固定すれば、実行環</text>
+  <text x="423" y="642.5" class="tmpltext">境を問わずビット単位で一致する。</text>
+  <line x1="165" y1="676.5" x2="165" y2="739.0" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="185" y="731.0" class="no">NO</text>
+  <polygon points="165,763.0 300,838.0 165,913.0 30,838.0" class="diamond"/>
+  <text x="165" y="816.0" class="qtext" text-anchor="middle">使っているAPIについて、</text>
+  <text x="165" y="834.0" class="qtext" text-anchor="middle">ライブラリが版間のビット</text>
+  <text x="165" y="852.0" class="qtext" text-anchor="middle">互換性を文書で明言して</text>
+  <text x="165" y="870.0" class="qtext" text-anchor="middle">いるか?</text>
+  <text x="165" y="935.0" class="qcond" text-anchor="middle">(例: NumPy NEP19のlegacy RandomState)</text>
+  <line x1="300" y1="838.0" x2="325" y2="838.0" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="312.5" y="828.0" class="yes" text-anchor="middle">YES</text>
+  <rect x="335" y="771.0" width="595" height="180.5" rx="10" fill="#558b2f" fill-opacity="0.08" stroke="#558b2f" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="351" y="787.0" width="56" height="56" rx="10" fill="#558b2f"/>
+  <text x="379.0" y="822.0" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L1</text>
+  <text x="423" y="803.0" class="cardtitle">明文の規約 — ライブラリが文書で約束</text>
+  <text x="423" y="827.0" class="cardcond">保証のないAPIはバージョンを上げると壊れうる(実測: numpy 1.21.6→2.2.6 で</text>
+  <text x="423" y="843.0" class="cardcond">NEP19が保証するRandomStateは不変、非保証のGeneratorのみ不一致)。</text>
+  <text x="423" y="869.0" class="tmpllabel">納品文言:</text>
+  <text x="423" y="888.0" class="tmpltext">本計算は[ライブラリ名]が文書(例: NEP19)で明言するAPIのみを使う。[ライブラリ名</text>
+  <text x="423" y="904.5" class="tmpltext">]==[X.Y.Z]に固定する限り、実行環境を問わずビット単位で一致することを約束する</text>
+  <text x="423" y="921.0" class="tmpltext">。バージョンを上げた場合は無効。</text>
+  <line x1="165" y1="955.0" x2="165" y2="1017.5" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="185" y="1009.5" class="no">NO(非保証と明記、または文書なし)</text>
+  <polygon points="165,1041.5 300,1123.5 165,1205.5 30,1123.5" class="diamond"/>
+  <text x="165" y="1092.5" class="qtext" text-anchor="middle">SIMDディスパッチ・BLAS</text>
+  <text x="165" y="1110.5" class="qtext" text-anchor="middle">スレッド数・libm実装・GPU</text>
+  <text x="165" y="1128.5" class="qtext" text-anchor="middle">モデルを変えると結果が</text>
+  <text x="165" y="1146.5" class="qtext" text-anchor="middle">変わることを実測、または</text>
+  <text x="165" y="1164.5" class="qtext" text-anchor="middle">文献で確認したか?</text>
+  <text x="165" y="1227.5" class="qcond" text-anchor="middle">(未検証なら「分からない」に倒す = YES扱い)</text>
+  <line x1="300" y1="1123.5" x2="325" y2="1123.5" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="312.5" y="1113.5" class="yes" text-anchor="middle">YES</text>
+  <rect x="335" y="1049.5" width="595" height="196.5" rx="10" fill="#ef6c00" fill-opacity="0.08" stroke="#ef6c00" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="351" y="1065.5" width="56" height="56" rx="10" fill="#ef6c00"/>
+  <text x="379.0" y="1100.5" text-anchor="middle" font-size="20" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L3</text>
+  <text x="423" y="1081.5" class="cardtitle">実行時環境 — 実行時に環境が選ぶ</text>
+  <text x="423" y="1105.5" class="cardcond">同じコード・同じ版でもCPU世代・スレッド数・ベースイメージが変われば壊れる(実測: F</text>
+  <text x="423" y="1121.5" class="cardcond">4のL3行、特にAVX2↔AVX-512でexp/logが分裂・n≥4194304のcurandがGPUモデルで分</text>
+  <text x="423" y="1137.5" class="cardcond">裂)。</text>
+  <text x="423" y="1163.5" class="tmpllabel">納品文言:</text>
+  <text x="423" y="1182.5" class="tmpltext">本計算の一致は、コンテナイメージ[digest]・CPU世代[例: AVX-512非対応機に統一]</text>
+  <text x="423" y="1199.0" class="tmpltext">・スレッド数[N]・GPUモデル[型番]を固定する環境でのみ実測により確認した。こ</text>
+  <text x="423" y="1215.5" class="tmpltext">れらのいずれかが変われば一致しない。</text>
+  <line x1="165" y1="1247.5" x2="165" y2="1312.0" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="185" y="1304.0" class="no">NO(今回の実測範囲では環境を変えても一致)</text>
+  <rect x="30" y="1312.0" width="900" height="164.0" rx="10" fill="#f9a825" fill-opacity="0.1" stroke="#f9a825" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="46" y="1328.0" width="56" height="56" rx="10" fill="#f9a825"/>
+  <text x="74" y="1363.0" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L2</text>
+  <text x="118" y="1344.0" class="cardtitle">事実上の実装 — 文書化なし、実装がたまたま決めている</text>
+  <text x="118" y="1368.0" class="cardcond">バージョン差で根拠なく変わりうる(実測: 正規乱数の変換(ziggurat/Box-Muller)はPython版・SIMD世代を変えても今回は崩れなかったが、これは</text>
+  <text x="118" y="1384.0" class="cardcond">保証ではなく「たまたま」)。</text>
+  <text x="118" y="1410.0" class="tmpllabel">納品文言:</text>
+  <text x="118" y="1429.0" class="tmpltext">本計算の結果は、現在のバージョン[X.Y.Z]・現在の環境では一致することを実測で確認した。ただしこれは文書化された保証ではなく、</text>
+  <text x="118" y="1445.5" class="tmpltext">将来のバージョンアップで予告なく変わりうるため、一致は約束しない。</text>
+  <text x="30" y="1506.0" class="footnote">実測依存の図(境界は本プロジェクトの実測、4ホスト・7イメージ・6構成・30ラン、2026-10-14に基づく。詳細はF4とresults/report.jsonを参照)。各レベルの定義そ</text>
+  <text x="30" y="1522.0" class="footnote">のものはF3(原理図)。</text>
+  <text x="30" y="1538.0" class="footnote">納品文言は雛形であり、実際の納品では角括弧[ ]の中を自分の計算・バージョン・環境に置き換えて使う。</text>
+  </svg>

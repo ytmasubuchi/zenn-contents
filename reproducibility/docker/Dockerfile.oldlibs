@@ -1,0 +1,63 @@
+# oldlibs image: python:3.10-slim + numpy==1.21.6 + scikit-learn==1.0.2 +
+# lightgbm==4.5.0. Read this against oldpy (same Python version, numpy
+# 2.2.6), not against base (which would also move the Python version) --
+# see Dockerfile.oldpy and Task 12 resolution 1.
+#
+# numpy MUST be 1.21.6, not a newer 1.26-series pin: NumPy's documented
+# stream-breaking changes are at 1.19.0 and 1.22.0 (NEP 19), and 1.21.6 is
+# the last release before the 1.22.0 boundary. A 1.26 pin would cross
+# neither boundary and this image would demonstrate nothing about NEP 19
+# (Task 12 resolution 2). numpy 1.21.6 only ships wheels up to Python
+# 3.10, which is why this image (and oldpy) is pinned to python:3.10-slim.
+#
+# This image's library-version condition is measured on numpy and
+# scikit-learn (S1 through S6, which need only those two plus lightgbm),
+# not torch. Confirmed (fix round 1): scikit-learn==1.0.2 and
+# lightgbm==4.5.0 both install and actually run against numpy==1.21.6 on
+# python 3.10 -- not just import cleanly, a real LogisticRegression
+# fit/predict and a full lgb.train()/predict() round-trip both produced
+# real output -- on both linux/aarch64 (this development host) and
+# linux/amd64 (emulated). Neither showed any version friction with
+# numpy==1.21.6.
+#
+# NO TORCH in this image -- deliberate, and ruled acceptable regardless of
+# the finding below: S7-S9 (the torch-requiring probes) would only measure
+# torch's OWN version compatibility, which the article makes no claim
+# about, whereas this image's purpose (the NEP 19 stream-compatibility
+# condition) is already fully covered by S1-S4 (numpy only). S7/S9 record
+# a clean `missing requirement: torch` skip here, which is correct for an
+# image that deliberately does not carry it.
+#
+# What the investigation actually found, corrected after fix round 1: an
+# earlier version of this comment claimed "there is no torch wheel for
+# Python 3.10 that is numpy==1.21.6-ABI-compatible", based on testing only
+# linux/aarch64 (this development host). That claim was an artifact of
+# the architecture tested, not a true version-level incompatibility:
+# retested torch==1.13.1 (cp310) under linux/amd64 (emulated) against
+# numpy==1.21.6, and `tensor.numpy()` works correctly -- no ABI warning,
+# real float32 output. On linux/aarch64, torch==1.10.2 (the oldest cp310
+# wheel available there), 1.12.1 and 1.13.1 all fail with
+# `RuntimeError: Numpy is not available` after a
+# "compiled against API version 0xf/0x10 but this version of numpy is
+# 0xe" warning. Since oldlibs actually runs on blade, which is x86_64, a
+# compatible old torch likely does exist for the host that matters --
+# but per the ruling above, that no longer changes this image's contents:
+# adding it would measure a different thing than this image is for.
+FROM python:3.10-slim
+
+ENV REPRO_IMAGE=oldlibs
+ENV PYTHONPATH=/work
+WORKDIR /work
+
+# lightgbm's compiled core library is linked against libgomp (OpenMP) and
+# does not bundle it; python:3.10-slim does not ship it by default. See
+# Dockerfile.base for the same fix and the failure it addresses.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements/oldlibs.txt ./requirements/oldlibs.txt
+RUN pip install --no-cache-dir -r requirements/oldlibs.txt
+
+COPY reprobench/ ./reprobench/
+COPY tests/ ./tests/

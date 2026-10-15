@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 650" width="960" height="650">
+  <style>
+    text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
+    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 13px; fill: #4b5563; }
+    .panelTitle { font-size: 16px; font-weight: 700; fill: #1e3a5f; }
+    .panelSub { font-size: 13px; fill: #374151; }
+    .cellnum { font-size: 15px; fill: #374151; }
+    .legend { font-size: 12px; fill: #374151; }
+    .note { font-size: 13px; fill: #111827; }
+    .footnote { font-size: 12px; fill: #6b7280; }
+    .cellA { fill: #e5e7eb; stroke: #9ca3af; stroke-width: 1; }
+  </style>
+
+  <rect x="0" y="0" width="960" height="650" fill="#ffffff"/>
+
+  <text x="30" y="38" class="title">F10. BLASの行列積 — スレッド数が変わるとタイルの足し合わせ順が変わる</text>
+  <text x="30" y="58" class="subtitle">C = A @ B の出力を16枚のタイルに分けた模式図。マスの番号/色は「どのタイルを誰がどの順で計算するか」を示す。</text>
+  <line x1="30" y1="70" x2="930" y2="70" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- Scenario A: 1 thread -->
+  <text x="70" y="96" class="panelTitle">スレッド数 = 1</text>
+
+  <g>
+    <rect x="70"  y="110" width="70" height="70" class="cellA"/><text x="105" y="152" text-anchor="middle" class="cellnum">1</text>
+    <rect x="140" y="110" width="70" height="70" class="cellA"/><text x="175" y="152" text-anchor="middle" class="cellnum">2</text>
+    <rect x="210" y="110" width="70" height="70" class="cellA"/><text x="245" y="152" text-anchor="middle" class="cellnum">3</text>
+    <rect x="280" y="110" width="70" height="70" class="cellA"/><text x="315" y="152" text-anchor="middle" class="cellnum">4</text>
+
+    <rect x="70"  y="180" width="70" height="70" class="cellA"/><text x="105" y="222" text-anchor="middle" class="cellnum">5</text>
+    <rect x="140" y="180" width="70" height="70" class="cellA"/><text x="175" y="222" text-anchor="middle" class="cellnum">6</text>
+    <rect x="210" y="180" width="70" height="70" class="cellA"/><text x="245" y="222" text-anchor="middle" class="cellnum">7</text>
+    <rect x="280" y="180" width="70" height="70" class="cellA"/><text x="315" y="222" text-anchor="middle" class="cellnum">8</text>
+
+    <rect x="70"  y="250" width="70" height="70" class="cellA"/><text x="105" y="292" text-anchor="middle" class="cellnum">9</text>
+    <rect x="140" y="250" width="70" height="70" class="cellA"/><text x="175" y="292" text-anchor="middle" class="cellnum">10</text>
+    <rect x="210" y="250" width="70" height="70" class="cellA"/><text x="245" y="292" text-anchor="middle" class="cellnum">11</text>
+    <rect x="280" y="250" width="70" height="70" class="cellA"/><text x="315" y="292" text-anchor="middle" class="cellnum">12</text>
+
+    <rect x="70"  y="320" width="70" height="70" class="cellA"/><text x="105" y="362" text-anchor="middle" class="cellnum">13</text>
+    <rect x="140" y="320" width="70" height="70" class="cellA"/><text x="175" y="362" text-anchor="middle" class="cellnum">14</text>
+    <rect x="210" y="320" width="70" height="70" class="cellA"/><text x="245" y="362" text-anchor="middle" class="cellnum">15</text>
+    <rect x="280" y="320" width="70" height="70" class="cellA"/><text x="315" y="362" text-anchor="middle" class="cellnum">16</text>
+  </g>
+  <text x="70" y="416" class="panelSub">1つのスレッドが全16タイルを</text>
+  <text x="70" y="434" class="panelSub">番号の順(1→16)に逐次計算する</text>
+
+  <!-- Scenario B: 4 threads -->
+  <text x="570" y="96" class="panelTitle">スレッド数 = 4</text>
+
+  <g>
+    <rect x="570" y="110" width="70" height="70" fill="#93c5fd" stroke="#2563eb" stroke-width="1"/>
+    <rect x="640" y="110" width="70" height="70" fill="#93c5fd" stroke="#2563eb" stroke-width="1"/>
+    <rect x="710" y="110" width="70" height="70" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+    <rect x="780" y="110" width="70" height="70" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+
+    <rect x="570" y="180" width="70" height="70" fill="#93c5fd" stroke="#2563eb" stroke-width="1"/>
+    <rect x="640" y="180" width="70" height="70" fill="#93c5fd" stroke="#2563eb" stroke-width="1"/>
+    <rect x="710" y="180" width="70" height="70" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+    <rect x="780" y="180" width="70" height="70" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+
+    <rect x="570" y="250" width="70" height="70" fill="#5eead4" stroke="#0d9488" stroke-width="1"/>
+    <rect x="640" y="250" width="70" height="70" fill="#5eead4" stroke="#0d9488" stroke-width="1"/>
+    <rect x="710" y="250" width="70" height="70" fill="#94a3b8" stroke="#475569" stroke-width="1"/>
+    <rect x="780" y="250" width="70" height="70" fill="#94a3b8" stroke="#475569" stroke-width="1"/>
+
+    <rect x="570" y="320" width="70" height="70" fill="#5eead4" stroke="#0d9488" stroke-width="1"/>
+    <rect x="640" y="320" width="70" height="70" fill="#5eead4" stroke="#0d9488" stroke-width="1"/>
+    <rect x="710" y="320" width="70" height="70" fill="#94a3b8" stroke="#475569" stroke-width="1"/>
+    <rect x="780" y="320" width="70" height="70" fill="#94a3b8" stroke="#475569" stroke-width="1"/>
+  </g>
+
+  <!-- legend for scenario B. fix round 1, Important 7 / small fix: the
+       caption no longer claims "部分和を結合する" (a cross-thread
+       combination this picture does not show — each tile here is
+       assigned to exactly one thread, which by itself does not reorder
+       that tile's own accumulation), and no longer overflows past the
+       canvas's ~30px right margin (it ran to ~x=943 at x=780 before). -->
+  <rect x="570" y="400" width="14" height="14" fill="#93c5fd" stroke="#2563eb"/><text x="590" y="412" class="legend">thread 1</text>
+  <rect x="670" y="400" width="14" height="14" fill="#c4b5fd" stroke="#7c3aed"/><text x="690" y="412" class="legend">thread 2</text>
+  <rect x="570" y="422" width="14" height="14" fill="#5eead4" stroke="#0d9488"/><text x="590" y="434" class="legend">thread 3</text>
+  <rect x="670" y="422" width="14" height="14" fill="#94a3b8" stroke="#475569"/><text x="690" y="434" class="legend">thread 4</text>
+  <!-- split across two lines: a single line here previously ran well
+       past x=960 (same overflow class as the earlier footnote fixes). -->
+  <text x="570" y="452" class="panelSub">4スレッドが同時に別々のタイルを計算する</text>
+  <text x="570" y="470" class="panelSub">(この図が示すのは割り当てだけ)</text>
+
+  <!-- shared explanation. fix round 1, Important 7: the previous wording
+       asserted "部分和をいつ足し合わせるかは、スレッド数が変われば変わる"
+       as if the tile-per-thread picture above demonstrated it — it does
+       not: assigning whole output tiles to threads does not by itself
+       reorder any one tile's own accumulation. Restated so the picture's
+       claim (assignment changes) and the documented claim (blocking and
+       accumulation order can also change) are kept separate, with the
+       latter attributed to oneMKL's own documentation, not to what is
+       drawn. -->
+  <rect x="30" y="486" width="900" height="100" fill="#fff7ed" stroke="#ef6c00" stroke-opacity="0.5" stroke-width="1.5" rx="8"/>
+  <rect x="44" y="500" width="44" height="42" rx="8" fill="#ef6c00"/>
+  <text x="66" y="527" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">L3</text>
+  <text x="104" y="514" class="note">この模式図が示すのは、どのタイルをどのスレッドが計算するかという割り当てが、スレッド数で変わることだけである。</text>
+  <text x="104" y="534" class="note">Intel oneMKLの文書は、スレッド数が変わると内部のブロッキングや演算順序(部分積をどう結合するか)も</text>
+  <text x="104" y="554" class="note">変わりうると明記している(CNR)。浮動小数点の非結合性(F5参照)と合わさって、`A @ B` の最下位ビットが</text>
+  <text x="104" y="574" class="note">変わりうる(→ L3: 実行時の環境が選ぶ)。</text>
+
+  <text x="30" y="606" class="footnote">出典: BLISの並列GEMM設計(Anatomy of High-Performance Many-Threaded Matrix Multiplication, IPDPS'14) — タイル分割をスレッドに割り当てる方式を説明。</text>
+  <text x="30" y="624" class="footnote">Intel oneMKL "Conditional Numerical Reproducibility (CNR)" ドキュメント — 「スレッド数が変わると演算順が変わりうる」ことを公式に明記。</text>
+  <text x="30" y="642" class="footnote">調査ノート simd_blas_parallel.md 参照。</text>
+</svg>
