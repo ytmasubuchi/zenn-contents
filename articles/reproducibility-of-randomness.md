@@ -183,9 +183,9 @@ _F2. PRNGのビット列の一致と、それを使った計算結果の一致�
 | --------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | L0 規格         | IEEE754は国際規格。MT19937/PCG64/Philoxは査読論文・公開仕様(国際規格ではない) | IEEE754の`+ - × ÷ √`・明示的に呼んだ`fma()`(Fused Multiply-Add、積和を1回の丸めで計算する演算。正しく丸め)、MT19937/PCG64/Philoxの状態遷移・出力計算(同一の内部状態から次状態・出力を計算する部分に限る) | 言語・OS・CPUを跨いでも壊れない。ただし`a*b+c`のようなFMAへの自動contractや、seedから内部状態への変換はこの「壊れない」範囲に含まれない(下記参照) | コア部分(同一内部状態からの次状態・出力計算)に限ってビット一致を約束できる                                |
 | L1 明文の規約   | ライブラリが文書で約束               | NumPy NEP19(RandomStateは保証、Generatorは非保証)、PyTorch「リリース間の再現性は保証しない」                                 | バージョンを上げた瞬間                                              | バージョン固定を条件に約束できる                                      |
-| L2 事実上の実装 | 文書化なし。実装がたまたま決めている | 正規乱数の変換法(ziggurat/polar法)、`np.sum`のpairwise summationの閾値                                                       | バージョン差(根拠なく変わりうる)                                    | 実際には一致するが、根拠が無いので書かない方がよい                    |
+| L2 事実上の実装 | 文書化なし。実装がたまたま決めている | 正規乱数の変換法(ziggurat/polar法)、`np.sum`のpairwise summationの閾値                                                       | バージョン差(根拠なく変わりうる)                                    | 実際には一致するが、根拠が無いため無条件の一致保証としては書かない方がよい(条件付きの言い回しは第8章L2テンプレート参照)                    |
 | L3 実行時環境   | 実行時に環境が選ぶ                   | SIMDディスパッチ、BLASスレッド数、libm(glibc/musl)、cuBLAS GEMM(同一アーキテクチャ・同一SM数なら決定的。第6章G4参照)         | 同じコード・同じ版でもCPU世代・スレッド数・ベースイメージ・GPUアーキテクチャが変われば | 「同一イメージ+同一CPU世代+スレッド数固定」(GPU計算では同一GPUアーキテクチャ・同一SM数も)まで条件を書けば約束できる |
-| L4 保証なし     | 原理的に非決定                       | PYTHONHASHSEED、GPUの`atomicAdd`順序、cuDNN benchmarkの自動選択                                                              | 性質が2種類ある。`atomicAdd`等は同一プロセス内の2回実行でも変わる。PYTHONHASHSEED等は同一プロセス内では変わらないが、プロセス/コンテナを起動し直すと変わる(第5章の実測参照) | 約束できない。許容誤差でしか語れない                                  |
+| L4 保証なし     | 原理的に非決定                       | PYTHONHASHSEED、GPUの`atomicAdd`順序(いずれも本記事で実測)。一般に知られた他の例としてcuDNN benchmarkの自動選択があるが、本記事にはこれを測るプローブが無く未実測                                                              | 性質が2種類ある。`atomicAdd`等は同一プロセス内の2回実行でも変わる。PYTHONHASHSEED等は同一プロセス内では変わらないが、プロセス/コンテナを起動し直すと変わる(第5章の実測参照) | 約束できない。許容誤差でしか語れない                                  |
 
 ![F3. 再現性の保証レベルL0〜L4。](/images/reproducibility-of-randomness/f3_levels.png)
 _F3. 各レベルで何が壊すかを並べた原理図。_
@@ -325,7 +325,7 @@ BLAS実装(OpenBLAS・MKL)は、この規定されていない部分を独自に
 
 第2章では、`exp`/`log`が割れて`sin`が割れないという結果を、AVX2/AVX-512のSIMDディスパッチで説明した。
 しかし「SIMDに依存するのでlibmには依存しない」という単純な二分法は、NumPy 2.2.6のソースと照らすと正確ではない。
-`loops_exponent_log.dispatch.c.src`のDOUBLE_exp/DOUBLE_logは、(1) SVMLが使えるAVX512_SKX環境ではSVMLカーネル、(2) AVX512Fが使える環境ではNumPy内製のAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE、(3) どちらも使えなければnpy_exp/npy_logのスカラー経路、つまりプラットフォームのlibmを呼ぶ、という3段構えのディスパッチになっている。
+`loops_exponent_log.dispatch.c.src`のDOUBLE_exp/DOUBLE_logは、(1) SVML(Intel Short Vector Math Library。Intelコンパイラでリンクした場合にのみ有効になるベクトル化数学関数ライブラリで、通常のPyPIホイールでは有効でなく、本記事の実測環境でもこの経路は使われていない)が使えるAVX512_SKX環境ではSVMLカーネル、(2) AVX512Fが使える環境ではNumPy内製のAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE、(3) どちらも使えなければnpy_exp/npy_logのスカラー経路、つまりプラットフォームのlibmを呼ぶ、という3段構えのディスパッチになっている。
 ただし(2)のAVX512F_log_DOUBLEには、それ自身の内部にも小さなlibmフォールバックがある。同ソースのコメントは887行目で「if x on (1.0 - 0x1p-4, 1.0 + 0x1.09p-4), calling npy_log()」と明記しており、953〜954行目でそのウィンドウを定数`[0.9375, 1.0647]`として定義し、988行目のif分岐でこの範囲に入る要素だけ、1088行目で`npy_log(ip_fback[ii])`としてnpy_log(プラットフォームのlibm)を個別に呼んでいる。AVX512F_exp_DOUBLEにはこのフォールバックが無い。
 一方`loops_trigonometric.dispatch.cpp`には「Disable SIMD code sin/cos f64 and revert to libm」というコメントがあり、float64の`sin`/`cos`はNumPy 2.2.6では常にlibmを経由する(`npy_math_internal.h.src`も「We assume the above are always available in their double versions」としてlibm依存を前提にしている)。
 したがって、`exp`がlibm実装の違いに反応するかどうかは「AVX-512専用カーネルが使えるかどうか」だけで決まるのに対し、`log`はAVX-512専用カーネルが使える環境でもなお、入力のうち1.0近傍の窓`[0.9375, 1.0647]`に落ちる要素があるかどうかで部分的にlibm実装差の影響を受けうる。`sin`/`cos`は常にlibm依存である。
@@ -851,10 +851,18 @@ greedy生成の84ステップ全てで、top-1とtop-2のロジット差(margin)
 
 anakinとbladeで完全一致したのは84個中17個、差がある要素の中央値は18 ULP、最大49,152 ULPだった。
 anakinとdgxsparkでは完全一致5個・中央値32 ULP・最大40,960 ULP、bladeとdgxsparkでは完全一致10個・中央値24 ULP・最大8,192 ULPだった。
+3ペアの数値をまとめると次の表になる(84ステップ中、完全一致した個数/一致しなかった要素のULP差の中央値/最大値)。
+
+| ペア               | 完全一致数(/84) | ULP差の中央値 | ULP差の最大値 |
+| ------------------ | ---------------- | -------------- | -------------- |
+| anakin - blade      | 17                | 18             | 49,152          |
+| anakin - dgxspark    | 5                 | 32             | 40,960          |
+| blade - dgxspark     | 10                | 24             | 8,192           |
+
 「最下位ビットがずれる」という表現が示す1 ULPの桁とは、ここまで大きく違う。
 
 ![F8a. LLM greedy生成のlogit margin。](/images/reproducibility-of-randomness/f8_llm_margin.png)
-_F8a. margin分布(左)とホスト間差分(右)。_
+_F8a. margin分布(左)とホスト間差分(右)。右パネルは3ペアのうち2ペア(anakin-blade・anakin-dgxspark)を表示(3ペア目のblade-dgxsparkを含む数値は本文参照)。_
 
 #### 理論との照合
 

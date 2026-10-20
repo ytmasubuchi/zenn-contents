@@ -73,7 +73,7 @@
   <text x="100" y="384" class="cell">実装がたまたま決めている</text>
 
   <text x="310" y="366" class="cell">正規乱数の変換法</text>
-  <text x="310" y="384" class="cell">(ziggurat / Box-Muller)、</text>
+  <text x="310" y="384" class="cell">(ziggurat / polar法)、</text>
   <text x="310" y="402" class="cell">np.sumのpairwise</text>
   <text x="310" y="420" class="cell">summationの閾値</text>
 

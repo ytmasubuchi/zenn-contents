@@ -117,12 +117,12 @@
   <rect x="46" y="1352.0" width="56" height="56" rx="10" fill="#f9a825"/>
   <text x="74" y="1387.0" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L2</text>
   <text x="118" y="1368.0" class="cardtitle">事実上の実装 — 文書化なし、実装がたまたま決めている</text>
-  <text x="118" y="1392.0" class="cardcond">バージョン差で根拠なく変わりうる(実測: 正規乱数の変換(ziggurat/Box-Muller)はPython版・SIMD世代を変えても今回は崩れなかったが、これは</text>
+  <text x="118" y="1392.0" class="cardcond">バージョン差で根拠なく変わりうる(実測: 正規乱数の変換(ziggurat/polar法)はPython版・SIMD世代を変えても今回は崩れなかったが、これは</text>
   <text x="118" y="1408.0" class="cardcond">保証ではなく「たまたま」)。</text>
   <text x="118" y="1434.0" class="tmpllabel">納品文言:</text>
   <text x="118" y="1453.0" class="tmpltext">本計算の結果は、現在のバージョン[X.Y.Z]・現在の環境では一致することを実測で確認した。ただしこれは文書化された保証ではなく、</text>
   <text x="118" y="1469.5" class="tmpltext">将来のバージョンアップで予告なく変わりうるため、一致は約束しない。</text>
-  <text x="30" y="1530.0" class="footnote">実測依存の図(境界は本プロジェクトの実測、4ホスト・7イメージ・6構成・30ラン、2026-10-14に基づく。詳細はF4とresults/report.jsonを参照)。各レベルの定義そ</text>
-  <text x="30" y="1546.0" class="footnote">のものはF3(原理図)。</text>
+  <text x="30" y="1530.0" class="footnote">実測依存の図(境界は本プロジェクトの実測、4ホスト・7イメージ・7構成・35ラン、2026-10-14の30ランに2026-10-20の追加5ランを加えたものに基づく。詳細はF4と</text>
+  <text x="30" y="1546.0" class="footnote">results/report.jsonを参照)。各レベルの定義そのものはF3(原理図)。</text>
   <text x="30" y="1562.0" class="footnote">納品文言は雛形であり、実際の納品では角括弧[ ]の中を自分の計算・バージョン・環境に置き換えて使う。</text>
   </svg>
