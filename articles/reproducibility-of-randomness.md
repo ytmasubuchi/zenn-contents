@@ -21,7 +21,9 @@ TL;DRは次の3点である。
 
 - 乱数生成のビット列そのものが一致する保証と、それを使った計算の最終結果が一致する保証は別物である。
 - 保証はL0(規格)からL4(保証なし)まで5段階に分かれる。段階によって壊れる条件も、納品文書に書ける文言も違う。
-- MacBook・anakin・blade・dgxsparkの4台、7種類のDockerイメージ、30回の実測で境界を確かめた。割れなかった仮説もそのまま書く。
+- MacBook・anakin・blade・dgxsparkの4台、7種類のDockerイメージ、30回の実測で境界を確かめた。理論で説明がつかなかった結果もそのまま書く。
+
+なお、各章の「理論」節は実測結果を見た後に書いている。本記事中で実測前に予測を記録した唯一の例は、追加実測の事前登録(第6章・`PREREGISTERED_PREDICTION.md`)であり、それ以外の「理論」は一次資料の事後整理である(詳細は第9章)。
 
 ---
 
@@ -203,7 +205,7 @@ NumPyの`SeedSequence`はバージョン1.19.0でspawn時の処理を変更し�
 
 - IEEE 754が保証するのは演算1つであって、演算の並びではない。IEEEのサイト(grouper.ieee.org)で公開されている背景資料は、「the IEEE standard does not guarantee that the same program will deliver identical results on all conforming systems(同じプログラムが全ての準拠システムで同一の結果を返すことを規格は保証しない)」と明記している。この資料は規格の規範的な本文ではなく背景説明用の文書であり、ワーキンググループ内での正式な位置づけまでは確認できていないが、信頼できる二次資料として扱う。同じ資料は「移植した際に途中結果が食い違うなら必ずソフトウェアのバグだ」という通説も否定している。
 - `exp`/`log`/`sin`のような超越関数は、IEEE 754では正しく丸めることが要求されておらず、推奨にとどまる。任意の点で正しく丸めるのに何ビット余分に必要かを一般に抑える手法が無いため、主要なlibm実装はどれも全ての超越関数を正しく丸めてはいない。これが第6章でlibm実装差が出る根本原因になる。
-- FMAがL0なのは、`fma()`を明示的に呼んだ場合に限られる。ソースコード中の`a*b+c`という書き方がFMA命令1つにcontract(融合)されるかどうかはIEEE 754の範囲外で、言語標準・コンパイラ・`-ffp-contract`のようなフラグ・対象CPUがFMA命令を持つかに依存する。C標準は`#pragma STDC FP_CONTRACT OFF`でcontractを抑制できることになっているが、GCCはこのpragmaを無視してFMAに融合することが知られている。したがって自動contractによる結果はL3寄りの挙動になりうる。なお、同じlibc実装でもISA(命令セットアーキテクチャ)によって結果が変わる例が本記事の追加実測でも出ている(第6章)。原因は未検証だが、FMAの有無が候補の一つとして挙がっている。
+- FMAがL0なのは、`fma()`を明示的に呼んだ場合に限られる。ソースコード中の`a*b+c`という書き方がFMA命令1つにcontract(融合)されるかどうかはIEEE 754の範囲外で、言語標準・コンパイラ・`-ffp-contract`のようなフラグ・対象CPUがFMA命令を持つかに依存する。C標準は`#pragma STDC FP_CONTRACT OFF`でcontractを抑制できることになっているが、GCCはこのpragmaを無視してFMAに融合することが知られている。したがって自動contractによる結果はL3寄りの挙動になりうる。なお、同じlibc実装でもISA(命令セットアーキテクチャ)によって結果が変わる例が本記事の追加実測で実際に観測されている(第6章G2)。musl libcの`log`はソースコード中に`__FP_FAST_FMA`という明示的な`#if`分岐を持ち、FMA命令が使えるISAかどうかで数式そのものを切り替えている。ここで述べた「`a*b+c`の自動contractはL3寄り」という一般論よりもさらに直接的に、ソースに書かれた分岐そのものがISA依存の原因になっている例であり、本章で条件付きでしかL0でないと述べたFMAの依存性が、実測で現れた具体例にあたる。
 
 :::details libcとlibmとは
 
@@ -414,7 +416,42 @@ glibc/muslの比較は、第2章時点では「bladeという1台のAVX-512搭�
 
 異なるISA(x86_64のAVX2とaarch64)のglibc環境同士が`exp`/`log`でビット一致したのも、この機構で説明できる。どちらもAVX-512専用カーネルを持たずlibmにフォールバックするため、あとは双方のglibc(ともにバージョン2.41)が`exp`/`log`で同じ結果を返すかどうかだけで決まる。今回はそれが一致した、という観測である。
 
-一方、予測が外れた`log`は新しい事実を明らかにした。muslの`log`はISAによって異なるビットを返す(x86_64のmusl: `28ff757a`、aarch64のmusl: `84b2ce10`)。musl版の`exp`と`sin`は両ISAで同一(`ab300a28`/`601eb0fa`)であり、glibc版の`log`も両ISAで同一(`09cef322`)である。つまり「同じlibc実装ならISAを跨いでも同じ」という読みは、muslの`log`では成立しない。**この原因は未検証である。** FMA(積和演算)の有無が候補として考えられる(muslのx86-64ベースラインはFMA3を含まず、aarch64ベースラインはFMAを含む)が、本プロジェクトでは検証していない。
+一方、予測が外れた`log`は新しい事実を明らかにした。muslの`log`はISAによって異なるビットを返す(x86_64のmusl: `28ff757a`、aarch64のmusl: `84b2ce10`)。musl版の`exp`と`sin`は両ISAで同一(`ab300a28`/`601eb0fa`)であり、glibc版の`log`も両ISAで同一(`09cef322`)である。つまり「同じlibc実装ならISAを跨いでも同じ」という読みは、muslの`log`では成立しない。
+
+この原因は、予測が外れた後の追加調査で特定できた。muslのソース`src/math/log.c`には、次のような明示的な`#if`分岐が実在する(`log2.c`にも同じ分岐がある)。
+
+```c
+	/* log(x) = log1p(z/c-1) + log(c) + k*Ln2.  */
+	/* r ~= z/c - 1, |r| < 1/(2*N).  */
+#if __FP_FAST_FMA
+	/* rounding error: 0x1p-55/N.  */
+	r = __builtin_fma(z, invc, -1.0);
+#else
+	/* rounding error: 0x1p-55/N + 0x1p-66.  */
+	r = (z - T2[i].chi - T2[i].clo) * invc;
+#endif
+```
+
+`__FP_FAST_FMA`が真のときはFMA命令による積和を1回の丸めで計算し、偽のときは`T2`という別の補正テーブルを使って複数回丸める経路に切り替わる。どちらを通るかで数式そのものが別物になる。`exp.c`や`__sin.c`/`__cos.c`/`__rem_pio2.c`には、この`__FP_FAST_FMA`分岐も`__builtin_fma`呼び出しも一切存在しない。これが`exp`/`sin`はISA依存にならず、`log`だけがISA依存になる理由である。また`src/math/x86_64/`にはdouble精度の`log`/`exp`/`sin`のISA専用アセンブリは存在せず(long double版の`logl.s`/`expl.s`や`fma.c`/`sqrt.c`等があるのみ)、`log.c`/`log_data.c`にも`long double`は登場しない。したがって「ISA専用アセンブリ」や「long double中間値」が原因という代替仮説は成り立たない。
+
+`__FP_FAST_FMA`はmusl自身が定義する値ではなく、GCCがターゲットのISA能力を見て自動的に定義するマクロである。GCCの`gcc/c-family/c-cppbuiltin.cc`にある`mode_has_fma()`が、そのターゲット向けにdouble精度の`fma`命令パターンがバックエンドに存在するか(`HAVE_fmadf4`)を見て決めており、musl側の`arch/aarch64/fp_arch.h`・`arch/generic/fp_arch.h`はこのマクロに一切関与しない。
+Alpineのビルド設定(`aports/main/gcc/APKBUILD`)の`build()`は次のようになっている。
+
+```
+case "$CTARGET" in
+aarch64-*-*-*)		_arch_configure="--with-arch=armv8-a --with-abi=lp64";;
+esac
+```
+
+aarch64には`--with-arch=armv8-a`が明示指定されており(ARMv8-Aはスカラ浮動小数点のFMAを必須で含む)、x86_64に対応するcaseエントリは存在しない。その場合GCCのデフォルトである`x86-64`(SSE2ベースライン、FMA命令なし)が使われる。`aports/main/musl/APKBUILD`にも`-march`や`-mfma`の上書きは無い。この非対称なビルド設定が、aarch64側でだけFMA経路を有効にし、x86_64側では複数回丸めの別経路を使わせている。
+
+muslの数学ライブラリの作者Szabolcs Nagy氏自身も、2019年4月のmuslメーリングリストで次のように述べている。
+
+> my new implementations are generic c code, and it's possible to get portable results with the fp semantics of c across targets which implement annex F with FLT_EVAL_METHOD==0: you have to turn fp contraction off, disable builtins and other compiler smartness (musl already does these) and remove any target specific ifdefs or asm that may introduce non-portable results (in the new code only the __FP_FAST_FMA checks).
+
+作者自身が、移植性を崩しうる要因として`__FP_FAST_FMA`の分岐を名指ししている。
+
+ここで確認できていない点も残しておく。Alpineが配布する実バイナリ(`libc.musl-x86_64.so`/`libc.musl-aarch64.so`)を逆アセンブルして`__FP_FAST_FMA`の実値を直接確認したわけではなく、上記はビルド設定からの論理的な推論である。また、`exp`/`sin`でコンパイラによる自動FMA融合(contraction)が実際に起きていないことも、Alpineが使っている実際のCFLAGSに`-ffp-contract=off`相当の指定があるかまでは確認できておらず、作者の一般的な発言と観測の整合からの推測にとどまる。さらに、この現象自体が既知のissueやバグとして報告された形跡は見つからなかった。
 
 ### G3 ハードウェア
 
@@ -838,9 +875,9 @@ L4 保証なし:
 
 今回の実測は、理論で説明できたことと、理論だけでは説明がつかなかったことの両方を含む。
 AVX2とAVX-512の違いで`exp`/`log`が割れることは理論と整合したが、`np.sum`は割れなかった。
-決め手はx86_64とaarch64というCPUアーキテクチャの違いではなく、AVX-512専用カーネルの有無だった。AVX-512専用カーネルがあるかどうかで、exp/logの計算がlibmを経由するかどうかが変わる。ISAが異なっていてもlibmの実装が同じなら一致し、libmが異なれば(glibcとmuslのように)割れる。この機構は、bladeのハードウェアを固定したままAVX-512のnumpyディスパッチ対象だけを無効化する追加実測で確認した。実行前に記録した4項目の予測のうち3項目(exp・sin・np.sumの挙動)は的中し、logの挙動だけ予測(aarch64のmuslと同じ値になる)が外れた。外れた結果から、muslのlogはISA(x86_64かaarch64か)によって異なるビットを返すという、実測前には分からなかった事実が新たに分かった。
+決め手はx86_64とaarch64というCPUアーキテクチャの違いではなく、AVX-512専用カーネルの有無だった。AVX-512専用カーネルがあるかどうかで、exp/logの計算がlibmを経由するかどうかが変わる。ISAが異なっていてもlibmの実装が同じなら一致し、libmが異なれば(glibcとmuslのように)割れる。この機構は、bladeのハードウェアを固定したままAVX-512のnumpyディスパッチ対象だけを無効化する追加実測で確認した。実行前に記録した4項目の予測のうち3項目(exp・sin・np.sumの挙動)は的中し、logの挙動だけ予測(aarch64のmuslと同じ値になる)が外れた。外れた結果から、muslのlogはISA(x86_64かaarch64か)によって異なるビットを返すという、実測前には分からなかった事実が新たに分かった。原因はmuslのソース`src/math/log.c`にある`__FP_FAST_FMA`という明示的な`#if`分岐で、FMA命令が使えるかどうかで数式そのものが切り替わっている(第6章G2参照)。
 LLMのbatch1とbatch8の比較は、「少なくとも今回の規模では一致した」と単純には言えない。batch8が同一プロンプトの複製で長さの異なる実プロンプトを混在させていないこと、3GPU×各条件1回というn=1の比較でありThinking Machines Labの1000回試行・8%の分岐率に対して統計的検出力が大きく劣ることから、現象を検出できる設計ではなかった、というのが正確な言い方である。
-GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使う一部の処理に局在していた。
+GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使う一部の処理に局在していた。CPU実行も一様に安全なわけではない。BLAS・KMeansと同じ理由(非結合則の演算をスレッド分割で計算する)でPyTorch(CPU)のMLPもスレッド数ごとに割れた一方、LightGBMは同じ軸(スレッド数・BLAS実装・Python版)を跨いでも割れなかった(第6章G3)。縮約を使うかどうかではなく、個々の実装がスレッド分割をどう行うかで結果が変わる。
 
 納品物に再現性を書くときは、「再現します」を一言で済ませず、どのレベルの保証なのかを明記するとよい。
 第8章の判定フローと文言テンプレートは、そのための最小限の道具である。
@@ -867,12 +904,21 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 - NEP 19「Random Number Generator Policy」(NumPy公式文書、著者Robert Kern、Status: Final)。https://numpy.org/neps/nep-0019-rng-policy.html (取得日: 2026-10-14)
 - NumPy公式ドキュメント「What's New or Different」(Generatorでは正規分布等の正確な乱数値を再現できないと明記)。https://numpy.org/doc/stable/reference/random/new-or-different.html (取得日: 2026-10-14)
 - NumPy 1.22.0 リリースノート(公式文書。float32一様乱数の最下位ビットが常に0になるバグの修正を記載)。https://numpy.org/doc/stable/release/1.22.0-notes.html (取得日: 2026-10-14)
+- NumPy 1.19.0 リリースノート(公式文書。SeedSequenceのspawn挙動変更を「Spawned SeedSequences will produce different results than in the previous release」と明記)。https://numpy.org/doc/stable/release/1.19.0-notes.html (取得日: 2026-10-20)
+- NumPy公式ドキュメント「Compatibility Policy」(公式文書。「default_rng() is allowed to change which BitGenerator it uses by default」と明記)。https://numpy.org/doc/stable/reference/random/compatibility.html (取得日: 2026-10-20)
 
 ### SIMD・BLAS・libm
 
 - Goldberg, D. (1991) "What Every Computer Scientist Should Know About Floating-Point Arithmetic." ACM Computing Surveys, Vol.23, No.1(査読論文。浮動小数点加算の非結合則の例)。https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html (取得日: 2026-10-14)
 - NumPy Issue #23523「BUG: AVX-512 results differ from non-AVX-512 for sin, cos, exp, log, etc.」(GitHub Issue。メンテナmattip氏による4 ULP許容の発言)。https://github.com/numpy/numpy/issues/23523 (取得日: 2026-10-14)
 - NumPy公式ドキュメント「CPU build options」(NPY_DISABLE_CPU_FEATURES / NPY_ENABLE_CPU_FEATURESの仕様)。https://numpy.org/doc/stable/reference/simd/build-options.html (取得日: 2026-10-14)
+- NumPy 1.9.0 リリースノート(公式文書。pairwise summationを「only along the fast axis and for groups of the values <= 8192 in length」と明記)。https://numpy.org/doc/stable/release/1.9.0-notes.html (取得日: 2026-10-20)
+- NumPy 2.2.6 ソース `loops_exponent_log.dispatch.c.src`(GitHub。DOUBLE_exp/DOUBLE_logのAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE経路とnpy_exp/npy_logスカラー経路への3段ディスパッチ)。https://github.com/numpy/numpy/blob/v2.2.6/numpy/_core/src/umath/loops_exponent_log.dispatch.c.src (取得日: 2026-10-20)
+- NumPy 2.2.6 ソース `loops_trigonometric.dispatch.cpp`(GitHub。「Disable SIMD code sin/cos f64 and revert to libm」のコメント)。https://github.com/numpy/numpy/blob/v2.2.6/numpy/_core/src/umath/loops_trigonometric.dispatch.cpp (取得日: 2026-10-20)
+- musl libc ソース `src/math/log.c`(git.musl-libc.org。`__FP_FAST_FMA`によるFMA/補正テーブル分岐)。https://git.musl-libc.org/cgit/musl/tree/src/math/log.c (取得日: 2026-10-20)
+- musl メーリングリスト、Szabolcs Nagy氏の投稿(2019年4月3日。musl数学ライブラリの移植性に関する`__FP_FAST_FMA`チェックへの言及)。https://www.openwall.com/lists/musl/2019/04/03/1 (取得日: 2026-10-20)
+- GCC ソース `gcc/c-family/c-cppbuiltin.cc`(GitHubミラー。`__FP_FAST_FMA`を定義する`mode_has_fma()`の実装)。https://github.com/gcc-mirror/gcc/blob/master/gcc/c-family/c-cppbuiltin.cc (取得日: 2026-10-20)
+- Alpine Linux aports `main/gcc/APKBUILD`(GitLab。aarch64にのみ`--with-arch=armv8-a`を指定するビルド設定)。https://gitlab.alpinelinux.org/alpine/aports/-/blob/master/main/gcc/APKBUILD (取得日: 2026-10-20)
 
 ### GPUとCUDA
 
@@ -900,5 +946,9 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 - man7.org「random(4)」マニュアルページ(Linux 5.6以降、/dev/randomが起動直後を除き非ブロック化したと明記)。https://man7.org/linux/man-pages/man4/random.4.html (取得日: 2026-10-14)
 - kernel-internals.org「Random Number Generation」(コミュニティによる技術解説記事。kernel.org公式ページではない)。https://kernel-internals.org/crypto/rng/ (取得日: 2026-10-14)
 - The Register「New Linux kernel has improved random-number generation」2022年3月21日(ニュース記事)。https://www.theregister.com/2022/03/21/new_linux_kernel_has_improved/ (取得日: 2026-10-14)
+- Donenfeld, J. A.「Random number generator enhancements for Linux 5.17 and 5.18」zx2c4.com(カーネル乱数生成器の作者本人による解説。5.17でのBLAKE2s化、5.18でのper-CPU化を記載)。https://www.zx2c4.com/projects/linux-rng-5.17-5.18/ (取得日: 2026-10-20)
 - PEP 456「Secure and interchangeable hash algorithm」(Python公式文書。SipHash24採用とハッシュフラッディング対策を記載)。https://peps.python.org/pep-0456/ (取得日: 2026-10-14)
+- CPython公式ドキュメント「Configure Python」(configure docs。siphash13が3.11以降のデフォルトであることを記載)。https://docs.python.org/3/using/configure.html (取得日: 2026-10-20)
 - CVE-2012-1150(共通脆弱性識別子。ハッシュ衝突によるDoS)。https://app.opencve.io/cve/CVE-2012-1150 (取得日: 2026-10-14)
+- man7.org「namespaces(7)」マニュアルページ(cgroup・IPC・network・mount・PID・time・user・UTSの8種類を列挙。RNG/エントロピー専用のnamespaceは存在しない)。https://man7.org/linux/man-pages/man7/namespaces.7.html (取得日: 2026-10-20)
+- Python公式ドキュメント「glob — Unix style pathname pattern expansion」(「The pathnames are returned in no particular order.」と明記)。https://docs.python.org/3/library/glob.html (取得日: 2026-10-20)
