@@ -11,7 +11,7 @@ import json
 import pytest
 
 import reprobench.probes  # noqa: F401  (副作用: 全プローブを登録する)
-from reprobench import registry
+from reprobench import registry, runner
 from reprobench.registry import all_probes
 from reprobench.runner import main, run
 
@@ -131,6 +131,30 @@ def test_run_rejects_repeat_less_than_one():
         run(selected=["S1_stdlib_mt19937"], repeat=0)
     with pytest.raises(ValueError):
         run(selected=["S1_stdlib_mt19937"], repeat=-1)
+
+
+# --- selected_probe_names()/all_probe_names() のテスト(practice config向け) ---
+# Task 1: scripts/run_on_host.shの`practice` configがREPRO_PROBESへ
+# カンマ区切りの複数接頭辞(S11,S12,S13,S14,S15)を設定するために、
+# main()に埋め込まれていた絞り込みロジックをこの2関数へ切り出した。
+
+
+def test_repro_probes_unset_runs_all_probes(monkeypatch):
+    monkeypatch.delenv("REPRO_PROBES", raising=False)
+    assert runner.selected_probe_names(argv_probes=None) == runner.all_probe_names()
+
+
+def test_repro_probes_accepts_comma_separated_prefixes(monkeypatch):
+    # S11は後続タスク(Task 2)で初めて登録されるため、ここでは既存の
+    # 接頭辞(S0, S1)でカンマ区切り絞り込みの機構そのものを確認する。
+    # S11〜S15が実際に選択されることはdry-run(手動確認)と後続タスクの
+    # 実測で検証する。
+    monkeypatch.setenv("REPRO_PROBES", "S0,S1")
+    names = runner.selected_probe_names(argv_probes=None)
+    assert names, "絞り込み結果が空になってはいけない"
+    assert all(n.startswith(("S0", "S1")) for n in names)
+    assert any(n.startswith("S0") for n in names)
+    assert any(n.startswith("S1") for n in names)
 
 
 # --- main()/CLI のテスト ---

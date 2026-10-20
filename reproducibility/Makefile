@@ -73,14 +73,14 @@ build-all-cpu:
 # `make run IMAGE=<name> CONFIG=<name>`: delegates to
 # scripts/run_on_host.sh so the config-name -> environment-variable
 # mapping (threads1/threads8/threadsmax/nosimd512/hashseed0/hashseedfree/
-# s10batch) has exactly one implementation, shared with the real
+# s10batch/practice) has exactly one implementation, shared with the real
 # multi-host orchestration in Task 13's scripts rather than duplicated
 # here. REPRO_HOST defaults to "local" (this machine's Docker Desktop);
 # pass REPRO_HOST=anakin (etc.) to run on a remote measurement host
 # instead.
 run:
 	if [ -z "$(IMAGE)" ] || [ -z "$(CONFIG)" ]; then \
-		echo "Usage: make run IMAGE=<name> CONFIG=<threads1|threads8|threadsmax|nosimd512|hashseed0|hashseedfree|s10batch>" >&2; \
+		echo "Usage: make run IMAGE=<name> CONFIG=<threads1|threads8|threadsmax|nosimd512|hashseed0|hashseedfree|s10batch|practice>" >&2; \
 		exit 1; \
 	fi; \
 	./scripts/run_on_host.sh $(REPRO_HOST) $(IMAGE) $(CONFIG)

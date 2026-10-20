@@ -100,10 +100,13 @@ is left for pip to resolve freely.
 | `make figures` | `results/report.json` -> article PNGs, inside `base` |
 
 `CONFIG` is one of `threads1 threads8 threadsmax nosimd512 hashseed0
-hashseedfree s10batch` (`scripts/run_on_host.sh`'s header comment
-documents exactly which environment variables each one sets and why;
-`s10batch` additionally restricts the run to the S10 batch-invariance
-probes and is only meaningful with `IMAGE=gpu`).
+hashseedfree s10batch practice` (`scripts/run_on_host.sh`'s header
+comment documents exactly which environment variables each one sets and
+why; `s10batch` additionally restricts the run to the S10
+batch-invariance probes and is only meaningful with `IMAGE=gpu`;
+`practice` restricts the run to the S11-S15 probe group (Task 2) and,
+unlike every other config, leaves `CUBLAS_WORKSPACE_CONFIG` unset on
+`IMAGE=gpu` -- that opt-out is itself what S13 measures).
 
 `make report`/`make figures` both run inside the `base` image, per this
 project's own design: they only need `reprobench.compare` (`report`) or

@@ -11,13 +11,19 @@
 #           these four names verbatim)
 #   image:  base | py313 | oldpy | oldlibs | alpine | mkl | gpu
 #   config: threads1 | threads8 | threadsmax | nosimd512 | hashseed0 |
-#           hashseedfree | s10batch
+#           hashseedfree | s10batch | practice
 #           (s10batch: same env vars as threadsmax, but selects only the
 #           S10 batch-invariance probes via REPRO_PROBES -- see its case
 #           arm below. Intended for IMAGE=gpu only, since S10 requires
 #           transformers/torch/hf_model; writes to a config label of its
 #           own, results/<host>__gpu__s10batch.json, so it never collides
-#           with results/<host>__gpu__threadsmax.json.)
+#           with results/<host>__gpu__threadsmax.json.
+#           practice: same env vars as threadsmax, but selects only the
+#           S11-S15 probe group (Task 2) via REPRO_PROBES -- see its case
+#           arm below. Unlike every other config, it also leaves
+#           CUBLAS_WORKSPACE_CONFIG unset on IMAGE=gpu (see the cuBLAS
+#           block below): that opt-out is itself what S13 measures.
+#           Writes to results/<host>__<image>__practice.json.)
 #
 # --dry-run prints every command this script would run (resolved config
 # env vars included) and checks host reachability (ssh for a remote host,
@@ -51,16 +57,20 @@ TIMEOUT_SECS=480
 # with the spaces intact, not split into multiple flags.
 NOSIMD512_FEATURES="AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL"
 
-# cuBLAS deterministic workspace config, set unconditionally whenever
-# IMAGE=gpu regardless of which of the six named CONFIGs is chosen (see
-# below): reprobench/probes/s8_torch_gpu.py's
-# S8_mlp_train10_cuda_deterministic records a `missing env var:` skip
-# unless CUBLAS_WORKSPACE_CONFIG was already set when the process started
-# (cuBLAS reads it at init; setting it later does nothing -- resolution
-# 13). None of the six configs name this axis, so without this, that one
-# probe would skip on every single GPU run. ":4096:8" is one of the two
-# values CUDA's cuBLAS accepts (the other is ":16:8"); this project does
-# not vary this value, so one fixed choice is used everywhere.
+# cuBLAS deterministic workspace config, set whenever IMAGE=gpu for every
+# CONFIG except `practice` (see the IMAGE=gpu block below):
+# reprobench/probes/s8_torch_gpu.py's S8_mlp_train10_cuda_deterministic
+# records a `missing env var:` skip unless CUBLAS_WORKSPACE_CONFIG was
+# already set when the process started (cuBLAS reads it at init; setting
+# it later does nothing -- resolution 13). None of the six original
+# configs (nor s10batch) name this axis, so without this, that one probe
+# would skip on every GPU run under those configs. `practice` is the one
+# exception: it deliberately leaves CUBLAS_WORKSPACE_CONFIG unset on
+# IMAGE=gpu, because that opt-out is itself the S13 measurement target
+# (Task 2) -- `--gpus all` is still added for `practice`, only this env
+# var is skipped. ":4096:8" is one of the two values CUDA's cuBLAS
+# accepts (the other is ":16:8"); this project does not vary this value,
+# so one fixed choice is used everywhere it is set.
 GPU_CUBLAS_WORKSPACE_CONFIG=":4096:8"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -163,8 +173,27 @@ case "$CONFIG" in
     # reprobench.runner側のデフォルト(全プローブ)は一切変わらない。
     add_env "REPRO_PROBES" "S10"
     ;;
+  practice)
+    # practice: Task 2(S11〜S15)実測専用のconfig。s10batchと同じ第三の軸
+    # (「このconfigではどのプローブを走らせるか」)を使うが、さらに
+    # CUBLAS_WORKSPACE_CONFIGのopt-out(下のIMAGE=gpuブロック参照)という
+    # 第四の軸も初めて導入する。
+    #
+    # スレッド数まわりの環境変数はthreadsmaxの設定をそのまま踏襲する
+    # (s10batchのケースと同じ理由: 既存の6 configと無用に異なる軸を
+    # 増やさず、host_nprocの解決ロジックを重複させないため)。
+    if [ "$DRY_RUN" -eq 1 ] && [ "$HOST" != "local" ]; then
+      n="<host's nproc>"
+    else
+      n="$(host_nproc)"
+    fi
+    for v in $THREAD_VARS; do add_env "$v" "$n"; done
+    # REPRO_PROBES: s10batchと同じ仕組み(reprobench/runner.py参照)で
+    # S11〜S15(Task 2で登録予定)だけに絞り込む。
+    add_env "REPRO_PROBES" "S11,S12,S13,S14,S15"
+    ;;
   *)
-    echo "run_on_host.sh: unknown CONFIG '$CONFIG' (expected one of: threads1 threads8 threadsmax nosimd512 hashseed0 hashseedfree s10batch)" >&2
+    echo "run_on_host.sh: unknown CONFIG '$CONFIG' (expected one of: threads1 threads8 threadsmax nosimd512 hashseed0 hashseedfree s10batch practice)" >&2
     exit 1
     ;;
 esac
@@ -185,7 +214,9 @@ add_env "REPRO_CONFIG" "$CONFIG"
 # whatever it's concatenated with instead of zero arguments (verified
 # directly while writing this script -- both failure modes were hit).
 if [ "$IMAGE" = "gpu" ]; then
-  add_env "CUBLAS_WORKSPACE_CONFIG" "$GPU_CUBLAS_WORKSPACE_CONFIG"
+  if [ "$CONFIG" != "practice" ]; then
+    add_env "CUBLAS_WORKSPACE_CONFIG" "$GPU_CUBLAS_WORKSPACE_CONFIG"
+  fi
   ENV_FLAGS+=("--gpus" "all")
 fi
 

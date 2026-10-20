@@ -48,6 +48,39 @@ def _select_probe_names(selected: list[str] | None) -> list[str]:
     return [name for name in names if any(name.startswith(prefix) for prefix in selected)]
 
 
+def all_probe_names() -> list[str]:
+    """登録済み全プローブ名(ソート済み)を返す。
+
+    `all_probes()`(dict)のキーをリスト化するだけの薄いラッパーで、
+    呼び出し側(テストや`scripts/run_on_host.sh`のdry-run検証)が
+    `Probe`オブジェクトという内部表現を直接知らなくても「今何が登録
+    されているか」を見られるようにする。
+    """
+    return list(all_probes())
+
+
+def selected_probe_names(argv_probes: list[str] | None) -> list[str]:
+    """CLIの`--probes`由来の前方一致セレクタリスト(`argv_probes`)から、
+    実行対象のプローブ名を解決して返す。
+
+    `argv_probes`が`None`(`--probes`がCLIで省略された場合)のときは
+    `REPRO_PROBES`環境変数をカンマ区切りの前方一致セレクタとして同じ
+    規則(空トークン除去)で解釈する。環境変数も未設定なら
+    `all_probe_names()`と同じ全件を返す(既存6 configはこの経路)。
+
+    `argv_probes`が明示されている場合は`REPRO_PROBES`を無視する --
+    `main()`の`--probes`がCLI側を優先する既存の優先順位をここでも保つ。
+    """
+    if argv_probes is not None:
+        selected = argv_probes
+    else:
+        probes_env = os.environ.get("REPRO_PROBES")
+        selected = (
+            [p.strip() for p in probes_env.split(",") if p.strip()] if probes_env else None
+        )
+    return _select_probe_names(selected)
+
+
 def _run_one(name: str) -> dict:
     """1プローブを実行し、所要時間(秒)を添えたJSON安全な辞書で返す。
 
@@ -160,8 +193,9 @@ def main(argv: list[str] | None = None) -> None:
 
     `--probes`が省略されたとき、`REPRO_PROBES`環境変数が設定されていれば
     それをセレクタとして使う(`--probes`自体が明示されたときはCLI側を
-    優先し、環境変数は無視する)。これは`scripts/run_on_host.sh`の
-    `s10batch` configのために追加した経路: `run_container`(
+    優先し、環境変数は無視する。この優先順位の実装は
+    `selected_probe_names()`に切り出してある)。これは`scripts/run_on_host.sh`
+    の`s10batch`/`practice` configのために追加した経路: `run_container`(
     `scripts/lib_run_container.sh`)が組み立てる`docker run`のコマンド行は
     `python -m reprobench.runner`に固定されており、CLI引数を一切追加しない
     契約になっている一方、`-e`フラグによる環境変数の追加は`run_on_host.sh`
@@ -186,11 +220,19 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    # 空文字列トークン("S1,"のような末尾カンマ)を素通りさせると、
-    # 全ての名前が""に前方一致してしまい、「一部だけ選んだつもり」が
-    # 「全件選択」に化ける。ここで取り除き、素通りさせない。
-    probes_arg = args.probes if args.probes is not None else os.environ.get("REPRO_PROBES")
-    selected = [p.strip() for p in probes_arg.split(",") if p.strip()] if probes_arg else None
+    # CLIの"--probes"をカンマ区切りの前方一致セレクタのリストへ変換する。
+    # 空文字列トークン("S1,"のような末尾カンマ)を素通りさせると、全ての
+    # 名前が""に前方一致してしまい、「一部だけ選んだつもり」が「全件選択」
+    # に化けるため、ここで取り除く。`--probes`が省略されていれば`None`の
+    # まま`selected_probe_names()`へ渡し、`REPRO_PROBES`環境変数への
+    # フォールバック(優先順位: `--probes`明示 > `REPRO_PROBES` > 全件)は
+    # そちらに委ねる。
+    argv_probes = (
+        [p.strip() for p in args.probes.split(",") if p.strip()]
+        if args.probes is not None
+        else None
+    )
+    names = selected_probe_names(argv_probes)
 
     # 出力先を、プローブを1つも実行する前に確定・チェックする(モジュール
     # docstring参照)。デフォルトパスの算出だけのために`collect_env()`を
@@ -207,7 +249,7 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit(1)
 
     try:
-        out = run(selected=selected, repeat=args.repeat)
+        out = run(selected=names, repeat=args.repeat)
     except ValueError as exc:
         print(f"runner: {exc}", file=sys.stderr)
         raise SystemExit(1)
