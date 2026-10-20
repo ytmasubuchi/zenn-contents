@@ -34,7 +34,7 @@ CPU_IMAGES := base py313 oldpy oldlibs alpine
 # verification command (`pip install numpy==2.2.6 pytest`): base also
 # carries scipy/scikit-learn/lightgbm/torch, so tests that
 # `pytest.importorskip` those libraries actually run here instead of
-# skipping. Passes cleanly: 178 passed, 1 skipped (fix round 1 --
+# skipping. Passes cleanly: 212 passed, 2 skipped (fix round 1 --
 # test_envinfo.py::test_collect_env_survives_torch_module_not_found_error
 # now skips when torch is importable, since it only has something to
 # prove where torch is genuinely absent; see the Task 12/13 report).

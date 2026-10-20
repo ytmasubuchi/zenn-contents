@@ -1,10 +1,10 @@
-"""Task 16: 実測依存の図版(F4・F8)。
+"""Task 16: 実測依存の図版(F4・F9)。
 
 `results/report.json`(Task 11の比較器の出力)と`results/*__*__*.json`
 (Task 10のランナーが書き出した生の結果ファイル)を読み、matplotlibで
-F4(保証レベル×環境条件のマトリクス)とF8(LLMのmargin分布・温度別の
-分岐位置)を描く。F9(判定フローチャート)はこのモジュールの対象外
-(手書きSVG、`images_src/f9_flowchart.svg`)。
+F4(保証レベル×環境条件のマトリクス)とF9(LLMのmargin分布・温度別の
+分岐位置)を描く。F10(判定フローチャート)はこのモジュールの対象外
+(手書きSVG、`images_src/f10_flowchart.svg`)。
 
 **このモジュールが「正」とするのは`results/`配下のファイルだけである**。
 F4のセルの✓/×/△/n=1/–は、`reprobench.compare`が既に計算した
@@ -725,7 +725,7 @@ def render_f4(report: dict, raw: dict[str, dict], out_path: Path) -> None:
     plt.close(fig)
 
 
-# --- F8: LLMのmargin分布と温度別の分岐位置 --------------------------------
+# --- F9: LLMのmargin分布と温度別の分岐位置 --------------------------------
 
 _SAMPLING_CONDITIONS = [
     ("T=0.7\n(出荷既定)", "S9_sampling_t0_7_seed"),
@@ -735,7 +735,7 @@ _SAMPLING_CONDITIONS = [
 ]
 
 
-def render_f8_margin(report: dict, raw: dict[str, dict], out_path: Path) -> None:
+def render_f9_margin(report: dict, raw: dict[str, dict], out_path: Path) -> None:
     margins = {}
     for host, label in zip(GPU_HOSTS, GPU_LABELS):
         meta = _raw_probe_meta(raw, label, "S9_logit_margin")
@@ -782,7 +782,7 @@ def render_f8_margin(report: dict, raw: dict[str, dict], out_path: Path) -> None
         else "生成トークン列は環境間で一致しなかった(report.json参照)"
     )
     fig.suptitle(
-        f"F8a. LLM greedy生成の logit margin — {match_note}。"
+        f"F9b. LLM greedy生成の logit margin — {match_note}。"
         "margin自体はfloat32の非結合性で環境ごとに最下位ビットが動く(今回はargmaxは動かなかった)。",
         fontsize=11.5,
         y=1.02,
@@ -792,7 +792,7 @@ def render_f8_margin(report: dict, raw: dict[str, dict], out_path: Path) -> None
     plt.close(fig)
 
 
-def render_f8_divergence(report: dict, raw: dict[str, dict], out_path: Path) -> None:
+def render_f9_divergence(report: dict, raw: dict[str, dict], out_path: Path) -> None:
     from reprobench.probes.s9_llm import first_divergence
 
     def tokens(probe: str, host: str) -> list[int] | None:
@@ -866,7 +866,7 @@ def render_f8_divergence(report: dict, raw: dict[str, dict], out_path: Path) -> 
     ax.set_ylim(-5, max(greedy_len, 95) * 1.12)
     ax.set_xlabel("temperature")
     ax.set_ylabel("anakin と dgxspark が最初に食い違うトークン位置")
-    ax.set_title("F8b. 温度を上げるほど、GPUモデル間の分岐は早いトークンで起きる\n(anakin と blade は全温度でトークン列が完全一致)")
+    ax.set_title("F9a. 温度を上げるほど、GPUモデル間の分岐は早いトークンで起きる\n(anakin と blade は全温度でトークン列が完全一致)")
     ax.grid(alpha=0.25)
     ax.legend(fontsize=8.3, loc="center left", bbox_to_anchor=(1.01, 0.5), frameon=True)
     fig.savefig(out_path, dpi=160, bbox_inches="tight")
@@ -893,9 +893,9 @@ def main() -> None:
     raw = load_raw_results(results_dir)
 
     render_f4(report, raw, images_dir / "f4_matrix.png")
-    render_f8_margin(report, raw, images_dir / "f8_llm_margin.png")
-    render_f8_divergence(report, raw, images_dir / "f8_llm_divergence.png")
-    print(f"reprobench.figures: wrote f4_matrix.png, f8_llm_margin.png, f8_llm_divergence.png to {images_dir}")
+    render_f9_margin(report, raw, images_dir / "f9b_llm_margin.png")
+    render_f9_divergence(report, raw, images_dir / "f9a_llm_divergence.png")
+    print(f"reprobench.figures: wrote f4_matrix.png, f9a_llm_divergence.png, f9b_llm_margin.png to {images_dir}")
 
 
 if __name__ == "__main__":

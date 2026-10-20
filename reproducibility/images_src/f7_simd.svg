@@ -31,7 +31,7 @@
 
   <rect x="0" y="0" width="960" height="1200" fill="#ffffff"/>
 
-  <text x="30" y="36" class="title">F6. 超越関数は、AVX-512専用カーネルの有無でlibmを経由するか決まる</text>
+  <text x="30" y="36" class="title">F7. 超越関数は、AVX-512専用カーネルの有無でlibmを経由するか決まる</text>
   <text x="30" y="58" class="subtitle">NumPy 2.2.6のexp/log/sinディスパッチ機構(原理図)。AVX-512専用カーネルの有無がlibmを経由するかを決め、logだけは</text>
   <text x="30" y="74" class="subtitle">AVX-512があっても一部の入力でlibmへフォールバックする。実測はblade1台でAVX-512のみを無効化した決定実験による。</text>
   <line x1="30" y1="88" x2="930" y2="88" stroke="#e5e7eb" stroke-width="2"/>

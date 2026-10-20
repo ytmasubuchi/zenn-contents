@@ -14,7 +14,7 @@
 
   <rect x="0" y="0" width="960" height="650" fill="#ffffff"/>
 
-  <text x="30" y="38" class="title">F10. BLASの行列積 — スレッド数が変わるとタイルの足し合わせ順が変わる</text>
+  <text x="30" y="38" class="title">F6. BLASの行列積 — スレッド数が変わるとタイルの足し合わせ順が変わる</text>
   <text x="30" y="58" class="subtitle">C = A @ B の出力を16枚のタイルに分けた模式図。マスの番号/色は「どのタイルを誰がどの順で計算するか」を示す。</text>
   <line x1="30" y1="70" x2="930" y2="70" stroke="#e5e7eb" stroke-width="2"/>
 

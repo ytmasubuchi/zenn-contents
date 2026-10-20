@@ -483,8 +483,8 @@ LightGBM(`S6_lgbm_pred`/`S6_lgbm_tree_structure`)を、スレッド数1/8/最大
 `S3_matmul_float64`は、各ホスト内ではスレッド数を変えても不変だった(threads1/threads8/threadsmaxが同一digest)が、ホスト間では4通りに分かれた(anakin f86a1f40、blade 76042a4d、dgxspark 0cb8db34、local baba98ed)。
 一方`np.sum`(`S2_sum_float64`)は、4ホスト×3スレッド数設定の全12セルが真に同一digest(`f9458b5c`)で一致した。「ホスト内では安定、ホスト間では別」というS3_matmul_float64の結果と、「全セルが真に一致」というS2_sum_float64の結果は別の現象であり、混同しないようにしたい。
 
-![F10. BLASの行列積(スレッド数が変わると各スレッドの担当サブレンジが変わる)。](/images/reproducibility-of-randomness/f10_blas_tiles.png)
-_F10. スレッド数ごとの担当範囲割り当ての違い(原理図)。_
+![F6. BLASの行列積(スレッド数が変わると各スレッドの担当サブレンジが変わる)。](/images/reproducibility-of-randomness/f6_blas_tiles.png)
+_F6. スレッド数ごとの担当範囲割り当ての違い(原理図)。_
 
 KMeansは、`effective_thread_count`が1のとき4ホスト全て(anakin/blade/dgxspark/local)で同じ重心に収束した。
 `effective_thread_count`が8になった6本のラン(anakin/threads8・blade/threads8・dgxspark/threads8・local/threads8・local/hashseed0・local/hashseedfree。localは8コア構成のため、スレッド数を明示的に固定していないhashseed0・hashseedfreeでも`effective_thread_count`が8になる)では、4通りの異なる重心に分かれた。
@@ -512,8 +512,8 @@ PyTorch(CPU)とLightGBMの結果は対照的だった。PyTorchのMLPはBLAS・K
 
 > 理論で説明できなかった結果: アーキテクチャ(x86_64かaarch64か)は決め手ではなかった。決め手はAVX-512専用カーネルの有無である。本節の理論は「CPUアーキテクチャの違いが結果を変える」という一般的な理解に基づいていたが、実際に割れたのは同じx86_64同士のAVX2とAVX-512の間であり、x86_64とaarch64という異なるISA同士は(どちらもAVX-512を持たない組み合わせでは)一致した。機構はG2で確認した通り、AVX-512専用カーネルの有無がlibmを経由するかどうかを決めるというものである。
 
-![F6. AVX-512専用カーネルの有無が、exp/log/sinのlibm経由を決める。](/images/reproducibility-of-randomness/f6_simd.png)
-_F6. `np.exp`/`np.log`/`np.sin`のディスパッチ機構と、blade機内でAVX-512を無効化した決定実験の実測値(原理図+実測)。_
+![F7. AVX-512専用カーネルの有無が、exp/log/sinのlibm経由を決める。](/images/reproducibility-of-randomness/f7_simd.png)
+_F7. `np.exp`/`np.log`/`np.sin`のディスパッチ機構と、blade機内でAVX-512を無効化した決定実験の実測値(原理図+実測)。_
 
 ### G4 アクセラレータ
 
@@ -577,8 +577,8 @@ CPU実行とGPU実行を比較するという当初の設計のままでは、�
 `torch.use_deterministic_algorithms(True)`を指定すると、同じ`index_add_`が5回ともビット一致した。
 MLPと`index_add_`それぞれの5回反復分の生データは`results/`には無く、プロジェクトの判断記録にのみ残っている。
 
-![F7. GPU上の非決定性(atomic演算を使う処理は毎回変わりうる)。](/images/reproducibility-of-randomness/f7_gpu_reduce.png)
-_F7. anakinでの5回反復実測(MLP学習は一致、`index_add_`は不一致)。_
+![F8. GPU上の非決定性(atomic演算を使う処理は毎回変わりうる)。](/images/reproducibility-of-randomness/f8_gpu_reduce.png)
+_F8. anakinでの5回反復実測(MLP学習は一致、`index_add_`は不一致)。_
 
 今回の実測は単一ストリームで行っている。
 `index_add_`を決定的モードで3GPU(RTX 4090・RTX PRO 6000・GB10)で比較すると、anakinとbladeは一致し、dgxsparkだけ別の値になった。
@@ -814,8 +814,8 @@ temperature 0.7と1.2のそれぞれで、同梱デフォルトと単離の2設�
 
 temperature 1.2では、最初のトークンから既に違う生成になった。
 
-![F8b. 温度を上げるほど、GPUモデル間の分岐は早いトークンで起きる。](/images/reproducibility-of-randomness/f8_llm_divergence.png)
-_F8b. anakinとdgxsparkが最初に食い違うトークン位置(温度別)。_
+![F9a. 温度を上げるほど、GPUモデル間の分岐は早いトークンで起きる。](/images/reproducibility-of-randomness/f9a_llm_divergence.png)
+_F9a. anakinとdgxsparkが最初に食い違うトークン位置(温度別)。_
 
 3GPU間の分岐位置も、temperatureを上げるほど早くなった。
 greedyでは3GPUとも生成末尾までトークン列が一致した。
@@ -861,8 +861,8 @@ anakinとdgxsparkでは完全一致5個・中央値32 ULP・最大40,960 ULP、b
 
 「最下位ビットがずれる」という表現が示す1 ULPの桁とは、ここまで大きく違う。
 
-![F8a. LLM greedy生成のlogit margin。](/images/reproducibility-of-randomness/f8_llm_margin.png)
-_F8a. margin分布(左)とホスト間差分(右)。右パネルは3ペアのうち2ペア(anakin-blade・anakin-dgxspark)を表示(3ペア目のblade-dgxsparkを含む数値は本文参照)。_
+![F9b. LLM greedy生成のlogit margin。](/images/reproducibility-of-randomness/f9b_llm_margin.png)
+_F9b. margin分布(左)とホスト間差分(右)。右パネルは3ペアのうち2ペア(anakin-blade・anakin-dgxspark)を表示(3ペア目のblade-dgxsparkを含む数値は本文参照)。_
 
 #### 理論との照合
 
@@ -892,8 +892,8 @@ batchサイズの変化でも、margin自体のULP差という尺度でも、今
 3. 使っているAPIについて、ライブラリが版間のビット互換性を文書で明言しているか。YESならL1(明文の規約)。NO(非保証と明記、または文書なし)なら次へ。
 4. 現在の設定で、SIMDディスパッチ・BLASスレッド数・libm実装・GPUモデル・deterministicアルゴリズムの指定の有無といった既知の変動源を、実測または文献で既に固定・検証したか。未検証なら「分からない」に倒す。検証済みで、それらを変えると結果が変わることを確認している場合はL3(実行時環境)。検証済みで、今回の実測範囲では変えても一致した場合はL2(事実上の実装)。
 
-![F9. 保証レベルの判定フロー+納品文言テンプレート。](/images/reproducibility-of-randomness/f9_flowchart.png)
-_F9. 判定フローと、レベルごとの文言の雛形(図は代表的な計算のみを示す簡略版であり、実際の判定では使用する設定も合わせて固定する必要がある)。_
+![F10. 保証レベルの判定フロー+納品文言テンプレート。](/images/reproducibility-of-randomness/f10_flowchart.png)
+_F10. 判定フローと、レベルごとの文言の雛形(図は代表的な計算のみを示す簡略版であり、実際の判定では使用する設定も合わせて固定する必要がある)。_
 
 各レベルの納品文言テンプレートは次の通りである。
 角括弧の中は、自分の計算・バージョン・環境に置き換えて使う。

@@ -16,7 +16,7 @@
 
   <rect x="0" y="0" width="960" height="850" fill="#ffffff"/>
 
-  <text x="30" y="38" class="title">F7. GPU上の非決定性 — atomic演算を使う処理は毎回変わりうる</text>
+  <text x="30" y="38" class="title">F8. GPU上の非決定性 — atomic演算を使う処理は毎回変わりうる</text>
   <text x="30" y="58" class="subtitle">実測: RTX 4090、PyTorch、同一プロセス内で5回実行(本プロジェクト自身の実測、2026-10-14)。</text>
   <text x="30" y="75" class="subtitle">GPU上の非決定性の原因は複数ある(例: cuDNN benchmarkの自動アルゴリズム選択。F3参照)。本図はatomic演算の経路のみを扱う。</text>
   <line x1="30" y1="87" x2="930" y2="87" stroke="#e5e7eb" stroke-width="2"/>

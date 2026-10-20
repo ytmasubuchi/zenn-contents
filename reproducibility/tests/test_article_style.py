@@ -94,7 +94,7 @@ def test_mentions_all_five_levels():
 def test_has_decision_flow_and_wording_template():
     # spec §2: 第8章が判定フローと納品文言テンプレート
     chapter8 = _chapter_section(ARTICLE_TEXT, 8)
-    assert "f9_flowchart.png" in chapter8, "第8章に判定フロー図(f9_flowchart.png)への参照が無い"
+    assert "f10_flowchart.png" in chapter8, "第8章に判定フロー図(f10_flowchart.png)への参照が無い"
     assert "```" in chapter8, "第8章に納品文言テンプレートのコードブロックが無い"
     fence_blocks = re.findall(r"```[^\n]*\n(.*?)```", chapter8, re.DOTALL)
     assert any(

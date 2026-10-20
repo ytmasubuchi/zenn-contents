@@ -20,7 +20,7 @@
     .diamond { fill: #ffffff; stroke: #374151; stroke-width: 1.6; }
   </style>
   <rect x="0" y="0" width="960" height="1592.0" fill="#ffffff"/>
-  <text x="30" y="36" class="title">F9. 保証レベルの判定フロー + 納品文言テンプレート</text>
+  <text x="30" y="36" class="title">F10. 保証レベルの判定フロー + 納品文言テンプレート</text>
   <text x="30" y="58" class="subtitle">手元の計算を上から順に当てはめる。各分岐の末尾に、そのままレベル欄の根拠として貼れる一文を置く。レベルL0〜L4の定義はF3、境界の実測根拠はF</text>
   <text x="30" y="75" class="subtitle">4を参照。</text>
   <line x1="30" y1="96" x2="930" y2="96" stroke="#e5e7eb" stroke-width="2"/>
