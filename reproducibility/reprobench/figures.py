@@ -372,10 +372,22 @@ def build_evidence(report: dict, raw: dict[str, dict]) -> dict[tuple[str, str], 
     add("L2", "3b", pair_verdict(report, "S1_numpy_normal_generator", "anakin/base/threadsmax", "blade/base/threadsmax", "ziggurat変換, AVX2 vs AVX-512"))
 
     # --- L3: 実行時環境が選ぶ(SIMDディスパッチ・BLASスレッド数・libm) ---
+    # S6(LightGBM)はS3/S5と同じ「浮動小数点の縮約順が環境で変わりうる」
+    # 機構のリスクを負う実装詳細(文書化された保証は無い)なので、S3/S5と
+    # 同じL3に置く。ただし実測ではS3(BLAS)・S5(KMeans)がまさに割れた
+    # 軸(Python版・BLAS実装・スレッド数)すべてでビット一致しており、
+    # それがこの行の見せ場(対照)になる。GPU/alpineイメージにはlightgbm
+    # が入っていないため、比較はblade/anakinのCPUイメージ間に限る。
+    add("L3", "2a", pair_verdict(report, "S6_lgbm_pred", "blade/base/threadsmax", "blade/py313/threadsmax", "LightGBM予測, Python 3.11 vs 3.13"))
+    add("L3", "2a", pair_verdict(report, "S6_lgbm_tree_structure", "blade/base/threadsmax", "blade/py313/threadsmax", "LightGBM木構造, Python 3.11 vs 3.13"))
+    add("L3", "2a", pair_verdict(report, "S6_lgbm_pred", "blade/base/threadsmax", "blade/oldpy/threadsmax", "LightGBM予測, Python 3.11 vs 3.10"))
+    add("L3", "2a", pair_verdict(report, "S6_lgbm_tree_structure", "blade/base/threadsmax", "blade/oldpy/threadsmax", "LightGBM木構造, Python 3.11 vs 3.10"))
     add("L3", "2c", pair_verdict(report, "S3_matmul_float32", "blade/base/threadsmax", "blade/mkl/threadsmax", "A@B float32, OpenBLAS vs MKL"))
     add("L3", "2c", pair_verdict(report, "S3_matmul_float64", "blade/base/threadsmax", "blade/mkl/threadsmax", "A@B float64, OpenBLAS vs MKL"))
     add("L3", "2c", pair_verdict(report, "S4_exp_float64", "blade/base/threadsmax", "blade/mkl/threadsmax", "exp, OpenBLAS vs MKL"))
     add("L3", "2c", pair_verdict(report, "S2_sum_float64", "blade/base/threadsmax", "blade/mkl/threadsmax", "np.sum, OpenBLAS vs MKL"))
+    add("L3", "2c", pair_verdict(report, "S6_lgbm_pred", "blade/base/threadsmax", "blade/mkl/threadsmax", "LightGBM予測, OpenBLAS vs MKL"))
+    add("L3", "2c", pair_verdict(report, "S6_lgbm_tree_structure", "blade/base/threadsmax", "blade/mkl/threadsmax", "LightGBM木構造, OpenBLAS vs MKL"))
     add("L3", "2d", pair_verdict(report, "S4_sin_float64", "blade/base/threadsmax", "blade/alpine/threadsmax", "sin, glibc vs musl"))
     add("L3", "2d", pair_verdict(report, "S4_exp_float64", "blade/base/threadsmax", "blade/alpine/threadsmax", "exp, glibc vs musl"))
     add("L3", "2d", pair_verdict(report, "S4_log_float64", "blade/base/threadsmax", "blade/alpine/threadsmax", "log, glibc vs musl"))
@@ -387,6 +399,8 @@ def build_evidence(report: dict, raw: dict[str, dict]) -> dict[tuple[str, str], 
     add("L3", "3a", group_verdict(report, "S5_logreg_coef", threads3, "LogisticRegression係数, スレッド数 1/8/max"))
     add("L3", "3a", grouped_value_verdict(report, "S5_kmeans_centers", "1", "KMeans中心, effective_thread_count=1"))
     add("L3", "3a", grouped_value_verdict(report, "S5_kmeans_centers", "8", "KMeans中心, effective_thread_count=8"))
+    add("L3", "3a", group_verdict(report, "S6_lgbm_pred", threads3, "LightGBM予測, スレッド数 1/8/max"))
+    add("L3", "3a", group_verdict(report, "S6_lgbm_tree_structure", threads3, "LightGBM木構造, スレッド数 1/8/max"))
     add("L3", "3b", pair_verdict(report, "S4_exp_float64", "anakin/base/threadsmax", "blade/base/threadsmax", "exp, AVX2 vs AVX-512 (記事冒頭)"))
     add("L3", "3b", pair_verdict(report, "S4_log_float64", "anakin/base/threadsmax", "blade/base/threadsmax", "log, AVX2 vs AVX-512"))
     add("L3", "3b", pair_verdict(report, "S4_sin_float64", "anakin/base/threadsmax", "blade/base/threadsmax", "sin, AVX2 vs AVX-512"))
@@ -450,6 +464,17 @@ _FOOTNOTE_CELLS = {
     ("L4", "4c"),
 }
 
+# 列見出し「同アーキ別SIMD世代」はG3(ハードウェア)バンドの構造的な
+# グルーピング名としてはそのまま残すが、L3×3bの脚注タイトルだけは
+# 本文第6章G2が確定させた機構(「AVX-512専用カーネルの有無がlibmを
+# 経由するかどうかを決める」。SIMD"世代"の違い一般ではない)に合わせて
+# 言い換える。列見出し自体は他レベル(L0・L2)の行でも共有されており、
+# それらはこの機構と無関係(生PRNGビット列・Box-Muller/ziggurat変換)
+# なので書き換えない。
+_FOOTNOTE_TITLE_OVERRIDES = {
+    ("L3", "3b"): "AVX-512専用カーネルの有無(同アーキ内、libm経由かどうかを左右)",
+}
+
 
 def _wrap_footnote(idx: int, level: str, cond_label: str, details: list[str], width: int = 118) -> list[str]:
     import textwrap
@@ -495,7 +520,7 @@ def render_f4(report: dict, raw: dict[str, dict], out_path: Path) -> None:
     grid_top = title_h + group_h + header_h
     grid_bottom = grid_top + len(LEVEL_ORDER) * row_h
 
-    footnotes: list[tuple[int, str, str, list[str]]] = []
+    footnotes: list[tuple[int, str, str, str, list[str]]] = []
     for level in LEVEL_ORDER:
         for key, label, _band in CONDITIONS:
             items = evidence.get((level, key), [])
@@ -505,11 +530,12 @@ def render_f4(report: dict, raw: dict[str, dict], out_path: Path) -> None:
             # (ブリーフの指示: 均さない)。それ以外に特に見せたい
             # ✓/✗の対照実験は _FOOTNOTE_CELLS で個別に指定する。
             if details and (symbol in ("±", "△") or (level, key) in _FOOTNOTE_CELLS):
-                footnotes.append((len(footnotes) + 1, level, label, details))
+                footnotes.append((len(footnotes) + 1, level, key, label, details))
 
     footnote_lines: list[str] = []
-    for idx, level, cond_label, details in footnotes:
-        footnote_lines.extend(_wrap_footnote(idx, level, cond_label, details))
+    for idx, level, key, label, details in footnotes:
+        title_label = _FOOTNOTE_TITLE_OVERRIDES.get((level, key), label)
+        footnote_lines.extend(_wrap_footnote(idx, level, title_label, details))
     footnote_h = 0.30 * (len(footnote_lines) + 2) + 0.5
 
     total_h = grid_bottom + 0.3 + footnote_h
@@ -524,11 +550,18 @@ def render_f4(report: dict, raw: dict[str, dict], out_path: Path) -> None:
     renderer = fig.canvas.get_renderer()
 
     # --- タイトル・凡例 ---
+    # ホスト・イメージ・構成・ラン数はreport.jsonのラベル(host/image/
+    # config)から都度数える -- 新規ランが増えるたびにこの文字列を手で
+    # 書き換え忘れる事故(brief: 30→32ランへの実際の更新)を構造的に防ぐ。
+    _labels = report.get("labels", [])
+    _hosts = {lb.split("/")[0] for lb in _labels}
+    _images = {lb.split("/")[1] for lb in _labels if lb.count("/") >= 2}
+    _configs = {lb.split("/")[2] for lb in _labels if lb.count("/") >= 2}
     ax.text(0.15, 0.55, "F4. 保証レベル × 環境条件", fontsize=22, fontweight="bold", va="center", color="#111827")
     ax.text(
         0.15,
         1.15,
-        "results/report.json(本プロジェクトの実測、4ホスト・7イメージ・6構成、30ラン)から自動生成。"
+        f"results/report.json(本プロジェクトの実測、{len(_hosts)}ホスト・{len(_images)}イメージ・{len(_configs)}構成、{len(_labels)}ラン)から自動生成。"
         "セルは比較器(reprobench.compare)の判定をそのまま読む。",
         fontsize=10.5,
         va="center",
@@ -605,7 +638,7 @@ def render_f4(report: dict, raw: dict[str, dict], out_path: Path) -> None:
         ax.plot([cx, cx], [header_y0, grid_bottom], color="#e5e7eb", linewidth=0.6, zorder=0)
 
     # --- 行(レベル)チップ + セル ---
-    footnote_lookup = {(lv, lb.replace("\n", "")): idx for idx, lv, lb, _ in footnotes}
+    footnote_lookup = {(lv, lb.replace("\n", "")): idx for idx, lv, _key, lb, _details in footnotes}
     for ri, level in enumerate(LEVEL_ORDER):
         ry0 = grid_top + ri * row_h
         ax.add_patch(
