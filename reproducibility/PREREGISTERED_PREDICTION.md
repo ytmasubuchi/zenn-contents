@@ -62,3 +62,67 @@ anakin は AVX2 どまり。glibc では exp/log が `cba8bfa7`/`09cef322` (= dg
 
 - `S3_matmul_float64` が base→alpine で変わることが blade/dgxspark で確認されている。
   anakin でも変わるか。これは予測を立てる根拠が無いので実測のみ。
+
+---
+
+# 実測結果 (2026-10-20 18:06 実行、予測コミット 63d9e38 の後)
+
+| label | S4_exp | S4_log | S4_sin | S2_sum | S3_matmul_f64 |
+|---|---|---|---|---|---|
+| blade/base/threadsmax | 5119b269 | a6b6b7fa | ddf398b7 | f9458b5c | 76042a4d |
+| blade/alpine/threadsmax | 5119b269 | a6b6b7fa | 601eb0fa | f9458b5c | 8875959c |
+| **blade/alpine/nosimd512 (新規)** | **ab300a28** | **28ff757a** | 601eb0fa | f9458b5c | 8875959c |
+| anakin/base/threadsmax | cba8bfa7 | 09cef322 | ddf398b7 | f9458b5c | f86a1f40 |
+| **anakin/alpine/threadsmax (新規)** | **ab300a28** | **28ff757a** | **601eb0fa** | f9458b5c | **c924d2fa** |
+| dgxspark/base/threadsmax | cba8bfa7 | 09cef322 | ddf398b7 | f9458b5c | 0cb8db34 |
+| dgxspark/alpine/threadsmax | ab300a28 | 84b2ce10 | 601eb0fa | f9458b5c | 86d16106 |
+
+## 予測の採点
+
+### 実験1: blade alpine nosimd512 (同一ハードウェアでの決定実験)
+- S4_exp: 予測 ab300a28 → 実測 **ab300a28** ... 的中
+- S4_log: 予測 84b2ce10 → 実測 **28ff757a** ... **外れ**(変化はしたが値が違う)
+- S4_sin: 予測 601eb0fa のまま → 実測 601eb0fa ... 的中
+- S2_sum: 予測 f9458b5c のまま → 実測 f9458b5c ... 的中
+
+### 実験2: anakin alpine threadsmax
+- S4_exp: 予測 ab300a28 → 実測 **ab300a28** ... 的中
+- S4_log: 予測 84b2ce10 → 実測 **28ff757a** ... **外れ**
+- S4_sin: 予測 601eb0fa → 実測 601eb0fa ... 的中
+- S2_sum: 予測 f9458b5c のまま → 実測 f9458b5c ... 的中
+
+## 確定したこと
+
+**機構は実証された。** blade という1台の中で、同一の musl イメージ・同一の numpy 2.2.6・
+同一の Python 3.11.17 のまま、AVX-512 の numpy ディスパッチ対象を無効化しただけで
+exp/log の値が動いた(5119b269→ab300a28、a6b6b7fa→28ff757a)。
+かつ無効化後の exp は、AVX2 しか持たない anakin の musl 値と完全一致した。
+
+→ exp/log は、AVX-512F があれば NumPy 内製カーネル(libc非依存)、
+  無ければプラットフォームの libm にフォールバックする。
+  「exp/log は libc 非依存」という一般化は誤りで、
+  正しくは「AVX-512 専用カーネルの有無が、libm を経由するかどうかを決める」。
+
+sin は AVX-512 の有無に一切反応しなかった(601eb0fa のまま)。
+NumPy 2.2.6 が float64 の sin/cos の SIMD 経路を撤回している
+(loops_trigonometric.dispatch.cpp の「Disable SIMD code sin/cos f64 and revert to libm」)
+ことと整合する。
+
+## 外れから分かった新しいこと
+
+musl の log は ISA によって違うビットを返す:
+- x86_64 の musl: 28ff757a (blade/alpine/nosimd512 と anakin/alpine で一致)
+- aarch64 の musl: 84b2ce10 (dgxspark/alpine)
+
+一方、musl の exp と sin は両 ISA で同一(ab300a28 / 601eb0fa)。
+glibc は log も両 ISA で同一(09cef322)。
+
+つまり「同じ libc 実装なら ISA を跨いでも同じ」という素朴な読みは、musl の log では成立しない。
+**この原因は未検証である。** FMA の有無(musllinux の x86-64 ベースラインは FMA3 を含まず、
+aarch64 ベースラインは FMA を含む)が候補だが、本プロジェクトは検証していない。
+
+## 副次的な観測(予測を立てていなかった項目)
+
+- S3_matmul_float64 は base→alpine で全ホストで変わる
+  (anakin f86a1f40→c924d2fa、blade 76042a4d→8875959c、dgxspark 0cb8db34→86d16106)。
+  glibc/musl の比較軸は BLAS も同時に動かしており、libm 単独の軸ではない。
