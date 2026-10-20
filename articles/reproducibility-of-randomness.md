@@ -21,7 +21,7 @@ TL;DRは次の3点である。
 
 - 乱数生成のビット列そのものが一致する保証と、それを使った計算の最終結果が一致する保証は別物である。
 - 保証はL0(規格)からL4(保証なし)まで5段階に分かれる。段階によって壊れる条件も、納品文書に書ける文言も違う。
-- MacBook・anakin・blade・dgxsparkの4台、7種類のDockerイメージ、30回の実測で境界を確かめた。理論で説明がつかなかった結果もそのまま書く。
+- local(MacBook)・anakin・blade・dgxsparkの4台、7種類のDockerイメージ、32回の実測で境界を確かめた。理論で説明がつかなかった結果もそのまま書く。
 
 なお、各章の「理論」節は実測結果を見た後に書いている。本記事中で実測前に予測を記録した唯一の例は、追加実測の事前登録(第6章・`PREREGISTERED_PREDICTION.md`)であり、それ以外の「理論」は一次資料の事後整理である(詳細は第9章)。
 
@@ -33,8 +33,7 @@ TL;DRは次の3点である。
 
 ### 理論
 
-NumPyは起動時にCPUが対応する命令セットを検出し、演算ごとに別のコードパスを選ぶ「CPUディスパッチ」を行う。
-AVX2やAVX-512は、Intel系CPUが持つSIMD命令セットの世代名であり、どちらが選ばれるかでコードパスが変わる。
+NumPyは起動時にCPUが対応する命令セットを検出し、演算ごとに別のコードパスを選ぶ「CPUディスパッチ」を行う。AVX2・AVX-512はこの切り替えに関わるSIMD命令セットの世代名である(詳細は後述のボックスを参照)。
 NumPy issue #23523では、2023年4月(NumPy 1.24.2)時点の報告として、メンテナのmattip氏が「使用する実装によっては、golden resultsとの差を最大4 ULPまで許容している」と述べ、`sin`/`cos`/`exp`/`log`でAVX-512と非AVX-512のコードパスが異なる結果を返すことが同issue内で確認されている。
 ULPはunits in the last placeの略で、浮動小数点数の最下位ビット1つ分の差を指す。
 このissueは本記事の執筆時点でもOpenのままだが、同issue内でメンテナのseberg氏は後に「we removed the biggest precision offenders again (not sure if in NumPy 1.25 or 1.26)」と述べており、その後のNumPyでは状況が変わっている。本記事が実測に使ったNumPy 2.2.6では、float64の`sin`/`cos`のSIMD経路は撤回済みで常にlibmを経由する(機構の詳細は第6章G2で扱う)。
@@ -67,7 +66,7 @@ anakin(Intel、AVX2まで)とblade(Intel、AVX-512あり)の2台で、同じbase
 
 `np.exp`と`np.log`の結果がビット単位で一致しなかった。
 一方`np.sin`と`np.sum`は一致した。
-AVX-512を無効化したbladeは、anakinと全プローブでビット一致した。
+AVX-512を無効化したbladeは、anakinとここで実行した4プローブ全てでビット一致した。
 原因がSIMDディスパッチであることは、この対照実験によって確定している。
 
 | プローブ         | anakin(AVX2) | blade(AVX-512) | blade(AVX-512無効化) |
@@ -185,8 +184,8 @@ _F2. PRNGのビット列の一致と、それを使った計算結果の一致�
 | L0 規格         | IEEE754は国際規格。MT19937/PCG64/Philoxは査読論文・公開仕様(国際規格ではない) | IEEE754の`+ - × ÷ √`・明示的に呼んだ`fma()`(Fused Multiply-Add、積和を1回の丸めで計算する演算。正しく丸め)、MT19937/PCG64/Philoxの状態遷移・出力計算(同一の内部状態から次状態・出力を計算する部分に限る) | 言語・OS・CPUを跨いでも壊れない。ただし`a*b+c`のようなFMAへの自動contractや、seedから内部状態への変換はこの「壊れない」範囲に含まれない(下記参照) | コア部分(同一内部状態からの次状態・出力計算)に限ってビット一致を約束できる                                |
 | L1 明文の規約   | ライブラリが文書で約束               | NumPy NEP19(RandomStateは保証、Generatorは非保証)、PyTorch「リリース間の再現性は保証しない」                                 | バージョンを上げた瞬間                                              | バージョン固定を条件に約束できる                                      |
 | L2 事実上の実装 | 文書化なし。実装がたまたま決めている | 正規乱数の変換法(ziggurat/polar法)、`np.sum`のpairwise summationの閾値                                                       | バージョン差(根拠なく変わりうる)                                    | 実際には一致するが、根拠が無いので書かない方がよい                    |
-| L3 実行時環境   | 実行時に環境が選ぶ                   | SIMDディスパッチ、BLASスレッド数、libm(glibc/musl)                                                                           | 同じコード・同じ版でもCPU世代・スレッド数・ベースイメージが変われば | 「同一イメージ+同一CPU世代+スレッド数固定」まで条件を書けば約束できる |
-| L4 保証なし     | 原理的に非決定                       | PYTHONHASHSEED、GPUの`atomicAdd`順序、cuDNN benchmarkの自動選択                                                              | 同じプロセスを2回走らせても                                         | 約束できない。許容誤差でしか語れない                                  |
+| L3 実行時環境   | 実行時に環境が選ぶ                   | SIMDディスパッチ、BLASスレッド数、libm(glibc/musl)、cuBLAS GEMM(同一アーキテクチャ・同一SM数なら決定的。第6章G4参照)         | 同じコード・同じ版でもCPU世代・スレッド数・ベースイメージ・GPUアーキテクチャが変われば | 「同一イメージ+同一CPU世代+スレッド数固定」(GPU計算では同一GPUアーキテクチャ・同一SM数も)まで条件を書けば約束できる |
+| L4 保証なし     | 原理的に非決定                       | PYTHONHASHSEED、GPUの`atomicAdd`順序、cuDNN benchmarkの自動選択                                                              | 性質が2種類ある。`atomicAdd`等は同一プロセス内の2回実行でも変わる。PYTHONHASHSEED等は同一プロセス内では変わらないが、プロセス/コンテナを起動し直すと変わる(第5章の実測参照) | 約束できない。許容誤差でしか語れない                                  |
 
 ![F3. 再現性の保証レベルL0〜L4。](/images/reproducibility-of-randomness/f3_levels.png)
 _F3. 各レベルで何が壊すかを並べた原理図。_
@@ -197,7 +196,7 @@ MT19937(Matsumoto and Nishimura, 1998, ACM Transactions on Modeling and Computer
 
 一方、seedという整数値を内部状態に変換する部分は、このコア部分の外側にある。
 NumPyの`SeedSequence`はバージョン1.19.0でspawn時の処理を変更しており、公式リリースノートは「Spawned SeedSequences will produce different results than in the previous release」(spawnしたSeedSequenceは前リリースと異なる結果を生成する)と明記している。
-また`default_rng()`が返すビット生成器自体も将来変わりうる設計になっている。NumPyは1.21.0でPCG64DXSMを追加しており、公式の互換性方針は「default_rng() is allowed to change which BitGenerator it uses by default」(default_rng()は既定で使うビット生成器を変更してよい)と明記している。
+また`default_rng()`が返すビット生成器自体も将来変わりうる設計になっている。NumPyは1.21.0でPCG64DXSMを追加しており、公式の互換性方針は「In particular, default_rng is allowed to change the default BitGenerator that it uses (again, with caution and plenty of advance warning)」(default_rngは、既定で使うBitGeneratorを変更してよい。ここでも慎重に、十分な事前告知を伴って)と述べている。
 つまり、seedから内部状態への変換はL1(明文の規約)寄りの領域にあり、ライブラリのバージョンを固定しない限り約束できない。
 第8章の納品文言テンプレートが「バージョンを[X.Y.Z]に固定すれば」という条件を付けているのは、このseed変換を含めた生成パイプライン全体を指しているためであり、コア部分だけを指す上表の「壊れる条件」の記述と矛盾するものではない。
 
@@ -205,7 +204,7 @@ NumPyの`SeedSequence`はバージョン1.19.0でspawn時の処理を変更し�
 
 - IEEE 754が保証するのは演算1つであって、演算の並びではない。IEEEのサイト(grouper.ieee.org)で公開されている背景資料は、「the IEEE standard does not guarantee that the same program will deliver identical results on all conforming systems(同じプログラムが全ての準拠システムで同一の結果を返すことを規格は保証しない)」と明記している。この資料は規格の規範的な本文ではなく背景説明用の文書であり、ワーキンググループ内での正式な位置づけまでは確認できていないが、信頼できる二次資料として扱う。同じ資料は「移植した際に途中結果が食い違うなら必ずソフトウェアのバグだ」という通説も否定している。
 - `exp`/`log`/`sin`のような超越関数は、IEEE 754では正しく丸めることが要求されておらず、推奨にとどまる。任意の点で正しく丸めるのに何ビット余分に必要かを一般に抑える手法が無いため、主要なlibm実装はどれも全ての超越関数を正しく丸めてはいない。これが第6章でlibm実装差が出る根本原因になる。
-- FMAがL0なのは、`fma()`を明示的に呼んだ場合に限られる。ソースコード中の`a*b+c`という書き方がFMA命令1つにcontract(融合)されるかどうかはIEEE 754の範囲外で、言語標準・コンパイラ・`-ffp-contract`のようなフラグ・対象CPUがFMA命令を持つかに依存する。C標準は`#pragma STDC FP_CONTRACT OFF`でcontractを抑制できることになっているが、GCCはこのpragmaを無視してFMAに融合することが知られている。したがって自動contractによる結果はL3寄りの挙動になりうる。なお、同じlibc実装でもISA(命令セットアーキテクチャ)によって結果が変わる例が本記事の追加実測で実際に観測されている(第6章G2)。musl libcの`log`はソースコード中に`__FP_FAST_FMA`という明示的な`#if`分岐を持ち、FMA命令が使えるISAかどうかで数式そのものを切り替えている。ここで述べた「`a*b+c`の自動contractはL3寄り」という一般論よりもさらに直接的に、ソースに書かれた分岐そのものがISA依存の原因になっている例であり、本章で条件付きでしかL0でないと述べたFMAの依存性が、実測で現れた具体例にあたる。
+- FMAがL0なのは、`fma()`を明示的に呼んだ場合に限られる。ソースコード中の`a*b+c`という書き方がFMA命令1つにcontract(融合)されるかどうかはIEEE 754の範囲外で、言語標準・コンパイラ・`-ffp-contract`のようなフラグ・対象CPUがFMA命令を持つかに依存する。C標準は`#pragma STDC FP_CONTRACT OFF`でcontractを抑制できることになっているが、GCCはこのpragmaを無視してFMAに融合することが知られている。したがって自動contractによる結果はL3寄りの挙動になりうる。なお、同じlibm実装でもISA(命令セットアーキテクチャ)によって結果が変わる例が本記事の追加実測で実際に観測されている(第6章G2)。muslの`log`はソースコード中に`__FP_FAST_FMA`という明示的な`#if`分岐を持ち、FMA命令が使えるISAかどうかで数式そのものを切り替えている。ここで述べた「`a*b+c`の自動contractはL3寄り」という一般論よりもさらに直接的に、ソースに書かれた分岐そのものがISA依存の原因になっている例であり、本章で条件付きでしかL0でないと述べたFMAの依存性が、実測で現れた具体例にあたる。
 
 :::details libcとlibmとは
 
@@ -238,9 +237,7 @@ NumPy公式ドキュメントは「it is not possible to reproduce the exact ran
 
 ### 理論
 
-第3章で確認した通り、`dict`はPython 3.7以降挿入順を保持する言語仕様であり、PYTHONHASHSEEDの影響を受けない。
-一方`set`は、要素が`str`/`bytes`(やそれらに依存する型)を含む場合、ハッシュテーブルのスロット位置がPYTHONHASHSEEDの影響を受けるため、反復順が変わりうる。要素が`int`のみのsetはこの影響を受けない。
-PYTHONHASHSEEDの目的はハッシュフラッディング攻撃(CVE-2012-1150)への対策であり、PEP 456でSipHash24が採用された(現行のCPythonのデフォルトはPython 3.11以降SipHash13)、という経緯も第3章の通りである。
+第3章で確認した通り、`dict`は挿入順を保持しPYTHONHASHSEEDの影響を受けない一方、`str`/`bytes`型の要素を含む`set`は反復順がPYTHONHASHSEEDに依存する。
 この理論からは、PYTHONHASHSEEDを0に固定すれば`str`型要素を含む`set`の反復順はホスト間で揃い、固定しない既定状態では揃わないはずだ、という方向が導ける。
 
 `glob.glob`のファイル列挙順について、Python公式ドキュメントは「The pathnames are returned in no particular order」(列挙順は特定の順序を保証しない)と明記しており、「If you need a specific order, sort the results」(特定の順序が必要ならソートせよ)と推奨している。
@@ -258,7 +255,7 @@ globはext4・XFS・tmpfsの3種類のファイルシステム上で、同一プ
 
 ### 結果
 
-- `glob.glob`でファイル一覧を取ると、順序はファイルシステムに依存する。今回の実測では、同一プロセス内で2回`glob`を呼んだ場合、30ラン全てで安定していた(`stable_within_process`として自己申告)。ただしこれはext4・XFS・tmpfsでの結果であり、全てのファイルシステムで保証されているわけではない。
+- `glob.glob`でファイル一覧を取ると、順序はファイルシステムに依存する。今回の実測では、同一プロセス内で2回`glob`を呼んだ場合、32ラン全てで安定していた(`stable_within_process`として自己申告)。ただしこれはext4・XFS・tmpfsでの結果であり、全てのファイルシステムで保証されているわけではない。
 - `set`の反復順は、`str`/`bytes`型の要素を含む場合、ハッシュテーブルのスロット位置に依存する。PYTHONHASHSEEDを0に固定すると、4ホストとも`hash('reproducibility')`(str型)が一致した。PYTHONHASHSEEDを設定しない既定状態では、同じコンテナを再起動するだけで4ホスト全てで値が食い違い、同じイメージを別コンテナで4回立てただけで4通りの値が出た。
 - 並列ワーカーの完了順は、seedとは無関係にOSのスケジューラが決める。同一プロセス内で2回計測しても、32ジョブの完了順は毎回異なった(`stable_within_process=False`として自己申告)。これは測定上の不備ではなく、並列処理そのものの性質であり、L4(保証なし)に相当する。
 
@@ -266,7 +263,7 @@ globはext4・XFS・tmpfsの3種類のファイルシステム上で、同一プ
 
 `set`(`str`型要素を含む場合)は理論の通りで、PYTHONHASHSEED=0で一致し、既定状態では不一致になった。
 並列ワーカーの完了順も理論の通り、同一プロセス内でも毎回異なった。
-`glob`は、公式ドキュメントが明言する「順序不定」という理論から、同一プロセス内の2回呼び出しが安定するかどうかまでは導けなかった。実測では30ラン全てで安定していた(ext4・XFS・tmpfsの範囲)。
+`glob`は、公式ドキュメントが明言する「順序不定」という理論から、同一プロセス内の2回呼び出しが安定するかどうかまでは導けなかった。実測では32ラン全てで安定していた(ext4・XFS・tmpfsの範囲)。
 ただし、同一プロセス内で同じ`readdir`の結果がOS側のキャッシュ機構によって再度返ってくること自体は驚くに値しない経路であり、かつ確認できたのは同一プロセス内の2回に限られる。環境(ホスト・ファイルシステム・プロセスの再起動)を跨いだ場合の順序安定性については、本実測は何も示していない。ソートせずに依存してよいという結論にはならない。
 
 この3つは、seedを固定した「正しい」コードの中にも紛れ込む。
@@ -276,13 +273,13 @@ globはext4・XFS・tmpfsの3種類のファイルシステム上で、同一プ
 
 ## 6. 実測マトリクス(何が割れて、何が割れなかったか)
 
-> 4ホスト・7イメージ・30ランの実測を、保証レベル×条件のマトリクスにまとめた。Python版・BLAS実装・SIMD世代・スレッド数・GPU世代ごとに、割れた条件と割れなかった条件をそのまま並べる。
+> 4ホスト・7イメージ・32ランの実測を、保証レベル×条件のマトリクスにまとめた。Python版・BLAS実装・SIMD世代・スレッド数・GPU世代ごとに、割れた条件と割れなかった条件をそのまま並べる。
 
 以下は、全ての実測結果をレベル×条件で並べたマトリクスである。
 緑は一致、赤は不一致、オレンジは複数プローブの結果が混在していることを示す(凡例は画像内に記載)。
 
 ![F4. 保証レベル×環境条件。](/images/reproducibility-of-randomness/f4_matrix.png)
-_F4. 30ランの実測結果を自動生成したマトリクス。_
+_F4. 32ランの実測結果を自動生成したマトリクス。_
 
 ここから先の差は、ほぼ全てが同じ原因に行き着く。
 浮動小数点の加算には結合則が無い。
@@ -293,7 +290,7 @@ _F5. `(x+y)+z`と`x+(y+z)`が別の値になる例(Goldberg 1991)。_
 IEEE 754は個々の演算の丸めは規定するが、複数の演算をどの順序・どのグループで評価するかは規定しない。
 順序はコンパイラ・SIMD幅・スレッド分割など、実行環境が決める。
 
-本章の各節は「理論」「実験設定」「結果」「理論との照合」の4部構成を取る。
+本章の各節は「理論」「実験設定」「結果」「理論との照合」の4部構成を基本とする。ただしG2だけは、この4部に決定実験(事前登録)の節を加えた5部構成とする。
 断っておくと、本記事の理論整理は実測結果を見た後に行っている。測定結果31ファイルのコミットから約2.5時間後に初稿を書いており、理論節の記述は事後的な整理である。本記事中で実測前に予測を記録した唯一の例は、本章G2で後述する追加実測(`PREREGISTERED_PREDICTION.md`)であり、そこでは明示的に「事前登録」と呼ぶ。それ以外の節の理論は、一次資料(ソースコード・公式ドキュメント・リリースノート)が何を言っているかの整理であって、実測前の予測ではない。
 
 また、本章が尽くしているのは実測したプローブが対象とした軸に限られる。以下の軸は本章のマトリクスには含まれていない。
@@ -326,10 +323,11 @@ BLAS実装(OpenBLAS・MKL)は、この規定されていない部分を独自に
 同じく第4章の通り、`exp`/`log`/`sin`のような超越関数はIEEE754で正しく丸めることが要求されておらず、glibcとmuslのような別々のlibm実装は異なる近似をしうる。
 
 第2章では、`exp`/`log`が割れて`sin`が割れないという結果を、AVX2/AVX-512のSIMDディスパッチで説明した。
-しかし「SIMDに依存するのでlibcには依存しない」という単純な二分法は、NumPy 2.2.6のソースと照らすと正確ではない。
-`loops_exponent_log.dispatch.c.src`のDOUBLE_exp/DOUBLE_logは、(1) SVMLが使えるAVX512_SKX環境ではSVMLカーネル、(2) AVX512Fが使える環境ではNumPy内製のAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE(libc非依存)、(3) どちらも使えなければnpy_exp/npy_logのスカラー経路、つまりプラットフォームのlibmを呼ぶ、という3段構えのディスパッチになっている。
-一方`loops_trigonometric.dispatch.cpp`には「Disable SIMD code sin/cos f64 and revert to libm」というコメントがあり、float64の`sin`/`cos`はNumPy 2.2.6では常にlibmを経由する(`npy_math_internal.h.src`も「We assume the above are always available in their double versions」としてlibc依存を前提にしている)。
-したがって、`exp`/`log`がlibc実装の違いに反応するかどうかは「AVX-512専用カーネルが使えるかどうか」で決まり、無条件に「libc非依存」とは言えない。`sin`/`cos`は常にlibc依存である。
+しかし「SIMDに依存するのでlibmには依存しない」という単純な二分法は、NumPy 2.2.6のソースと照らすと正確ではない。
+`loops_exponent_log.dispatch.c.src`のDOUBLE_exp/DOUBLE_logは、(1) SVMLが使えるAVX512_SKX環境ではSVMLカーネル、(2) AVX512Fが使える環境ではNumPy内製のAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE、(3) どちらも使えなければnpy_exp/npy_logのスカラー経路、つまりプラットフォームのlibmを呼ぶ、という3段構えのディスパッチになっている。
+ただし(2)のAVX512F_log_DOUBLEには、それ自身の内部にも小さなlibmフォールバックがある。同ソースのコメントは887行目で「if x on (1.0 - 0x1p-4, 1.0 + 0x1.09p-4), calling npy_log()」と明記しており、953〜954行目でそのウィンドウを定数`[0.9375, 1.0647]`として定義し、988行目のif分岐でこの範囲に入る要素だけ、1088行目で`npy_log(ip_fback[ii])`としてnpy_log(プラットフォームのlibm)を個別に呼んでいる。AVX512F_exp_DOUBLEにはこのフォールバックが無い。
+一方`loops_trigonometric.dispatch.cpp`には「Disable SIMD code sin/cos f64 and revert to libm」というコメントがあり、float64の`sin`/`cos`はNumPy 2.2.6では常にlibmを経由する(`npy_math_internal.h.src`も「We assume the above are always available in their double versions」としてlibm依存を前提にしている)。
+したがって、`exp`がlibm実装の違いに反応するかどうかは「AVX-512専用カーネルが使えるかどうか」だけで決まるのに対し、`log`はAVX-512専用カーネルが使える環境でもなお、入力のうち1.0近傍の窓`[0.9375, 1.0647]`に落ちる要素があるかどうかで部分的にlibm実装差の影響を受けうる。`sin`/`cos`は常にlibm依存である。
 
 #### 実験設定
 
@@ -383,7 +381,7 @@ glibcベースのイメージとmusl(alpine)ベースのイメージを比較す
 | dgxspark/base(aarch64、glibc) | cba8bfa7 | 09cef322 | ddf398b7 |
 | dgxspark/alpine(aarch64、musl) | ab300a28 | 84b2ce10 | 601eb0fa |
 
-bladeだけが`exp`/`log`でlibc実装差に反応しなかった。これはAVX-512の有無で説明できる(詳しくは本節末尾)。
+bladeだけが`exp`/`log`でlibm実装差に反応しなかった。これはAVX-512の有無で説明できる(詳しくは本節末尾)。
 `S4_sin_small_float64`(入力レンジを変えた`sin`)も同じ傾向で、glibc系の値とmusl系の値に分かれて割れた。`S4_log_loguniform_float64`(入力分布を変えた`log`)も、AVX-512の有無に沿って分かれるパターンが同じく確認できた。振幅やサンプリング分布を変えても、`S4_exp_float64`/`S4_log_float64`/`S4_sin_float64`で見たのと同じ方向の結果だった。
 
 なお、glibc/muslの比較は`S4`だけでなく`S3_matmul_float64`も動かす(blade 76042a4d→8875959c、dgxspark 0cb8db34→86d16106、anakin f86a1f40→c924d2fa)。ベースイメージを変えるとBLASの実装も同時に変わるためであり、libm単独の軸ではない。
@@ -408,13 +406,17 @@ bladeだけが`exp`/`log`でlibc実装差に反応しなかった。これはAVX
 
 Python版差・NEP19の実証・BLAS実装差については、理論の整理と結果は一致する。legacyは動かず、Generatorだけが動いた、という条文通りの結果になった。BLAS実装差では行列積が割れ、libmは影響を受けなかった。
 
-glibc/muslの比較は、第2章時点では「bladeという1台のAVX-512搭載機で、exp/logが一致してsinだけ割れた」という結果だけを見ていた。本章でdgxsparkを加えると、同じglibc/musl比較でexp/logも割れる。これは「exp/logはlibc非依存」という一般化がそのままでは誤りであることを、プロジェクト自身のデータが示している。
+glibc/muslの比較は、第2章時点では「bladeという1台のAVX-512搭載機で、exp/logが一致してsinだけ割れた」という結果だけを見ていた。本章でdgxsparkを加えると、同じglibc/musl比較でexp/logも割れる。これは「exp/logはlibm非依存」という一般化がそのままでは誤りであることを、プロジェクト自身のデータが示している。
 
 決定実験は、この矛盾を解消する機構を裏付けた。bladeという1台の中で、同一のmuslイメージ・同一のnumpy 2.2.6・同一のPython 3.11.17のまま、AVX-512のnumpyディスパッチ対象だけを無効化すると、`exp`は`ab300a28`に、`log`は`28ff757a`に変化し、無効化後の`exp`はAVX2しか持たないanakinのmusl値と完全一致した。`sin`は一切反応しなかった。
 
-> `exp`/`log`は、AVX-512Fがあればlibc非依存(NumPy内製カーネル)、無ければlibc依存(libmへのフォールバック)。`sin`/`cos`(float64)はAVX-512の有無によらず常にlibc依存である。「SIMD依存・libc非依存」という二分法ではなく、「AVX-512専用カーネルの有無が、libmを経由するかどうかを決める」という1つの機構として理解する必要がある。この機構は、同一ハードウェア上でAVX-512ディスパッチのみを無効化した決定実験で確認した。
+> `exp`は、AVX-512Fがあれば完全にlibm非依存(NumPy内製カーネル)、無ければlibm依存(libmへのフォールバック)である。`log`はAVX-512Fがあっても、入力`x`が1.0近傍の窓`[0.9375, 1.0647]`に落ちる要素だけ、内部でlibm(`npy_log`)を個別に呼ぶため、「libm非依存」とは言い切れない。`sin`/`cos`(float64)はAVX-512の有無によらず常にlibm依存である。「SIMD依存・libm非依存」という単純な二分法ではなく、「AVX-512専用カーネルの有無と、入力がフォールバック窓に落ちるかどうかが、libmを経由するかどうかを決める」という機構として理解する必要がある。`exp`/`sin`については、この機構を同一ハードウェア上でAVX-512ディスパッチのみを無効化した決定実験で確認した。
 
-異なるISA(x86_64のAVX2とaarch64)のglibc環境同士が`exp`/`log`でビット一致したのも、この機構で説明できる。どちらもAVX-512専用カーネルを持たずlibmにフォールバックするため、あとは双方のglibc(ともにバージョン2.41)が`exp`/`log`で同じ結果を返すかどうかだけで決まる。今回はそれが一致した、という観測である。
+この`log`のフォールバック窓は、本プロジェクトが用意した2本の`log`プローブの挙動差をそのまま説明する。`S4_log_float64`は`[1e-9, 1e9]`を線形一様サンプリングしており、桁の大きい側に標本が偏るため、同じseed(20261014)・同じN(1,000,000)で計算すると、フォールバック窓`[0.9375, 1.0647]`に入る要素は0個である。一方`S4_log_loguniform_float64`は指数を一様に敷いてサンプリングしており、同じ条件で3,027個の要素が窓に入る(いずれも本プロジェクトで直接計算して確認した値)。blade(AVX-512あり)でglibcとmuslを比較すると、`S4_log_float64`(フォールバック0件)は両者一致し(`a6b6b7fa`)、`S4_log_loguniform_float64`(フォールバック3,027件)も両者一致した(`002faa54`)。フォールバックが一度も発火しない`S4_log_float64`が一致するのは、AVX-512専用カーネルがlibmを経由しないためそのまま説明がつく。一方`S4_log_loguniform_float64`はフォールバックが発火しているにもかかわらずglibcとmuslが一致しており、これは1.0近傍ではblade上のglibcとmuslの`log`がたまたま同じビットを返しているためだと読める。ただし、この「1.0近傍でglibcとmuslが一致する理由」自体は未検証であり、断定はできない。
+
+この一致は、「入力範囲が結論を決めている可能性がある」という方法論上の懸念が、本プロジェクトで具体的に実在した例でもある。もし`S4_log_loguniform_float64`を追加していなければ、`S4_log_float64`の一致だけを見て「AVX-512専用カーネルがあれば`log`は常にlibm非依存」と誤って一般化していた可能性がある。線形一様サンプリングだけでは1.0近傍の挙動を検出できないことを踏まえて入力分布の異なるプローブを追加した判断は、結果的にこの死角を塞ぐ役割を果たした。
+
+異なるISA(x86_64のAVX2とaarch64)のglibc環境同士が`exp`/`log`でビット一致したのも、AVX-512専用カーネルの有無という機構で説明できる。どちらもAVX-512専用カーネルを持たずlibmにフォールバックするため、あとは双方のglibc(ともにバージョン2.41)が`exp`/`log`で同じ結果を返すかどうかだけで決まる。今回はそれが一致した、という観測である。
 
 一方、予測が外れた`log`は新しい事実を明らかにした。muslの`log`はISAによって異なるビットを返す(x86_64のmusl: `28ff757a`、aarch64のmusl: `84b2ce10`)。musl版の`exp`と`sin`は両ISAで同一(`ab300a28`/`601eb0fa`)であり、glibc版の`log`も両ISAで同一(`09cef322`)である。つまり「同じlibc実装ならISAを跨いでも同じ」という読みは、muslの`log`では成立しない。
 
@@ -437,7 +439,7 @@ glibc/muslの比較は、第2章時点では「bladeという1台のAVX-512搭�
 `__FP_FAST_FMA`はmusl自身が定義する値ではなく、GCCがターゲットのISA能力を見て自動的に定義するマクロである。GCCの`gcc/c-family/c-cppbuiltin.cc`にある`mode_has_fma()`が、そのターゲット向けにdouble精度の`fma`命令パターンがバックエンドに存在するか(`HAVE_fmadf4`)を見て決めており、musl側の`arch/aarch64/fp_arch.h`・`arch/generic/fp_arch.h`はこのマクロに一切関与しない。
 Alpineのビルド設定(`aports/main/gcc/APKBUILD`)の`build()`は次のようになっている。
 
-```
+```sh
 case "$CTARGET" in
 aarch64-*-*-*)		_arch_configure="--with-arch=armv8-a --with-abi=lp64";;
 esac
@@ -445,7 +447,7 @@ esac
 
 aarch64には`--with-arch=armv8-a`が明示指定されており(ARMv8-Aはスカラ浮動小数点のFMAを必須で含む)、x86_64に対応するcaseエントリは存在しない。その場合GCCのデフォルトである`x86-64`(SSE2ベースライン、FMA命令なし)が使われる。`aports/main/musl/APKBUILD`にも`-march`や`-mfma`の上書きは無い。この非対称なビルド設定が、aarch64側でだけFMA経路を有効にし、x86_64側では複数回丸めの別経路を使わせている。
 
-muslの数学ライブラリの作者Szabolcs Nagy氏自身も、2019年4月のmuslメーリングリストで次のように述べている。
+muslの数学ライブラリの作者Szabolcs Nagy氏自身も、2019年2月2日のmuslメーリングリストで次のように述べている。
 
 > my new implementations are generic c code, and it's possible to get portable results with the fp semantics of c across targets which implement annex F with FLT_EVAL_METHOD==0: you have to turn fp contraction off, disable builtins and other compiler smartness (musl already does these) and remove any target specific ifdefs or asm that may introduce non-portable results (in the new code only the __FP_FAST_FMA checks).
 
@@ -493,7 +495,7 @@ KMeansは、`effective_thread_count`が1のとき4ホスト全て(anakin/blade/d
 
 x86_64(anakin)とaarch64(dgxspark)を比較すると、`S2`/`S4`は全て一致した。
 
-PyTorch(CPU)のMLP順伝播・学習10ステップは、スレッド数1・8・既定でそれぞれ別のdigestになった(最大絶対差は`S7_mlp_forward`で約1.79×10^-7、`S7_mlp_train10`で約7.6×10^-8)。ホスト間でも別の値になった。BLAS・KMeans・PyTorch(CPU)が同じ構造(非結合則の演算をスレッド分割で計算する)で揃って割れており、「CPU実行は安全で、GPUだけが危ない」という理解はこの3つを並べると成立しない。
+PyTorch(CPU)のMLP順伝播・学習10ステップは、スレッド数ごとの割れ方が一様ではなかった。anakinでは`S7_mlp_forward`・`S7_mlp_train10`の両方が、bladeでは`S7_mlp_train10`のみが、スレッド数1・8・既定でそれぞれ別のdigestになった(最大絶対差は`S7_mlp_forward`で約1.79×10^-7、`S7_mlp_train10`で約7.6×10^-8)。一方dgxsparkとlocal(いずれもaarch64)は、両プローブとも今回の実測範囲ではスレッド数を変えても一致した。x86_64の2台(anakin・blade)では割れ、aarch64の2台(dgxspark・local)では割れなかったという非対称性自体が観察として価値があるが、原因は未検証である。BLAS・KMeans・PyTorch(CPU)は同じ構造(非結合則の演算をスレッド分割で計算する)を持ち、実際に割れるケースが見つかっており、「CPU実行は安全で、GPUだけが危ない」という理解はこの3つを並べると成立しない。
 
 一方LightGBM(`S6_lgbm_pred`/`S6_lgbm_tree_structure`)は、スレッド数1/8/最大・MKL/OpenBLAS・Python 3.11/3.13・oldlibsを跨いだ25ラベル全てでビット一致した。`reprobench/probes/s6_lightgbm.py`には、決定的モードを意図的に設定していない(`deterministic: True`を指定しない)ことが明記されている。np.sumと並んで、縮約を使う処理が必ず割れるわけではないことを示す例である。勾配ブースティングはマルチスレッドで不安定という実務の通念とは逆の結果になった。
 
@@ -509,8 +511,8 @@ PyTorch(CPU)とLightGBMの結果は対照的だった。PyTorchのMLPはBLAS・K
 
 > 理論で説明できなかった結果: アーキテクチャ(x86_64かaarch64か)は決め手ではなかった。決め手はAVX-512専用カーネルの有無である。本節の理論は「CPUアーキテクチャの違いが結果を変える」という一般的な理解に基づいていたが、実際に割れたのは同じx86_64同士のAVX2とAVX-512の間であり、x86_64とaarch64という異なるISA同士は(どちらもAVX-512を持たない組み合わせでは)一致した。機構はG2で確認した通り、AVX-512専用カーネルの有無がlibmを経由するかどうかを決めるというものである。
 
-![F6. SIMD幅が変わると縮約の足す順序が変わる。](/images/reproducibility-of-randomness/f6_simd.png)
-_F6. 8並列と16並列でレーンの組み方が変わる例(原理図)。_
+![F6. AVX-512専用カーネルの有無が、exp/log/sinのlibm経由を決める。](/images/reproducibility-of-randomness/f6_simd.png)
+_F6. `np.exp`/`np.log`/`np.sin`のディスパッチ機構と、blade機内でAVX-512を無効化した決定実験の実測値(原理図+実測)。_
 
 ### G4 アクセラレータ
 
@@ -528,16 +530,14 @@ atomicAdd自体は1回ずつの書き込みを保証するが、どのスレッ�
 
 atomic演算とは、複数の処理が同時に同じメモリ上の値を書き換えようとしても、1回ずつ確実に反映されることを保証する演算である。
 GPUでは数千のスレッドが同時に動くため、複数のスレッドが同じ場所に値を足し込みたいとき、`atomicAdd`のようなatomic演算を使う。
-atomicAdd自体は1回ずつの書き込みを保証するが、どのスレッドがどの順番で書き込むかまでは保証しない。
 
-浮動小数点の足し算には結合則が無いため、足す順序が実行のたびに変わると、合計の最下位ビットも実行のたびに変わりうる。
-これが、同じGPU・同じコードでも`index_add_`のような処理の結果が毎回一致しない理由である。
+本文で述べた通り、atomicAdd自体は書き込む順序までは保証しないため、これが同じGPU・同じコードでも`index_add_`のような処理の結果が毎回一致しない理由になる。
 PyTorch公式の定義では、`torch.use_deterministic_algorithms(True)`は「決定的な実装があればそれに差し替え、無ければRuntimeErrorを送出する」という設定であり、一般に「足し込む順序を固定する」という意味ではない。`index_add_`についてはこの設定で決定的な実装に切り替わり、結果として足し込む順序が固定される。
 
 :::
 
 PyTorchのCUDA RNGは`curand_init`をスレッドのインデックスでシードしており、スレッドと要素の対応はSM数に依存して決まる(PyTorch issue #194676)。
-この挙動を公式ドキュメントに追記するPR(#196733)は、2026年10月14日時点でレビュー承認済みだが未マージであり、現時点では公式に文書化されていない。
+この挙動を公式ドキュメントに追記するPR(#196733)は、2026年10月20日時点でレビュー承認済みだが未マージであり、現時点では公式に文書化されていない。
 
 :::details fp16・bf16・TF32・dtypeとは
 
@@ -565,7 +565,7 @@ anakin(RTX 4090)で、Linear層+ReLUのMLPを10ステップ学習させる処理
 
 TF32は無効化と有効化の両方で、3GPUを比較した。
 greedy復号のトークン列は、fp32・fp16・bf16の3dtypeで、3GPUを比較した。
-`torch.randn`を同じseedで4サイズ(1,024 / 65,536 / 4,194,304 / 67,108,864)生成し、サイズごとにダイジェストを取った(`S8_curand_randn_sizes`、3GPU比較)。
+`torch.randn`を同じseedで4サイズ(1,024 / 65,536 / 4,194,304 / 67,108,864)生成し、サイズごとにdigestを取った(`S8_curand_randn_sizes`、3GPU比較)。
 
 #### 結果
 
@@ -636,7 +636,7 @@ Qwen2.5-0.5B-Instructを使い、transformersで生成した。
 
 temperatureは、生成時にモデルの出力するロジットを割って候補のスコアを広げたり狭めたりする値である。
 数学的には、temperatureで割る処理そのものが、0で割るという未定義の操作になる。
-vLLM公式ドキュメントは、内部で`temperature<1e-5`をgreedy扱いにする仕様を明記しており、同じ「temperature=0」という入力でも、実装によって扱いが異なりうることを示している。
+vLLMの公式の実装(ソースコード)は、内部で`temperature<1e-5`をgreedy扱いにする仕様(`_SAMPLING_EPS = 1e-05`)を持っており、同じ「temperature=0」という入力でも、実装によって扱いが異なりうることを示している。
 温度0での割り算が未定義になるという理論だけでは、transformersが`temperature=0`をどう扱うかは決まらない。vLLMのように内部でgreedy扱いに読み替える可能性と、エラーとして拒否する可能性の両方がありうるため、実際の挙動は実測で確認する必要がある。
 
 #### 実験設定
@@ -818,8 +818,8 @@ batchサイズの変化でも、margin自体のULP差という尺度でも、今
 判定は「計算」だけに対して行うのではなく、「計算+設定」のペアに対して行う。たとえば`index_add_`は、`torch.use_deterministic_algorithms(True)`を指定しない設定ではL4(保証なし)だが、指定した設定ではビット一致する(第6章参照)。使う設定を固定せずに同じコードをこのフローに通すと、一度はYES、一度はNOという答えが両方出てしまう。
 手元の計算と、それを動かす設定(deterministicアルゴリズムの指定・スレッド数の固定・SIMD/BLAS実装の指定等)を1組選び、上から順に問いに答えていく。
 
-1. 同一プロセス・同一設定を2回実行しただけで結果が変わりうるか。YESならL4(保証なし)。NOなら次へ。
-2. 今、結果を決めているのはIEEE754の基本演算(`+ - × ÷ √`・FMA)**単独**、または公開されたPRNG仕様の生ビット列(MT19937/PCG64/Philox)だけか。IEEE754が規格として保証するのは演算1つの結果であって、演算の並び(結合順序)ではない(第4章参照)。複数の演算を組み合わせている場合はここでNOに倒す。YESならL0(規格)。NOなら次へ。
+1. 同一プロセス・同一設定を2回実行して結果が変わる、またはプロセス/コンテナを起動し直すだけで結果が変わりうるか。YESならL4(保証なし)。NOなら次へ。
+2. 今、結果を決めているのはIEEE754の基本演算(`+ - × ÷ √`)、明示的に呼んだ`fma()`(自動contractされた`a*b+c`は含まない)**単独**、または公開されたPRNG仕様の生ビット列(MT19937/PCG64/Philox)だけか。IEEE754が規格として保証するのは演算1つの結果であって、演算の並び(結合順序)ではない(第4章参照)。複数の演算を組み合わせている場合はここでNOに倒す。YESならL0(規格)。NOなら次へ。
 3. 使っているAPIについて、ライブラリが版間のビット互換性を文書で明言しているか。YESならL1(明文の規約)。NO(非保証と明記、または文書なし)なら次へ。
 4. 現在の設定で、SIMDディスパッチ・BLASスレッド数・libm実装・GPUモデル・deterministicアルゴリズムの指定の有無といった既知の変動源を、実測または文献で既に固定・検証したか。未検証なら「分からない」に倒す。検証済みで、それらを変えると結果が変わることを確認している場合はL3(実行時環境)。検証済みで、今回の実測範囲では変えても一致した場合はL2(事実上の実装)。
 
@@ -831,9 +831,11 @@ _F9. 判定フローと、レベルごとの文言の雛形(図は代表的な�
 
 ```text
 L0 規格:
-本計算はIEEE754の基本演算(演算1つ単位)、またはMT19937/PCG64/Philoxが
-公開仕様として定める生ビット列のみに依存する。この生成アルゴリズム自体は
-言語・OS・CPUを跨いでも結果は変わらない。
+本計算はIEEE754の基本演算(演算1つ単位。明示的に呼んだfma()を含む)、
+またはMT19937/PCG64/Philoxが公開仕様として定める生ビット列のみに依存
+する。この生成アルゴリズム自体は言語・OS・CPUを跨いでも結果は変わらない。
+なお、ソース中の`a*b+c`のような自動contractによるFMA融合はこのL0には
+含まれない(コンパイラ・CPU依存のL3寄りの挙動になりうる)。
 ただし、seedから内部状態への変換(例: NumPyのSeedSequence)や乱数の
 消費順序は、規格そのものではなくライブラリ側の実装であり、版が変わると
 挙動が変わった実績がある(例: NumPy 1.19.0でのSeedSequence spawn挙動の
@@ -862,7 +864,7 @@ L4 保証なし:
 (atol/rtol等)の範囲でのみ論じる。
 ```
 
-これらは本プロジェクトの実測(4ホスト・7イメージ・30ラン、2026年10月14日。加えて2026年10月20日の追加実測2ラン)に基づく雛形である。
+これらは本プロジェクトの実測(4ホスト・7イメージ・32ラン。2026年10月14日の30ランに、2026年10月20日の追加実測2ランを加えたもの)に基づく雛形である。
 自分の計算について、まず上のフローで判定してから使う。
 
 ---
@@ -875,7 +877,7 @@ L4 保証なし:
 
 今回の実測は、理論で説明できたことと、理論だけでは説明がつかなかったことの両方を含む。
 AVX2とAVX-512の違いで`exp`/`log`が割れることは理論と整合したが、`np.sum`は割れなかった。
-決め手はx86_64とaarch64というCPUアーキテクチャの違いではなく、AVX-512専用カーネルの有無だった。AVX-512専用カーネルがあるかどうかで、exp/logの計算がlibmを経由するかどうかが変わる。ISAが異なっていてもlibmの実装が同じなら一致し、libmが異なれば(glibcとmuslのように)割れる。この機構は、bladeのハードウェアを固定したままAVX-512のnumpyディスパッチ対象だけを無効化する追加実測で確認した。実行前に記録した4項目の予測のうち3項目(exp・sin・np.sumの挙動)は的中し、logの挙動だけ予測(aarch64のmuslと同じ値になる)が外れた。外れた結果から、muslのlogはISA(x86_64かaarch64か)によって異なるビットを返すという、実測前には分からなかった事実が新たに分かった。原因はmuslのソース`src/math/log.c`にある`__FP_FAST_FMA`という明示的な`#if`分岐で、FMA命令が使えるかどうかで数式そのものが切り替わっている(第6章G2参照)。
+決め手はx86_64とaarch64というCPUアーキテクチャの違いではなく、AVX-512専用カーネルの有無だった。AVX-512専用カーネルがあれば`exp`は完全にlibmを経由せず、`log`は入力が1.0近傍の窓に落ちる場合だけ部分的にlibmを経由する。ISAが異なっていてもlibmの実装が同じなら一致し、libmが異なれば(glibcとmuslのように)割れる。この機構は、bladeのハードウェアを固定したままAVX-512のnumpyディスパッチ対象だけを無効化する追加実測で確認した。実行前に記録した4項目の予測のうち3項目(exp・sin・np.sumの挙動)は的中し、logの挙動だけ予測(aarch64のmuslと同じ値になる)が外れた。外れた結果から、muslのlogはISA(x86_64かaarch64か)によって異なるビットを返すという、実測前には分からなかった事実が新たに分かった。原因はmuslのソース`src/math/log.c`にある`__FP_FAST_FMA`という明示的な`#if`分岐で、FMA命令が使えるかどうかで数式そのものが切り替わっている(第6章G2参照)。
 LLMのbatch1とbatch8の比較は、「少なくとも今回の規模では一致した」と単純には言えない。batch8が同一プロンプトの複製で長さの異なる実プロンプトを混在させていないこと、3GPU×各条件1回というn=1の比較でありThinking Machines Labの1000回試行・8%の分岐率に対して統計的検出力が大きく劣ることから、現象を検出できる設計ではなかった、というのが正確な言い方である。
 GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使う一部の処理に局在していた。CPU実行も一様に安全なわけではない。BLAS・KMeansと同じ理由(非結合則の演算をスレッド分割で計算する)でPyTorch(CPU)のMLPもスレッド数ごとに割れた一方、LightGBMは同じ軸(スレッド数・BLAS実装・Python版)を跨いでも割れなかった(第6章G3)。縮約を使うかどうかではなく、個々の実装がスレッド分割をどう行うかで結果が変わる。
 
@@ -900,12 +902,13 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 ### PRNGの仕様と方針
 
 - Matsumoto, M. and Nishimura, T. (1998) "Mersenne Twister: A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator." ACM Transactions on Modeling and Computer Simulation, Vol.8, No.1(査読論文)。https://dl.acm.org/doi/10.1145/272991.272995 (取得日: 2026-10-14)。ACMは有料のため、著者による公開ページも挙げる。https://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/emt.html (取得日: 2026-10-15)
+- O'Neill, M. E. (2014) "PCG: A Family of Simple Fast Space-Efficient Statistically Good Algorithms for Random Number Generation." Harvey Mudd College Technical Report HMC-CS-2014-0905(大学テクニカルレポート、査読論文ではない)。https://www.pcg-random.org/paper.html (取得日: 2026-10-20)
 - Salmon, J. K., Moraes, M. A., Dror, R. O. and Shaw, D. E. (2011) "Parallel Random Numbers: As Easy as 1, 2, 3." Proceedings of SC11(ACM Best Paper Award、査読論文)。https://dl.acm.org/doi/10.1145/2063384.2063405 (取得日: 2026-10-14)。ACMは有料のため、著者による公開PDFも挙げる。https://www.thesalmons.org/john/random123/papers/random123sc11.pdf (取得日: 2026-10-15)
 - NEP 19「Random Number Generator Policy」(NumPy公式文書、著者Robert Kern、Status: Final)。https://numpy.org/neps/nep-0019-rng-policy.html (取得日: 2026-10-14)
 - NumPy公式ドキュメント「What's New or Different」(Generatorでは正規分布等の正確な乱数値を再現できないと明記)。https://numpy.org/doc/stable/reference/random/new-or-different.html (取得日: 2026-10-14)
 - NumPy 1.22.0 リリースノート(公式文書。float32一様乱数の最下位ビットが常に0になるバグの修正を記載)。https://numpy.org/doc/stable/release/1.22.0-notes.html (取得日: 2026-10-14)
 - NumPy 1.19.0 リリースノート(公式文書。SeedSequenceのspawn挙動変更を「Spawned SeedSequences will produce different results than in the previous release」と明記)。https://numpy.org/doc/stable/release/1.19.0-notes.html (取得日: 2026-10-20)
-- NumPy公式ドキュメント「Compatibility Policy」(公式文書。「default_rng() is allowed to change which BitGenerator it uses by default」と明記)。https://numpy.org/doc/stable/reference/random/compatibility.html (取得日: 2026-10-20)
+- NumPy公式ドキュメント「Compatibility Policy」(公式文書。「In particular, default_rng is allowed to change the default BitGenerator that it uses (again, with caution and plenty of advance warning)」と明記)。https://numpy.org/doc/stable/reference/random/compatibility.html (取得日: 2026-10-20)
 
 ### SIMD・BLAS・libm
 
@@ -916,7 +919,7 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 - NumPy 2.2.6 ソース `loops_exponent_log.dispatch.c.src`(GitHub。DOUBLE_exp/DOUBLE_logのAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE経路とnpy_exp/npy_logスカラー経路への3段ディスパッチ)。https://github.com/numpy/numpy/blob/v2.2.6/numpy/_core/src/umath/loops_exponent_log.dispatch.c.src (取得日: 2026-10-20)
 - NumPy 2.2.6 ソース `loops_trigonometric.dispatch.cpp`(GitHub。「Disable SIMD code sin/cos f64 and revert to libm」のコメント)。https://github.com/numpy/numpy/blob/v2.2.6/numpy/_core/src/umath/loops_trigonometric.dispatch.cpp (取得日: 2026-10-20)
 - musl libc ソース `src/math/log.c`(git.musl-libc.org。`__FP_FAST_FMA`によるFMA/補正テーブル分岐)。https://git.musl-libc.org/cgit/musl/tree/src/math/log.c (取得日: 2026-10-20)
-- musl メーリングリスト、Szabolcs Nagy氏の投稿(2019年4月3日。musl数学ライブラリの移植性に関する`__FP_FAST_FMA`チェックへの言及)。https://www.openwall.com/lists/musl/2019/04/03/1 (取得日: 2026-10-20)
+- musl メーリングリスト、Szabolcs Nagy氏の投稿(2019年2月2日、Message-ID: `<20190202033929.GK21289@port70.net>`。musl数学ライブラリの移植性に関する`__FP_FAST_FMA`チェックへの言及。同じ文面は2019年4月3日のDamian McGuckin氏の投稿内に`>`付きの引用として再掲されている)。https://www.openwall.com/lists/musl/2019/02/02/1 (取得日: 2026-10-20)
 - GCC ソース `gcc/c-family/c-cppbuiltin.cc`(GitHubミラー。`__FP_FAST_FMA`を定義する`mode_has_fma()`の実装)。https://github.com/gcc-mirror/gcc/blob/master/gcc/c-family/c-cppbuiltin.cc (取得日: 2026-10-20)
 - Alpine Linux aports `main/gcc/APKBUILD`(GitLab。aarch64にのみ`--with-arch=armv8-a`を指定するビルド設定)。https://gitlab.alpinelinux.org/alpine/aports/-/blob/master/main/gcc/APKBUILD (取得日: 2026-10-20)
 
@@ -930,7 +933,7 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 ### LLM推論
 
 - He, H. et al.「Defeating Nondeterminism in LLM Inference」Thinking Machines Lab, Connectionism Blog, 2025年9月10日(査読を経ていないエンジニアリングブログ)。https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/ (取得日: 2026-10-14)
-- vLLM公式ドキュメント「SamplingParams」v0.11.0(temperature<1e-5をgreedy扱いにする仕様を記載)。https://docs.vllm.ai/en/v0.11.0/api/vllm/sampling_params.html (取得日: 2026-10-14)
+- vLLMの公式の実装(ソースコード)、`SamplingParams`クラス定義。v0.11.0のAPIリファレンスページ(ソースから自動生成)に`_SAMPLING_EPS = 1e-05`としてtemperature<1e-5をgreedy扱いにする定数が記載されている。利用者向けのプローズ解説本文には具体的な数値は出てこない。https://docs.vllm.ai/en/v0.11.0/api/vllm/sampling_params.html (取得日: 2026-10-14)
 
 ### 再現性の用語
 
