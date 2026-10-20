@@ -29,16 +29,20 @@
   <rect x="20" y="100" width="62" height="120" rx="10" fill="#1b5e20"/>
   <text x="51" y="168" class="chiplabel" text-anchor="middle">L0</text>
 
-  <text x="100" y="126" class="cell">国際規格・</text>
-  <text x="100" y="144" class="cell">公開アルゴリズム仕様</text>
+  <text x="100" y="126" class="cell">IEEE754は国際規格。</text>
+  <text x="100" y="144" class="cell">MT19937/PCG64/Philoxは</text>
+  <text x="100" y="162" class="cell">査読論文・公開仕様</text>
+  <text x="100" y="180" class="cell">(国際規格ではない)</text>
 
-  <text x="310" y="126" class="cell">IEEE754の + − × ÷ √ FMA</text>
-  <text x="310" y="144" class="cell">(正しく丸め)、</text>
-  <text x="310" y="162" class="cell">MT19937・PCG64・</text>
-  <text x="310" y="180" class="cell">Philoxの生成ビット列</text>
+  <text x="310" y="126" class="cell">IEEE754の + − × ÷ √</text>
+  <text x="310" y="144" class="cell">(正しく丸め)、FMA(明示的に</text>
+  <text x="310" y="162" class="cell">呼んだ場合のみ)、MT19937・</text>
+  <text x="310" y="180" class="cell">PCG64・Philoxの生成ビット列</text>
 
-  <text x="650" y="126" class="cell">言語・OS・CPUを</text>
-  <text x="650" y="144" class="cell">跨いでも壊れない</text>
+  <text x="650" y="126" class="cell">言語・OS・CPUを跨いでも</text>
+  <text x="650" y="144" class="cell">壊れない。ただし`a*b+c`等の</text>
+  <text x="650" y="162" class="cell">FMA自動contractやseedから</text>
+  <text x="650" y="180" class="cell">内部状態への変換は除く</text>
 
   <!-- ===================== L1 row (y 220-340) ===================== -->
   <rect x="90"  y="220" width="210" height="120" fill="#558b2f" fill-opacity="0.06" stroke="#558b2f" stroke-opacity="0.35"/>

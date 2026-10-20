@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 730" width="960" height="730">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 980" width="960" height="980">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
@@ -6,112 +6,118 @@
   </defs>
   <style>
     text { font-family: 'Noto Sans CJK JP', 'Noto Sans', sans-serif; }
-    .title { font-size: 25px; font-weight: 700; fill: #111827; }
+    .title { font-size: 23px; font-weight: 700; fill: #111827; }
     .subtitle { font-size: 13px; fill: #4b5563; }
-    .panelTitle { font-size: 15px; font-weight: 700; fill: #1e3a5f; }
-    .cellText { font-size: 13px; fill: #111827; }
-    .note { font-size: 13px; fill: #374151; }
+    .panelTitle { font-size: 16px; font-weight: 700; fill: #1e3a5f; }
+    .diamond { fill: #ffffff; stroke: #374151; stroke-width: 1.6; }
+    .qtext { font-size: 13px; font-weight: 700; fill: #111827; }
+    .boxtext { font-size: 13px; font-weight: 700; fill: #111827; }
+    .boxsub { font-size: 11.5px; fill: #374151; }
+    .branchlabel { font-size: 12px; font-weight: 700; }
+    .notegreen { font-size: 12.5px; font-weight: 700; fill: #1b5e20; }
+    .noteorange { font-size: 12.5px; font-weight: 700; fill: #c2410c; }
+    .svmlnote { font-size: 11px; fill: #6b7280; }
+    .tablehead { font-size: 13px; font-weight: 700; fill: #111827; }
+    .tablecell { font-size: 13px; fill: #111827; }
+    .tablecond { font-size: 12.5px; fill: #111827; }
+    .legend { font-size: 12px; fill: #374151; }
+    .note { font-size: 13px; fill: #111827; }
     .footnote { font-size: 12px; fill: #6b7280; }
-    .inputcell { fill: #e5e7eb; stroke: #9ca3af; stroke-width: 1; }
-    .inputval { font-size: 10px; fill: #374151; }
-    .groupbox { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 8; }
-    .panel2 { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; rx: 10; }
-    .caveatbox { fill: #fef2f2; stroke: #c62828; stroke-width: 1.3; rx: 8; }
   </style>
 
-  <rect x="0" y="0" width="960" height="730" fill="#ffffff"/>
+  <rect x="0" y="0" width="960" height="980" fill="#ffffff"/>
 
-  <text x="30" y="38" class="title">F6. SIMD幅が変わると縮約(reduction)の足す順序が変わる</text>
-  <text x="30" y="58" class="subtitle">機構の図解(入力の数値はダミー。具体的な実測差ではなく「グルーピングの違い」そのものを示す)。</text>
-  <line x1="30" y1="70" x2="930" y2="70" stroke="#e5e7eb" stroke-width="2"/>
+  <text x="30" y="36" class="title">F6. 超越関数は、AVX-512専用カーネルの有無でlibmを経由するか決まる</text>
+  <text x="30" y="58" class="subtitle">NumPy 2.2.6のexp/log/sinディスパッチ機構(原理図+実測)。「SIMD幅で縮約の足す順序が変わる」という旧説明は、</text>
+  <text x="30" y="74" class="subtitle">実測で確認できなかったため本図に置き換えた。</text>
+  <line x1="30" y1="88" x2="930" y2="88" stroke="#e5e7eb" stroke-width="2"/>
 
-  <!-- shared input row, now with dummy values (fix round 1, Important 6:
-       the subtitle promised dummy numbers but the cells were blank) -->
-  <text x="480" y="92" text-anchor="middle" font-size="13" fill="#374151" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">同じ入力 a0..a15(数値はダミー)</text>
-  <g>
-    <rect x="180" y="98" width="37" height="28" class="inputcell"/><text x="198" y="116" text-anchor="middle" class="inputval">0.2</text>
-    <rect x="217" y="98" width="37" height="28" class="inputcell"/><text x="235" y="116" text-anchor="middle" class="inputval">-0.5</text>
-    <rect x="254" y="98" width="37" height="28" class="inputcell"/><text x="272" y="116" text-anchor="middle" class="inputval">1.1</text>
-    <rect x="291" y="98" width="37" height="28" class="inputcell"/><text x="309" y="116" text-anchor="middle" class="inputval">0.0</text>
-    <rect x="328" y="98" width="37" height="28" class="inputcell"/><text x="346" y="116" text-anchor="middle" class="inputval">-0.3</text>
-    <rect x="365" y="98" width="37" height="28" class="inputcell"/><text x="383" y="116" text-anchor="middle" class="inputval">0.8</text>
-    <rect x="402" y="98" width="37" height="28" class="inputcell"/><text x="420" y="116" text-anchor="middle" class="inputval">-1.2</text>
-    <rect x="439" y="98" width="37" height="28" class="inputcell"/><text x="457" y="116" text-anchor="middle" class="inputval">0.4</text>
-    <rect x="476" y="98" width="37" height="28" class="inputcell"/><text x="494" y="116" text-anchor="middle" class="inputval">0.6</text>
-    <rect x="513" y="98" width="37" height="28" class="inputcell"/><text x="531" y="116" text-anchor="middle" class="inputval">-0.1</text>
-    <rect x="550" y="98" width="37" height="28" class="inputcell"/><text x="568" y="116" text-anchor="middle" class="inputval">0.9</text>
-    <rect x="587" y="98" width="37" height="28" class="inputcell"/><text x="605" y="116" text-anchor="middle" class="inputval">-0.7</text>
-    <rect x="624" y="98" width="37" height="28" class="inputcell"/><text x="642" y="116" text-anchor="middle" class="inputval">0.3</text>
-    <rect x="661" y="98" width="37" height="28" class="inputcell"/><text x="679" y="116" text-anchor="middle" class="inputval">-0.4</text>
-    <rect x="698" y="98" width="37" height="28" class="inputcell"/><text x="716" y="116" text-anchor="middle" class="inputval">1.0</text>
-    <rect x="735" y="98" width="37" height="28" class="inputcell"/><text x="753" y="116" text-anchor="middle" class="inputval">-0.2</text>
-  </g>
+  <!-- ============ exp/log dispatch ============ -->
+  <text x="30" y="116" class="panelTitle">np.exp(x) / np.log(x)(float64)のディスパッチ</text>
 
-  <line x1="330" y1="126" x2="250" y2="160" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
-  <line x1="630" y1="126" x2="720" y2="160" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="460" y="98" width="470" height="34" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="474" y="119" class="svmlnote">(SVMLリンク時のみ有効。通常のPyPIホイールでは無効、本実測も非該当)</text>
 
-  <!-- left tree: 8-wide. fix round 1, Important 5: the previous version
-       said "a0..a7 を合算 -> P0" / "a8..a15 を合算 -> P1", which is not
-       how an 8-wide reduction groups 16 elements — it pairs lane i with
-       lane i+8 (both loaded into the same 8-lane register across two
-       loads), then reduces those 8 lanes horizontally. Restated as that
-       two-step process: lane-wise pairing, then a horizontal reduce. -->
-  <text x="50" y="180" class="panelTitle">8並列(float32、256bit÷32bit = 8要素/レジスタ)</text>
-  <rect x="50" y="192" width="400" height="66" class="groupbox"/>
-  <text x="65" y="216" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">a[i] と a[i+8] をレーンごとに加算(i=0..7)</text>
-  <text x="65" y="240" class="cellText">→ 8要素の部分和ベクトル P[0..7]</text>
+  <polygon points="480,138 585,183 480,228 375,183" class="diamond"/>
+  <text x="480" y="178" class="qtext" text-anchor="middle">AVX512Fが</text>
+  <text x="480" y="196" class="qtext" text-anchor="middle">使えるか?</text>
 
-  <line x1="250" y1="258" x2="250" y2="286" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
-  <rect x="50" y="288" width="400" height="66" class="groupbox"/>
-  <text x="65" y="312" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">P[0..7] を水平加算(log2(8)=3段階)</text>
-  <text x="65" y="336" class="cellText">→ S8(最終結果)</text>
+  <line x1="400" y1="206" x2="270" y2="266" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="300" y="238" class="branchlabel" fill="#1b5e20" text-anchor="middle">YES</text>
 
-  <!-- right tree: 16-wide. fix round 1, Important 5: the previous
-       version said a single vector operation reduces 16 lanes to a
-       scalar — no such instruction exists; a horizontal reduction
-       (here log2(16)=4 steps) is still required. What genuinely differs
-       from the left tree is that all 16 elements already fit in one
-       register, so no lane-pairing step across two loads is needed
-       first. -->
-  <text x="520" y="180" class="panelTitle">16並列(float32、512bit÷32bit = 16要素/レジスタ)</text>
-  <rect x="520" y="192" width="400" height="162" class="groupbox"/>
-  <text x="535" y="228" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">a[0..15] を水平加算(log2(16)=4段階)</text>
-  <text x="535" y="250" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">→ S16(最終結果)</text>
-  <text x="535" y="278" class="note">16要素が最初から1つのレジスタに収まるため、</text>
-  <text x="535" y="296" class="note">左のようなレーンペアリング(2本の部分和を</text>
-  <text x="535" y="314" class="note">重ねる加算)の段階は不要</text>
+  <line x1="560" y1="206" x2="700" y2="266" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="672" y="238" class="branchlabel" fill="#6b7280" text-anchor="middle">NO</text>
 
-  <!-- comparison callout -->
-  <rect x="40" y="378" width="880" height="58" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.2" rx="8"/>
-  <text x="60" y="400" class="note">S8 と S16 は数学的には同じ値の総和だが、グルーピング(足し合わせる順序)が違う。</text>
-  <text x="60" y="420" class="note">浮動小数点の非結合性(F5参照)により、丸め方が変わり、ビットパターンが一致しない場合がある。</text>
+  <!-- YES branch: libc非依存のNumPy内製カーネル -->
+  <rect x="70" y="266" width="380" height="74" rx="8" fill="#1b5e20" fill-opacity="0.08" stroke="#1b5e20" stroke-opacity="0.45" stroke-width="1.5"/>
+  <text x="90" y="294" class="boxtext">NumPy内製カーネル</text>
+  <text x="90" y="316" class="boxsub">AVX512F_exp_DOUBLE / AVX512F_log_DOUBLE</text>
+  <text x="90" y="358" class="notegreen">→ libcを通らない(glibc/muslを替えても同じ)</text>
 
-  <!-- L3 badge -->
-  <rect x="40" y="448" width="44" height="40" rx="8" fill="#ef6c00"/>
-  <text x="62" y="474" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L3</text>
-  <text x="96" y="473" class="note">SIMDディスパッチ(どの命令セットを使うか)は実行時に環境が選ぶ(→ L3)</text>
+  <!-- NO branch: libmへフォールバック -->
+  <rect x="510" y="266" width="380" height="50" rx="8" fill="#ef6c00" fill-opacity="0.08" stroke="#ef6c00" stroke-opacity="0.45" stroke-width="1.5"/>
+  <text x="530" y="296" class="boxtext">npy_exp / npy_log(スカラー経路)</text>
+  <line x1="700" y1="316" x2="700" y2="342" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="510" y="342" width="380" height="50" rx="8" fill="#ef6c00" fill-opacity="0.08" stroke="#ef6c00" stroke-opacity="0.45" stroke-width="1.5"/>
+  <text x="530" y="372" class="boxtext">プラットフォームのlibm(glibc / musl)</text>
+  <text x="530" y="410" class="noteorange">→ glibcとmuslで結果が変わりうる(AVX-512Fが無い環境)</text>
 
-  <!-- panel 2: documented evidence -->
-  <rect x="40" y="506" width="880" height="176" class="panel2"/>
-  <text x="60" y="532" font-size="15" font-weight="700" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">文書で確認されている実例(NumPy issue #23523)</text>
-  <text x="60" y="556" class="cellText">NumPyのAVX-512と非AVX-512のコードパスで `sin` / `cos` / `exp` / `log` が最大 約4 ULP 異なる。</text>
-  <!-- fix round 1, Important 9: the quoted sentence is a translation of
-       mattip's actual words ("We accept differences of up to 4 ULP from
-       the golden results, depending on which implementations are
-       used"), not of the research note's own "トレードオフ"
-       characterisation of it — that word is dropped from inside the
-       quotation marks. -->
-  <text x="60" y="576" class="cellText">NumPyメンテナ mattip の発言: 「使用する実装によっては、golden resultsとの差を最大4 ULPまで許容している」(issue #23523)。</text>
+  <line x1="30" y1="436" x2="930" y2="436" stroke="#e5e7eb" stroke-width="1.5"/>
 
-  <rect x="60" y="592" width="840" height="76" class="caveatbox"/>
-  <text x="78" y="614" font-size="13" font-weight="700" fill="#b91c1c" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">注意: これは超越関数(sin/cos/exp/log)での報告であり、`np.sum` 自体が</text>
-  <text x="78" y="634" font-size="13" font-weight="700" fill="#b91c1c" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">AVX2とAVX-512で異なるという文書化された報告は無い(本プロジェクトの調査時点)。</text>
-  <text x="78" y="654" font-size="13" fill="#7f1d1d" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">上の縮約木は非結合性という実在する機構の説明であり、`np.sum` の実測差を主張するものではない。</text>
+  <!-- ============ sin/cos dispatch ============ -->
+  <text x="30" y="464" class="panelTitle">np.sin(x)(float64)のディスパッチ</text>
+  <rect x="70" y="478" width="820" height="50" rx="8" fill="#ef6c00" fill-opacity="0.08" stroke="#ef6c00" stroke-opacity="0.45" stroke-width="1.5"/>
+  <text x="480" y="508" text-anchor="middle" class="boxtext">常に libm 経由(glibc / musl)— AVX-512の有無によらず固定</text>
+  <text x="90" y="546" class="noteorange">→ NumPy 2.2.6は「Disable SIMD code sin/cos f64 and revert to libm」としてSIMD経路を撤回し、常にlibmへ戻す</text>
 
-  <!-- fix round 1, small fix: the NumPy 1.9.0 pairwise-summation release
-       note is no longer cited here — this figure's claim is about
-       SIMD-lane-width grouping generically, not about NumPy's specific
-       documented pairwise/cascade summation algorithm, so that citation
-       did not support a claim this figure actually makes. -->
-  <text x="30" y="710" class="footnote">出典: NumPy issue #23523(AVX-512 vs 非AVX-512、sin/cos/exp/log)。調査ノート simd_blas_parallel.md 参照。</text>
+  <line x1="30" y1="572" x2="930" y2="572" stroke="#e5e7eb" stroke-width="1.5"/>
+
+  <!-- ============ measured values ============ -->
+  <text x="30" y="600" class="panelTitle">実測(ハッシュ値。第6章G2・決定実験より)</text>
+
+  <text x="40" y="624" class="tablehead">条件</text>
+  <text x="350" y="624" class="tablehead">exp(float64)</text>
+  <text x="650" y="624" class="tablehead">sin(float64)</text>
+  <line x1="30" y1="632" x2="930" y2="632" stroke="#111827" stroke-width="1.3"/>
+
+  <text x="40" y="654" class="tablecond">blade(AVX-512あり・glibc)</text>
+  <rect x="340" y="636" width="290" height="28" fill="#1b5e20" fill-opacity="0.12" stroke="#1b5e20" stroke-opacity="0.35"/>
+  <text x="350" y="654" class="tablecell">5119b269</text>
+  <rect x="640" y="636" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="650" y="654" class="tablecell">ddf398b7</text>
+
+  <text x="40" y="686" class="tablecond">blade(AVX-512あり・musl)</text>
+  <rect x="340" y="668" width="290" height="28" fill="#1b5e20" fill-opacity="0.12" stroke="#1b5e20" stroke-opacity="0.35"/>
+  <text x="350" y="686" class="tablecell">5119b269</text>
+  <rect x="640" y="668" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="650" y="686" class="tablecell">601eb0fa</text>
+
+  <text x="40" y="718" class="tablecond">dgxspark(AVX-512なし・glibc)</text>
+  <rect x="340" y="700" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="350" y="718" class="tablecell">cba8bfa7</text>
+  <rect x="640" y="700" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="650" y="718" class="tablecell">ddf398b7</text>
+
+  <text x="40" y="750" class="tablecond">dgxspark(AVX-512なし・musl)</text>
+  <rect x="340" y="732" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="350" y="750" class="tablecell">ab300a28</text>
+  <rect x="640" y="732" width="290" height="28" fill="#ef6c00" fill-opacity="0.12" stroke="#ef6c00" stroke-opacity="0.35"/>
+  <text x="650" y="750" class="tablecell">601eb0fa</text>
+
+  <rect x="40" y="772" width="14" height="14" fill="#1b5e20" fill-opacity="0.3" stroke="#1b5e20"/>
+  <text x="60" y="784" class="legend">libcを替えても同じ(AVX-512カーネルがlibcを迂回)</text>
+  <rect x="490" y="772" width="14" height="14" fill="#ef6c00" fill-opacity="0.3" stroke="#ef6c00"/>
+  <text x="510" y="784" class="legend">libcを替えると変わる(libmへフォールバック)</text>
+
+  <text x="40" y="810" class="note">AVX-512があるとexpはlibcを替えても変わらない(緑)。無いとlibcで変わる(橙)。sinは常にlibcで変わる(全行橙)。</text>
+
+  <!-- L3 mechanism callout -->
+  <rect x="30" y="832" width="900" height="76" fill="#fff7ed" stroke="#ef6c00" stroke-opacity="0.5" stroke-width="1.5" rx="8"/>
+  <rect x="44" y="846" width="44" height="42" rx="8" fill="#ef6c00"/>
+  <text x="66" y="873" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L3</text>
+  <text x="104" y="862" font-size="13" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">AVX-512専用カーネルの有無が、expがlibmにフォールバックするか(→glibc/muslの違いが出るか)を決める。sinは常に</text>
+  <text x="104" y="882" font-size="13" fill="#111827" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">libmにフォールバックするため、AVX-512の有無によらず常にL3(実行時環境)に属する。</text>
+
+  <text x="30" y="936" class="footnote">原理図+実測。分岐の機構はNumPy 2.2.6のソース(loops_exponent_log.dispatch.c.src、loops_trigonometric.dispatch.cpp)に基づく。ハッシュ値は第6章G2の</text>
+  <text x="30" y="954" class="footnote">実測・決定実験(事前登録、コミット63d9e38)より。SVML経路は通常のPyPIホイールでは有効でないことが多く、本実測の環境でも該当しない。</text>
 </svg>
