@@ -315,6 +315,28 @@ def test_main_blank_only_selector_matches_nothing_and_errors(tmp_path):
     assert not out_path.exists()
 
 
+def test_main_empty_string_probes_runs_all_probes_ignoring_env(tmp_path, monkeypatch):
+    # fix round 1 finding: `selected_probe_names()`への切り出しの際、
+    # `--probes ""`(空文字列を明示)の挙動が壊れていた。旧実装
+    # (`probes_arg = args.probes if args.probes is not None else env`;
+    # `selected = [...] if probes_arg else None`)では`args.probes=""`は
+    # `is not None`なので`probes_arg=""`になり、空文字列は偽値なので
+    # `selected=None`(= 全プローブ、REPRO_PROBESも見ない)に解決されて
+    # いた。リファクタ後の新実装がこれを「空リスト」(=空集合を明示的に
+    # 選択)に変え、`run()`がValueErrorで落ちるようになっていた回帰を
+    # 検出する。REPRO_PROBESをあえて狭いセレクタに設定し、`--probes ""`
+    # がそれを無視して全プローブを選ぶ(= 空文字列はCLI側の明示的な
+    # 選択として環境変数より優先される)ことも併せて確認する。
+    monkeypatch.setenv("REPRO_PROBES", "S1")
+
+    out_path = tmp_path / "out.json"
+    main(["--probes", "", "--out", str(out_path)])
+
+    payload = json.loads(out_path.read_text())
+    probe_names = {p["probe"] for p in payload["probes"]}
+    assert probe_names == set(runner.all_probe_names())
+
+
 def test_main_supports_comma_separated_group_selection(tmp_path):
     out_path = tmp_path / "out.json"
     main(["--probes", "S1,S2", "--out", str(out_path)])
