@@ -151,6 +151,34 @@ def test_main_writes_default_output_path(tmp_path, monkeypatch):
     assert len(payload["probes"]) == 1
 
 
+def test_main_falls_back_to_repro_probes_env_var(tmp_path, monkeypatch):
+    # scripts/run_on_host.shのs10batch config向けの経路: `--probes`を
+    # 省略したとき、REPRO_PROBES環境変数があればそれをセレクタとして使う
+    # (run_containerが固定するコマンド行にCLI引数を足さず、-eフラグだけで
+    # S10に絞り込むため)。
+    monkeypatch.setenv("REPRO_PROBES", "S1")
+
+    out_path = tmp_path / "out.json"
+    main(["--out", str(out_path)])
+
+    payload = json.loads(out_path.read_text())
+    assert payload["probes"]
+    assert all(p["probe"].startswith("S1") for p in payload["probes"])
+    assert len(payload["probes"]) >= 4  # test_run_prefix_selection_matches_groupと同じ下限
+
+
+def test_main_prefers_explicit_probes_flag_over_env_var(tmp_path, monkeypatch):
+    # `--probes`が明示されたときはREPRO_PROBESより優先する(環境変数は
+    # あくまでCLIが省略されたときのフォールバック)。
+    monkeypatch.setenv("REPRO_PROBES", "S1")
+
+    out_path = tmp_path / "out.json"
+    main(["--probes", "S0_parallel_completion_order", "--out", str(out_path)])
+
+    payload = json.loads(out_path.read_text())
+    assert [p["probe"] for p in payload["probes"]] == ["S0_parallel_completion_order"]
+
+
 def test_main_accepts_explicit_out_path(tmp_path):
     out_path = tmp_path / "custom" / "nested" / "out.json"
     main(["--probes", "S1_stdlib_mt19937", "--out", str(out_path)])

@@ -10,7 +10,14 @@
 #           as given, per the Global Constraint that ssh hostnames are
 #           these four names verbatim)
 #   image:  base | py313 | oldpy | oldlibs | alpine | mkl | gpu
-#   config: threads1 | threads8 | threadsmax | nosimd512 | hashseed0 | hashseedfree
+#   config: threads1 | threads8 | threadsmax | nosimd512 | hashseed0 |
+#           hashseedfree | s10batch
+#           (s10batch: same env vars as threadsmax, but selects only the
+#           S10 batch-invariance probes via REPRO_PROBES -- see its case
+#           arm below. Intended for IMAGE=gpu only, since S10 requires
+#           transformers/torch/hf_model; writes to a config label of its
+#           own, results/<host>__gpu__s10batch.json, so it never collides
+#           with results/<host>__gpu__threadsmax.json.)
 #
 # --dry-run prints every command this script would run (resolved config
 # env vars included) and checks host reachability (ssh for a remote host,
@@ -130,8 +137,34 @@ case "$CONFIG" in
   hashseedfree)
     : # deliberately leave PYTHONHASHSEED unset
     ;;
+  s10batch)
+    # S10 (batch-invariance) 本番実測専用のconfig。既存の6 config の
+    # どれにも該当せず、第三の軸(「このconfigではどのプローブを走らせる
+    # か」)を初めて導入する。
+    #
+    # スレッド数まわりの環境変数はthreadsmaxの設定をそのまま踏襲する
+    # (brief: 「環境変数はthreadsmaxと同じものを設定する」) -- S10自体は
+    # torchのGPUフォワードパスが支配的でCPUスレッド数固定が本質的な意味を
+    # 持つプローブではないが、既存の6 configと無用に異なる軸を増やさず、
+    # host_nprocの解決ロジックを重複させないため、threadsmaxのケースと
+    # 同じ分岐をそのまま使う。
+    if [ "$DRY_RUN" -eq 1 ] && [ "$HOST" != "local" ]; then
+      n="<host's nproc>"
+    else
+      n="$(host_nproc)"
+    fi
+    for v in $THREAD_VARS; do add_env "$v" "$n"; done
+    # REPRO_PROBES: reprobench.runner.main が --probes の無いとき参照する
+    # 環境変数(reprobench/runner.py参照)。run_container(lib_run_container.sh)
+    # が組み立てる`docker run`のコマンド行は`python -m reprobench.runner`
+    # に固定されておりCLI引数を足す経路が無いため、既存のREPRO_HOST/
+    # REPRO_IMAGE/REPRO_CONFIGと同じ`-e`フラグの仕組みに乗せてS10だけに
+    # 絞り込む。他の6 configはこの変数を設定しないため、
+    # reprobench.runner側のデフォルト(全プローブ)は一切変わらない。
+    add_env "REPRO_PROBES" "S10"
+    ;;
   *)
-    echo "run_on_host.sh: unknown CONFIG '$CONFIG' (expected one of: threads1 threads8 threadsmax nosimd512 hashseed0 hashseedfree)" >&2
+    echo "run_on_host.sh: unknown CONFIG '$CONFIG' (expected one of: threads1 threads8 threadsmax nosimd512 hashseed0 hashseedfree s10batch)" >&2
     exit 1
     ;;
 esac

@@ -100,8 +100,10 @@ is left for pip to resolve freely.
 | `make figures` | `results/report.json` -> article PNGs, inside `base` |
 
 `CONFIG` is one of `threads1 threads8 threadsmax nosimd512 hashseed0
-hashseedfree` (`scripts/run_on_host.sh`'s header comment documents
-exactly which environment variables each one sets and why).
+hashseedfree s10batch` (`scripts/run_on_host.sh`'s header comment
+documents exactly which environment variables each one sets and why;
+`s10batch` additionally restricts the run to the S10 batch-invariance
+probes and is only meaningful with `IMAGE=gpu`).
 
 `make report`/`make figures` both run inside the `base` image, per this
 project's own design: they only need `reprobench.compare` (`report`) or

@@ -157,12 +157,28 @@ def main(argv: list[str] | None = None) -> None:
     既に存在する場合・出力先への書き込みがOS側の理由(権限・ディスク
     フルなど)で失敗した場合は、いずれも標準エラーに理由を一行書いて
     非ゼロ終了する(`SystemExit`)。
+
+    `--probes`が省略されたとき、`REPRO_PROBES`環境変数が設定されていれば
+    それをセレクタとして使う(`--probes`自体が明示されたときはCLI側を
+    優先し、環境変数は無視する)。これは`scripts/run_on_host.sh`の
+    `s10batch` configのために追加した経路: `run_container`(
+    `scripts/lib_run_container.sh`)が組み立てる`docker run`のコマンド行は
+    `python -m reprobench.runner`に固定されており、CLI引数を一切追加しない
+    契約になっている一方、`-e`フラグによる環境変数の追加は`run_on_host.sh`
+    の`CONFIG`ごとの分岐が既に`REPRO_HOST`/`REPRO_IMAGE`/`REPRO_CONFIG`で
+    行っている普通の経路なので、新しいCLI引数の配線を増やさずこれに
+    乗せる。既存の6つのconfigはどれも`REPRO_PROBES`を設定しないため、
+    この経路は未使用のまま(`args.probes`も`None`のまま)で、挙動は一切
+    変わらない。
     """
     parser = argparse.ArgumentParser(description="Run reprobench probes and record results.")
     parser.add_argument(
         "--probes",
         default=None,
-        help="カンマ区切りの前方一致セレクタ(例: S1,S2)。省略時は全プローブ。",
+        help=(
+            "カンマ区切りの前方一致セレクタ(例: S1,S2)。省略時は"
+            "REPRO_PROBES環境変数、それも無ければ全プローブ。"
+        ),
     )
     parser.add_argument("--out", default=None, help="出力先JSONパス。省略時はresults/配下。")
     parser.add_argument(
@@ -173,7 +189,8 @@ def main(argv: list[str] | None = None) -> None:
     # 空文字列トークン("S1,"のような末尾カンマ)を素通りさせると、
     # 全ての名前が""に前方一致してしまい、「一部だけ選んだつもり」が
     # 「全件選択」に化ける。ここで取り除き、素通りさせない。
-    selected = [p.strip() for p in args.probes.split(",") if p.strip()] if args.probes else None
+    probes_arg = args.probes if args.probes is not None else os.environ.get("REPRO_PROBES")
+    selected = [p.strip() for p in probes_arg.split(",") if p.strip()] if probes_arg else None
 
     # 出力先を、プローブを1つも実行する前に確定・チェックする(モジュール
     # docstring参照)。デフォルトパスの算出だけのために`collect_env()`を
