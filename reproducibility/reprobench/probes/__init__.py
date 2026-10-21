@@ -22,3 +22,4 @@ from reprobench.probes import s8_torch_gpu  # 副作用: S8プローブ群を登
 from reprobench.probes import s9_llm  # 副作用: S9プローブ群を登録する
 from reprobench.probes import s10_batch_invariance  # 副作用: S10プローブ群を登録する
 from reprobench.probes import s11_rng_order  # 副作用: S11プローブ群を登録する
+from reprobench.probes import s14_dataloader_seed  # 副作用: S14プローブ群を登録する
