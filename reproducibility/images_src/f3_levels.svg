@@ -69,8 +69,8 @@
   <rect x="20" y="340" width="62" height="120" rx="10" fill="#f9a825"/>
   <text x="51" y="408" class="chiplabelDark" text-anchor="middle">L2</text>
 
-  <text x="100" y="366" class="cell">文書化なし。</text>
-  <text x="100" y="384" class="cell">実装がたまたま決めている</text>
+  <text x="100" y="366" class="cell">証拠の状態を表す段階。</text>
+  <text x="100" y="384" class="cell">反証可能</text>
 
   <text x="310" y="366" class="cell">正規乱数の変換法</text>
   <text x="310" y="384" class="cell">(ziggurat / polar法)、</text>
@@ -111,8 +111,8 @@
 
   <text x="310" y="606" class="cell">PYTHONHASHSEED、</text>
   <text x="310" y="624" class="cell">GPUのatomicAdd順序、</text>
-  <text x="310" y="642" class="cell">cuDNN benchmarkの</text>
-  <text x="310" y="660" class="cell">自動アルゴリズム選択</text>
+  <text x="310" y="642" class="cell">cuDNN deterministic=False時の</text>
+  <text x="310" y="660" class="cell">非決定的アルゴリズム選択(※G4 S12)</text>
 
   <text x="650" y="606" class="cell">同じプロセスを</text>
   <text x="650" y="624" class="cell">2回走らせても壊れる</text>

@@ -152,7 +152,7 @@ OSはこのCSPRNGを内部に持っており、`os.urandom()`や`/dev/random`は
 
 ハードウェア側では、Intelの`RDRAND`はSP 800-90A準拠のDRBGから読み、`RDSEED`はSP 800-90B/C準拠のconditioner(AES-CBC-MACベース)を経たエントロピーサンプルを読む。RDRANDのようなDRBGによる長い擬似乱数展開を経ない分、生エントロピーに近い。
 RDRANDは1つのシードから最大1022個の連続した乱数しか生成せず、超えると自動的に再シードされる。
-ARMの`RNDR`/`RNDRRS`も同じ構図で、`RNDRRS`は呼び出すたびに強制的に再シードする。
+ARMの`RNDR`/`RNDRRS`も同じ構図で、`RNDRRS`はArm仕様上「承認されたエントロピー源から、可能な限り("where possible")再シードしてから」値を返す。
 
 通常のLinuxコンテナは、ホストのカーネルCSPRNGを共有する。
 コンテナの分離はnamespace機構で実現されているが、man7の`namespaces(7)`が列挙するnamespaceの種類はcgroup・IPC・network・mount・PID・time・user・UTSの8種類のみで、RNGやエントロピー専用のnamespaceは存在しない。
@@ -162,8 +162,8 @@ Mac上のDocker DesktopはそもそもLinuxの仮想マシンを経由してお�
 
 PYTHONHASHSEEDも、seedとは別の軸にある設定である。
 目的はハッシュフラッディング攻撃(CVE-2012-1150)への対策で、PEP 456によりSipHash24が採用された(この採用はPEP 456時点の経緯であり、現行のCPythonのデフォルトはPython 3.11以降SipHash13に変わっている)。
-CPython公式ドキュメントによれば、ハッシュランダム化の対象は`str`と`bytes`(およびそれらに依存する型)に限られ、`int`のハッシュはPYTHONHASHSEEDの影響を受けない。
-`dict`はPython 3.7以降、挿入順を保持する言語仕様になっており、PYTHONHASHSEEDの影響を受けない。
+CPython公式ドキュメントは、ハッシュランダム化の対象を`str`と`bytes`オブジェクトに限定すると明記しており、`int`はこの対象に含まれない。したがって`int`のハッシュはPYTHONHASHSEEDの影響を受けない。
+`dict`はPython 3.7以降、挿入順を保持する言語仕様になっており、挿入順それ自体はPYTHONHASHSEEDの影響を受けない。ただし、挿入順が`str`/`bytes`要素を含む`set`の反復順に由来する場合(例: `set`を反復して`dict`を構築する)は、`dict`の反復順もPYTHONHASHSEEDの影響を間接的に受ける。実際、本プロジェクトの`S0_dict_from_set`のdigestは、全ランで`S0_set_iteration_order`と常に同一であり、PYTHONHASHSEEDを外す(既定状態にする)と両者とも揃って割れる。
 一方`set`は、要素が`str`/`bytes`(やそれらに依存する型)を含む場合、ハッシュテーブルのスロット位置がそれらの値に依存するため、PYTHONHASHSEEDを変えると反復順が変わりうる。要素が`int`のみのsetは、この影響を受けない。
 
 この違いは第5章で実測する。
@@ -271,12 +271,14 @@ PyTorchの`DataLoader`は、`num_workers > 0`のとき、各workerプロセス�
 ```python
 random.seed(seed)
 torch.manual_seed(seed)
-np_seed = _generate_state(base_seed, worker_id)
-np.random.seed(np_seed)
+if HAS_NUMPY:
+    np_seed = _generate_state(base_seed, worker_id)
+    import numpy as np
+    np.random.seed(np_seed)
 ```
 
-つまりPyTorchは、Python標準の`random`・`torch`に加えて**numpyのグローバルな既定RNG**もworkerごとに異なる値へ再シードする。「numpyは再シードされないライブラリだ」という理解は、この経路に関しては誤りである。かつて広く知られていた「DataLoaderのworkerでnumpyの乱数が全て同じになる」という落とし穴は、少なくともこの経路についてはPyTorch自身が解決済みである。
-それでも再シードされないのは、`Dataset.__init__`(fork前の親プロセス)で一度だけ作られ、インスタンス変数として保持された`numpy.random.Generator`である。`torch.manual_seed`も`np.random.seed`も「グローバルな既定の乱数源」にしか関与できず、ユーザーが自分で保持しているGeneratorインスタンスの内部状態には手が届かない。`worker_init_fn`を書かない限り、全workerはforkした瞬間の親プロセスのメモリ(=このGeneratorインスタンスの内部状態)をそのまま物理的に共有するため、同じ乱数列を消費することになる。これはPyTorch公式ドキュメント「Randomness in multi-process data loading」が現行でも明示的に警告している落とし穴であり、原因は「numpyというライブラリの欠陥」ではなく「ライブラリの自動再シードが届く範囲の外側にユーザーが状態を作ってしまうこと」にある。
+つまりPyTorchは、Python標準の`random`・`torch`に加えて、numpyがインストールされている環境では**numpyのグローバルな既定RNG**もworkerごとに異なる値へ再シードする。「numpyは再シードされないライブラリだ」という理解は、この経路に関しては誤りである。かつて広く知られていた「DataLoaderのworkerでnumpyの乱数が全て同じになる」という落とし穴は、少なくともこの経路についてはPyTorch自身が解決済みである。
+それでも再シードされないのは、`Dataset.__init__`(fork前の親プロセス)で一度だけ作られ、インスタンス変数として保持された`numpy.random.Generator`である。`torch.manual_seed`も`np.random.seed`も「グローバルな既定の乱数源」にしか関与できず、ユーザーが自分で保持しているGeneratorインスタンスの内部状態には手が届かない。`worker_init_fn`を書かない限り、全workerはforkした瞬間の親プロセスのメモリ(=このGeneratorインスタンスの内部状態)をそのまま物理的に共有するため、同じ乱数列を消費することになる。PyTorch公式ドキュメント「Randomness in multi-process data loading」(v2.14.1、`docs/source/data.md`)は、「他のライブラリのseedがworker間で重複し、各workerが同一の乱数を返しうる("seeds for other libraries may be duplicated upon initializing workers, causing each worker to return identical random numbers")」と総称的に警告するにとどまり、numpyという名前も、numpyのグローバルRNGがworkerごとに再シードされていることも、fork前に保持したGeneratorインスタンスが影響を受けないことも、文面では一切明記していない。原因は「numpyというライブラリの欠陥」ではなく「ライブラリの自動再シードが届く範囲の外側にユーザーが状態を作ってしまうこと」にあるが、この原因の具体的な機構は、ソースコード(`_worker_loop`)を読んで初めて分かるものであり、公式ドキュメントの記述だけでは特定できない。
 
 ### 実験設定
 
@@ -366,7 +368,7 @@ BLAS実装(OpenBLAS・MKL)は、この規定されていない部分を独自に
 第2章では、`exp`/`log`が割れて`sin`が割れないという結果を、AVX2/AVX-512のSIMDディスパッチで説明した。
 しかし「SIMDに依存するのでlibmには依存しない」という単純な二分法は、NumPy 2.2.6のソースと照らすと正確ではない。
 `loops_exponent_log.dispatch.c.src`のDOUBLE_exp/DOUBLE_logは、(1) SVML(Intel Short Vector Math Library。Intelコンパイラでリンクした場合にのみ有効になるベクトル化数学関数ライブラリで、通常のPyPIホイールでは有効でなく、本記事の実測環境でもこの経路は使われていない)が使えるAVX512_SKX環境ではSVMLカーネル、(2) AVX512Fが使える環境ではNumPy内製のAVX512F_exp_DOUBLE/AVX512F_log_DOUBLE、(3) どちらも使えなければnpy_exp/npy_logのスカラー経路、つまりプラットフォームのlibmを呼ぶ、という3段構えのディスパッチになっている。
-ただし(2)のAVX512F_log_DOUBLEには、それ自身の内部にも小さなlibmフォールバックがある。同ソースのコメントは887行目で「if x on (1.0 - 0x1p-4, 1.0 + 0x1.09p-4), calling npy_log()」と明記しており、953〜954行目でそのウィンドウを定数`[0.9375, 1.0647]`として定義し、988行目のif分岐でこの範囲に入る要素だけ、1088行目で`npy_log(ip_fback[ii])`としてnpy_log(プラットフォームのlibm)を個別に呼んでいる。AVX512F_exp_DOUBLEにはこのフォールバックが無い。
+ただし(2)のAVX512F_log_DOUBLEには、それ自身の内部にも小さなlibmフォールバックがある。同ソースのコメントは887行目で「if x on (1.0 - 0x1p-4, 1.0 + 0x1.09p-4), calling npy_log()」と明記しており、953〜954行目でそのウィンドウを`_mm512_set1_pd(1.0 - 0x1p-4)`/`_mm512_set1_pd(1.0 + 0x1.09p-4)`として定義し(それぞれ0.9375と1.064697…に評価される。`0.9375`/`1.0647`という literal がソースにあるわけではない)、989〜991行目でこの範囲に入るかどうかのマスクを計算し、1078行目の分岐でマスクされた要素だけ、1088行目で`npy_log(ip_fback[ii])`としてnpy_log(プラットフォームのlibm)を個別に呼んでいる(988行目はコメント行)。AVX512F_exp_DOUBLEにはこのフォールバックが無い。
 一方`loops_trigonometric.dispatch.cpp`には「Disable SIMD code sin/cos f64 and revert to libm」というコメントがあり、float64の`sin`/`cos`はNumPy 2.2.6では常にlibmを経由する(`npy_math_internal.h.src`も「We assume the above are always available in their double versions」としてlibm依存を前提にしている)。
 したがって、`exp`がlibm実装の違いに反応するかどうかは「AVX-512専用カーネルが使えるかどうか」だけで決まるのに対し、`log`はAVX-512専用カーネルが使える環境でもなお、入力のうち1.0近傍の窓`[0.9375, 1.0647]`に落ちる要素があるかどうかで部分的にlibm実装差の影響を受けうる。`sin`/`cos`は常にlibm依存である。
 
@@ -398,6 +400,7 @@ OpenBLASとMKL(ともにスレッド数固定)を比較すると、`S3_matmul_fl
 一方`S4_exp_float64`と`S2_sum_float64`は一致した。
 BLASの実装差は行列積(線形代数)を変えるが、libm(超越関数)には影響しなかった。
 なお、mklイメージの`np.__config__`には"mkl"という文字列が一度も現れず(`Build Dependencies.blas.name`は"blas"、"openblas configuration"は"unknown")、MKLが実際にリンクされていることをこの実測単体では確認できていない。
+また、numpy版の比較と同様に、このMKL対OpenBLASの比較もBLAS軸単独ではない。`envinfo.py`の記録によれば、blade上のmklイメージのglibcはバージョン2.36であるのに対し、同じblade上のbaseイメージ(OpenBLAS)のglibcは2.41であり、ベースイメージの違いがBLAS実装とglibcバージョンを同時に変えている。`S4_exp_float64`が一致したのは、この条件下でもAVX-512専用カーネルがlibmを経由しないためだと考えられるが、libm単独の軸として切り分けられた比較ではない。
 
 :::details BLASとGEMM(OpenBLAS・MKL)とは
 
@@ -514,7 +517,7 @@ KMeansの重心計算も、各クラスタに属する点の合計という縮�
 KMeans(`S5_kmeans_centers`)は、`effective_thread_count`を1・8で固定した場合と、固定しない既定設定を比較した。
 別の1回の計測では、8CPU構成のコンテナでスレッド数を1・2・4・8・既定の各設定にし、30回ずつフィットを繰り返した。
 第2章のanakin(x86_64、AVX2)とblade(x86_64、AVX-512)の対照実験に加え、x86_64(anakin)とaarch64(dgxspark)を比較した。
-PyTorch(CPU)のMLP順伝播(`S7_mlp_forward`)・学習10ステップ(`S7_mlp_train10`)を、スレッド数1・8・既定で比較した。
+PyTorch(CPU)のMLP順伝播(`S7_mlp_forward`)・学習10ステップ(`S7_mlp_train10`)を、スレッド数1・8・最大(`threads1`/`threads8`/`threadsmax`、論理コア数を明示設定)で比較した。
 LightGBM(`S6_lgbm_pred`/`S6_lgbm_tree_structure`)を、スレッド数1/8/最大・MKL/OpenBLAS・Python 3.11/3.13・oldlibsを跨いで比較した。
 
 #### 結果
@@ -528,22 +531,24 @@ _F6. スレッド数ごとの担当範囲割り当ての違い(原理図)。_
 
 KMeansは、`effective_thread_count`が1のとき4ホスト全て(anakin/blade/dgxspark/local)で同じ重心に収束した。
 `effective_thread_count`が8になった6本のラン(anakin/threads8・blade/threads8・dgxspark/threads8・local/threads8・local/hashseed0・local/hashseedfree。localは8コア構成のため、スレッド数を明示的に固定していないhashseed0・hashseedfreeでも`effective_thread_count`が8になる)では、4通りの異なる重心に分かれた。
-30回×6条件の繰り返し実行(別の1回の計測、8CPU構成のコンテナ)では、スレッド数を1・2・4に固定すると30回とも同じ重心になり、8に固定すると13回、既定設定では19回、異なる重心になった。
-この回数は実行のたびに多少変動する値であり、固定した定数としては読まないでほしい。
+30回×6条件の繰り返し実行(別の1回の計測、8CPU構成のコンテナ)では、スレッド数を1・2・4に固定すると30回とも同じ重心(重複digest1種類)になり、8に固定すると13種類、既定設定では19種類の異なる重心のdigestに分かれた。
+この種類数(重複digest数)は実行のたびに多少変動する値であり、固定した定数としては読まないでほしい。
 この30回×6条件という具体的なスイープの生データ自体は`results/`には無く、プロジェクトの判断記録(`reprobench/probes/s5_sklearn.py`のdocstring)にのみ残っている。ただし「KMeansの重心がフィットのたびに変わりうる」という同じ性質自体は、別の機会(2026年10月21日)に実測した`S15_kmeans_repeats`(n_rounds=5、スレッド数は固定しない既定設定)で生データ付きに確認できる。anakin・blade・dgxspark・local(いずれもbaseイメージ)の4ホストとも、5回のフィットが5通りすべて異なる重心になった(`stable_within_process=false`)。重心のinertia自体は小数点以下10桁前後でしか揺れない(例: anakinは5回とも598665.0976181064付近)にもかかわらず、重心そのもののdigestは5回とも一致しない。
 
-一方で`n_iter_`(反復回数)は180回のフィット全てで2、重心の分散(inertia)の広がりは最大でも3.9×10^-16程度に収まっていた。
+ここで判定フロー(第9章)との関係を明記しておく。`S15_kmeans_repeats`はスレッド数を固定しない既定設定であり、同一プロセス内で5回フィットしただけで重心が5通りに割れている。第9章ステップ1の問い(「同一プロセス・同一設定を2回実行して結果が変わるか」)に照らせば、この既定スレッド数のKMeansはYESに該当し、L4(保証なし)に落ちる。一方F4は`S5_kmeans_centers`をL3×スレッド数のセルに置いている。両者は矛盾しない——F4のL3判定はスレッド数を1や8に固定した条件下での比較であり、F10・第9章が扱う「既定設定(スレッド数を固定しない)」とは別の設定である。判定は「計算」だけでなく「計算+設定」のペアに対して行うという第9章の前提の通り、同じKMeansでも設定を変えれば判定結果も変わる。
+
+一方で`n_iter_`(反復回数)は180回のフィット全てで2、`inertia_`(クラスタ内平方和。重心の分散ではない)の相対ばらつきは最大でも3.9×10^-16程度に収まっていた。
 
 x86_64(anakin)とaarch64(dgxspark)を比較すると、`S2`/`S4`は全て一致した。
 
-PyTorch(CPU)のMLP順伝播・学習10ステップは、スレッド数ごとの割れ方が一様ではなかった。anakinでは`S7_mlp_forward`・`S7_mlp_train10`の両方が、bladeでは`S7_mlp_train10`のみが、スレッド数1・8・既定でそれぞれ別のdigestになった(最大絶対差は`S7_mlp_forward`で約1.79×10^-7、`S7_mlp_train10`で約7.6×10^-8)。一方dgxsparkとlocal(いずれもaarch64)は、両プローブとも今回の実測範囲ではスレッド数を変えても一致した。x86_64の2台(anakin・blade)では割れ、aarch64の2台(dgxspark・local)では割れなかったという非対称性自体が観察として価値があるが、原因は未検証である。BLAS・KMeans・PyTorch(CPU)は同じ構造(非結合則の演算をスレッド分割で計算する)を持ち、実際に割れるケースが見つかっており、「CPU実行は安全で、GPUだけが危ない」という理解はこの3つを並べると成立しない。
+PyTorch(CPU)のMLP順伝播・学習10ステップは、スレッド数ごとの割れ方が一様ではなかった。anakinでは`S7_mlp_forward`・`S7_mlp_train10`の両方が、bladeでは`S7_mlp_train10`のみが、スレッド数1・8・最大でそれぞれ別のdigestになった(最大絶対差は`S7_mlp_forward`で約1.79×10^-7、`S7_mlp_train10`で約7.6×10^-8)。一方dgxsparkとlocal(いずれもaarch64)は、両プローブとも今回の実測範囲ではスレッド数を変えても一致した。x86_64の2台(anakin・blade)では割れ、aarch64の2台(dgxspark・local)では割れなかったという非対称性自体が観察として価値があるが、原因は未検証である。BLAS・KMeans・PyTorch(CPU)は同じ構造(非結合則の演算をスレッド分割で計算する)を持ち、実際に割れるケースが見つかっており、「CPU実行は安全で、GPUだけが危ない」という理解はこの3つを並べると成立しない。
 
 一方LightGBM(`S6_lgbm_pred`/`S6_lgbm_tree_structure`)は、スレッド数1/8/最大・MKL/OpenBLAS・Python 3.11/3.13・oldlibsを跨いだ25ラベル全てでビット一致した。`reprobench/probes/s6_lightgbm.py`には、決定的モードを意図的に設定していない(`deterministic: True`を指定しない)ことが明記されている。np.sumと並んで、縮約を使う処理が必ず割れるわけではないことを示す例である。勾配ブースティングはマルチスレッドで不安定という実務の通念とは逆の結果になった。
 
 #### 理論との照合
 
 スレッド数の影響は理論の整理と一致し、float32のBLASは割れた。float64のBLASはホスト内では安定し、ホスト間では割れた。np.sumはスレッド数・ホストのいずれでも割れなかった。
-KMeansの不安定も理論の整理と一致した。つまり不安定の正体は、別の局所最適を見つけているのではなく、縮約(合計)の丸め方の違いである。
+KMeansの不安定も理論の整理と一致した。実測が支持するのは「別の局所最適を見つけているわけではない」ということまでであり、これは縮約(合計)の丸め方の違いで説明できる範囲にとどまる。`cluster_centers_`のどの演算が実際に揺れているかという、その先の具体的な仕組みまでは測定していない。
 
 PyTorch(CPU)とLightGBMの結果は対照的だった。PyTorchのMLPはBLAS・KMeansと同じ理由(非結合則×スレッド分割)で割れたのに対し、LightGBMは同じ軸(スレッド数・BLAS実装・Python版)を跨いでも割れなかった。
 
@@ -560,7 +565,7 @@ _F7. `np.exp`/`np.log`/`np.sin`のディスパッチ機構と、blade機内でAV
 #### 理論
 
 NVIDIAのcuBLAS公式ドキュメントは、「同一ツールキット版のcuBLAS APIルーチンは、同一アーキテクチャ・同一SM数のGPU上で実行する限り、毎回ビット単位で同じ結果を生成する」と明記している。
-この保証は複数のCUDAストリームが同時に有効な場合には成り立たない(また`cublasSetAtomicsMode()`でatomics使用を有効にした`symv`/`hemv`も原文では対象外とされているが、本実測ではこれらのルーチンも`cublasSetAtomicsMode()`も使っていない)。
+この保証は複数のCUDAストリームが同時に有効な場合、または固定小数点エミュレーション(fixed-point emulation)が使われる場合には成り立たない(また`cublasSetAtomicsMode()`でatomics使用を有効にした`symv`/`hemv`も原文では対象外とされているが、本実測ではこれらのルーチンも`cublasSetAtomicsMode()`も固定小数点エミュレーションも使っていない)。
 cuDNN公式ドキュメントは「異なるアーキテクチャ間では、いかなるcuDNNルーチンもビット単位の再現性を保証しない」とVolta/Turingを例に明記している。
 ただしこれはcuDNNのルーチンについての記述である。後述する`index_add_`はcuDNNのルーチンではなく、PyTorchのATen/CUDAカーネル(`atomicAdd`ベース)であり、この保証・非保証は直接は適用されない。
 
@@ -622,7 +627,7 @@ MLPの5回反復分の生データは`results/`には無く、プロジェクト
 _F8. anakinでの5回反復実測(MLP学習は一致、`index_add_`は不一致)。_
 
 今回の実測は単一ストリームで行っている。
-`index_add_`を決定的モードで3GPU(RTX 4090・RTX PRO 6000・GB10)で比較すると、anakinとbladeは一致し、dgxsparkだけ別の値になった。
+`index_add_`を決定的モードで3GPU(RTX 4090・RTX PRO 6000・GB10)で比較すると、anakinとbladeは一致し、dgxsparkだけ別の値になった。ただしこの3件では、計算に入る前の入力テンソルの時点で既にdgxsparkだけが別物になっている。各プローブは「入力が一致していたかどうか」を確認できるよう、計算前の入力自体のdigestも`meta`に記録しており、`S8_index_add_atomics_deterministic`(values)はanakin/blade `f831e079...`に対しdgxspark `5b6ad120...`、`S8_matmul_tf32_off`(input_a)はanakin/blade `020cf844...`に対しdgxspark `d9a02ed3...`、`S8_mlp_train10_cuda`(x_float32_source)はanakin/blade `26b8fc5b...`に対しdgxspark `787fcb4e...`と、いずれも入力の段階で割れている(`index_add_`の整数インデックスdigestだけは3台とも一致しており、float生成経路だけが割れている)。入力が違えばその先の出力が違うのは当然であり、GPU側の計算機構で説明する必要はない。この入力は`_cpu_randn`(`s8_torch_gpu.py`)がCPU側のGeneratorで生成してから`.to("cuda")`した値であり、割れているのはx86_64(anakin・blade)とaarch64(dgxspark)のCPU上の`torch.randn`そのものである。GPU計算そのものの比較として有効なのは、入力が一致しているanakin↔bladeの組だけになる。
 
 TF32を無効化すると、anakinとbladeは一致し、dgxsparkだけ別の値になった。
 有効化すると、3GPUとも別々の値になった。
@@ -653,9 +658,12 @@ CPU実行とGPU実行の比較という当初の実験設計では、GPUの非�
 `index_add_`が割れ、決定的モードで直ることは理論の整理と一致した。
 今回の実測は単一ストリームで行っており、cuBLASの保証の前提と一致する。
 
-決定的モードでもdgxsparkだけ別の値になった点、TF32無効化でもdgxsparkだけ別の値になった点は、cuDNN文書の「異なるアーキテクチャ間では再現性を保証しない」という枠組みでは説明できない。理由は2つある。
+決定的モードでもdgxsparkだけ別の値になった点、TF32無効化でもdgxsparkだけ別の値になった点について、まず最も単純な候補を潰しておく必要がある。それは「入力そのものが違う」という可能性であり、実際にこの2件ではそれが当たっている。前述の通り、`S8_index_add_atomics_deterministic`・`S8_matmul_tf32_off`はいずれも、GPU計算に入る前の入力テンソル(CPU側の`torch.randn`で生成した値)の時点でdgxsparkだけ別のdigestになっている。入力が違えば出力が違うのは当然であり、この2件に関してはcuDNN文書の非保証を持ち出すまでもない。
+その上で、なお説明を要する点が残る。cuDNN文書の「異なるアーキテクチャ間では再現性を保証しない」という枠組みは、この現象全体を説明する道具としては不十分である。理由は2つある。
 第一に、`index_add_`はcuDNNのルーチンではなくPyTorchのATen/CUDAカーネル(`atomicAdd`ベース)であり、cuDNN文書の記述はそのままでは適用できない。
 第二に、「anakinとbladeが一致し、dgxsparkだけ別」というグルーピングを「異なるアーキテクチャ」で説明しようとしても、3台のcompute capabilityはanakin 8.9・blade 12.0・dgxspark 12.1であり、3台とも互いに異なる。cuDNNの文書が述べているのは「異なるアーキテクチャ間では保証しない」であって「異なるアーキテクチャなら必ず結果が変わる」ではなく、非保証を「同じ結果になる・ならない」の予測モデルとして使うことはできない。3台とも互いに異なるアーキテクチャである以上、anakinとbladeが一致した理由を「アーキテクチャ」だけでは説明できない。SM数の近さ(anakin 128・blade 188)や、前述のdgxsparkがaarch64ホストであることによるビルド差・ドライバのパッチ版の違いが候補として考えられるが、どれが効いているかは本実測だけでは切り分けられない。
+
+副産物として、この入力digestの食い違いそのものが、本記事の主題に直結する1つの観察を与える。`_cpu_randn`が生成する入力はCUDA計算を経ない、CPU上の`torch.randn`の出力そのものである。にもかかわらずx86_64(anakin・blade)とaarch64(dgxspark)の間でビットが割れている——**CPUの`torch.randn`が、x86_64とaarch64でビット単位に異なる**。GPUや乱数ではなく、ごく普通のCPU上の乱数生成がアーキテクチャを跨ぐだけで割れるという、本記事全体のテーマそのものの一例がここにも実在する。
 
 > 精度を落とすと、GPU世代が効き始める。fp32とfp16では3GPUとも違いが見えなかったが、bf16にすると、anakinと、blade・dgxsparkの間で出力そのものが変わった。
 
@@ -692,7 +700,7 @@ CPU実行とGPU実行の比較という当初の実験設計では、GPUの非�
 | addmm | 例外なし(`ba6361e168bf`) | 例外なし(`250f5b8c95cd`) | 例外なし(`5c871d2ee3fd`) |
 | linear_forward_backward | 例外なし(`dbc70796a6e4`) | 例外なし(`dbc70796a6e4`) | 例外なし(`b119dc284797`) |
 
-**予測は3GPUとも的中した。** 12通り全てで`RuntimeError`等の例外は一切発生せず、全て`digest`を正常に記録した。「`CUBLAS_WORKSPACE_CONFIG`を設定しないと例外になる」という広く流布した注意書きは、少なくとも本実測環境(`torch==2.14.1+cu130`、PyTorch 2.10以降)では成立しない。この注意書きを支えていたチェック自体が2025年10月にPyTorch自身によって削除されており、現在のv2.14系の公式ドキュメントにも`CUBLAS_WORKSPACE_CONFIG`という文字列は見当たらない。古い世代の警告をそのまま引用する記事は少なくないが、現行バージョンでは状態が変わっていることを実測で確認できた意味は大きい。
+**予測は3GPUとも的中した。** 12通り全てで`RuntimeError`等の例外は一切発生せず、全て`digest`を正常に記録した。「`CUBLAS_WORKSPACE_CONFIG`を設定しないと例外になる」という広く流布した注意書きは、少なくとも本実測環境(`torch==2.14.1+cu130`、PyTorch 2.10以降)では成立しない。この注意書きを支えていたチェック自体が2025年10月にPyTorch自身によって削除されており、v2.14.1の公式ドキュメントのうち、reproducibility note(`notes/randomness.md`)と`torch.use_deterministic_algorithms`のページからは`CUBLAS_WORKSPACE_CONFIG`という文字列が消えている。ただしcuDNNのRNNについては、`cudnn_rnn_determinism.md`に今も`:16:8`/`:4096:2`という具体的な設定値を決定性のために指示する記述が残っており、「v2.14系の公式ドキュメント全体から消えた」とまでは言えない。古い世代の警告をそのまま引用する記事は少なくないが、少なくとも本記事が対象とした演算(`mm`/`bmm`/`addmm`/`linear_forward_backward`)の周辺では状態が変わっていることを実測で確認できた意味は大きい。
 
 一点、断定を避けておきたい観察がある。`bmm`と`linear_forward_backward`はanakinとbladeのdigestだけが一致しており、dgxsparkは別の値になっている。この一致の原因は未調査である。一致のパターンは行列サイズと相関しており、512×512の`mm`/`addmm`では3GPUとも全て異なる一方、batch32×128×128の`bmm`とそれに類する`linear_forward_backward`ではanakin・bladeのみ一致してdgxsparkだけ別、という構造になっている。真にランダムな偶然であれば、このような系統性は出にくい。cuBLASのカーネル選択がGPUアーキテクチャと入力サイズの組み合わせに依存して同じ結果に収束している可能性があるが、本実測の範囲ではこれ以上の特定はできない。
 
@@ -712,7 +720,7 @@ Qwen2.5-0.5B-Instructを使い、transformersで生成した。
 
 temperatureは、生成時にモデルの出力するロジットを割って候補のスコアを広げたり狭めたりする値である。
 数学的には、temperatureで割る処理そのものが、0で割るという未定義の操作になる。
-vLLMの公式の実装(ソースコード)は、内部で`temperature<1e-5`をgreedy扱いにする仕様(`_SAMPLING_EPS = 1e-05`)を持っており、同じ「temperature=0」という入力でも、実装によって扱いが異なりうることを示している。
+vLLMの公式の実装(ソースコード、v0.11.0時点)は、内部で`temperature<1e-5`をgreedy扱いにする仕様(`_SAMPLING_EPS = 1e-05`)を持っており、同じ「temperature=0」という入力でも、実装によって扱いが異なりうることを示している。なお、この挙動はバージョンに固定された仕様ではない。本記事執筆時点のvLLM mainブランチは、この`_SAMPLING_EPS`に加えて`_MAX_TEMP = 1e-2`という上限も追加しており、temperatureの扱いはバージョンを跨いで変わりうる。
 温度0での割り算が未定義になるという理論だけでは、transformersが`temperature=0`をどう扱うかは決まらない。vLLMのように内部でgreedy扱いに読み替える可能性と、エラーとして拒否する可能性の両方がありうるため、実際の挙動は実測で確認する必要がある。
 
 #### 実験設定
@@ -731,7 +739,7 @@ transformersに`temperature=0`を渡すと、`ValueError`が出た。
 transformersはvLLMのような内部での読み替えをせず、エラーとして拒否する側を選んでいた。
 ライブラリ自身が、「temperature=0」という慣用句は存在しないと言っている。
 決定的な生成がしたいなら`do_sample=False`(greedy復号)を使う。
-vLLMなど他の推論基盤は内部で`temperature<1e-5`をgreedy扱いにするなど、実装ごとに「temperature=0」の意味が違う。
+vLLM(v0.11.0時点)など他の推論基盤は内部で`temperature<1e-5`をgreedy扱いにするなど、実装ごとに「temperature=0」の意味が違う。
 
 :::details greedyデコーディングとlogits・top_p・top_kとは
 
@@ -761,7 +769,7 @@ Thinking Machines Labは2025年9月のブログで、batch-invariance(バッチ�
 本節の実験は、設計そのものを一度作り直している。最初に実装した`S9_greedy_batch1`/`S9_greedy_batch8`は、Qwen2.5-0.5B-Instructを使い、3GPU(anakin・blade・dgxspark)でbatchサイズ1と8のgreedy出力をそれぞれ1回ずつ比較するものだったが、以下の3つの欠陥を抱えていた。
 
 1. **バッチ構成が均質**: batch8は`tokenizer([text] * batch, ...)`で同一プロンプトを8本複製したものであり、長さの異なる実プロンプトを混在させていなかった。全行が同じ長さなので、パディングもattention mask由来の経路分岐も原理的に発生しない。
-2. **観測量が鈍すぎる**: digestの対象が生成トークンID列だった。greedyはargmaxなので、marginを跨ぐ摂動がなければ出力は一切変わらない。marginの中央値(約2.07)に対し、本節で後述する通り実際に観測された摂動は10^-5オーダーであり、2桁違う量を閾値判定(トークン列が変わるかどうか)で見ようとしていたことになる。
+2. **観測量が鈍すぎる**: digestの対象が生成トークンID列だった。greedyはargmaxなので、marginを跨ぐ摂動がなければ出力は一切変わらない。marginの中央値(約2.07)に対し、本節で後述する通り実際に観測された摂動は10^-5オーダー(具体的には3.5×10^-5程度)であり、2.07/3.5×10^-5 ≈ 5.9×10^4、つまり約5桁違う量を閾値判定(トークン列が変わるかどうか)で見ようとしていたことになる(なお、最小margin0.0037との比であれば桁差はこれより小さく、約2桁になる)。
 3. **各条件1回のみ**: 比較は3GPU×各条件1回、つまりn=1だった。TMLが報告した分岐率は80/1000 = 8%であり、数%程度の事象をn=1の比較で「一致した」と結論するのは統計的に意味を持たない。
 
 これら3つの欠陥を修正するため、観測量を生成トークン列からロジットそのものに変え、バッチ構成を実際に動かす設計に作り直した。新しい設計と5項目の予測は、実装・実測の前に`BATCH_INVARIANCE_REDESIGN.md`としてコミット60294f2(2026-10-20 18:54:51)で記録してから実行している。本記事中で実測前に予測を記録したのは、第6章G2の決定実験・この実験・第6章G4の実務軸の予測(`PRACTICE_AXES_PREDICTION.md`)の3か所だけである。
@@ -779,7 +787,7 @@ Thinking Machines Labは2025年9月のブログで、batch-invariance(バッチ�
 | `b16_mixed` | [P] + 長さの異なるfiller 15本 |
 | `b4_padheavy` | [P] + Pより大幅に長いfiller 3本 |
 
-各configにつき、`b1`を基準とした最大絶対差(max_abs)・argmaxトークンID・top-1とtop-2のmarginを記録し、同一configを同一プロセス内で2回実行してプロセス内決定性も確認した。副次実験として、同じconfig群でgreedy生成(最大128トークン)も行い、`b1`を基準とした最初の分岐位置を記録した。
+各configにつき、`b1`を基準とした最大絶対差(max_abs)・argmaxトークンID・top-1とtop-2のmarginを記録し、同一configを同一プロセス内で2回実行してプロセス内決定性も確認した。副次実験として、greedy生成(最大128トークン)も行い、`b1`を基準とした最初の分岐位置を記録した。ただしconfig数はロジット比較(8 config、`b8_mixed_first_right`/`b8_mixed_first_left`を別々に区別)とgreedy生成(7 config、両者を`b8_mixed_first`1つに統合)とで異なり、厳密には同じconfig群ではない。
 
 事前登録した予測は次の5点である。
 
@@ -808,11 +816,11 @@ Thinking Machines Labは2025年9月のブログで、batch-invariance(バッチ�
 | `b16_mixed` | 3.58e-5 | 3.15e-5 | 4.77e-5 | False |
 | `b4_padheavy` | 4.29e-5 | 4.20e-5 | 4.24e-5 | False |
 
-全config・全ホストで`stable_within_process=True`(プロセス内2回実行は完全一致)であり、top-1とtop-2のmarginは全config・全ホストを通じて1.3991〜1.3992の範囲に収まっていた。
+全config・全ホストで`stable_within_process=True`(プロセス内2回実行は完全一致)であり、top-1とtop-2のmarginは全config・全ホストを通じて1.39919〜1.39923の範囲に収まっていた。
 
 `b8_mixed_first_right`と`b8_mixed_last`は、3ホストともビット単位で完全一致した(digest・max_absともに同一)。Pが同じバッチ内で先頭(位置0)にあるか末尾(位置7)にあるかは、ロジットに影響しなかった。
 
-greedy生成は、7 config × 3ホスト = 21通りすべてが同一digest(`2d84d0ac...`、68トークン)になった。`first_divergence_vs_b1`は全条件でnullであり、`n_tokens == n_tokens_raw`でパディングの混入も確認できなかった。
+greedy生成は、7 config × 3ホスト = 21通りすべてが同一digest(config単位の生成テキストdigestは`37131cbb...`、68トークン。プローブ全体を集約した`meta`のdigestは別の値`2d84d0ac...`になる)になった。`first_divergence_vs_b1`は全条件でnullであり、`n_tokens == n_tokens_raw`でパディングの混入も確認できなかった。
 
 想定外の観察として、dgxsparkでのみ`b2_long`(バッチサイズ2、パディング後系列長819)と`b4_padheavy`(バッチサイズ4、パディング後系列長429)のロジットdigestが完全に一致した。バッチサイズもパディング後系列長もどちらも異なる2つのconfigが一致しており、anakinとbladeでは別の値になっている。この一致の機構は未調査である。また、max_absが最大になるconfigはホストによって異なり(anakin・bladeは`b4_padheavy`、dgxsparkは`b16_mixed`)、`b1`そのもののロジットdigestも3ホスト間で一致しなかった。これは第6章・本章で既に確認しているGPU間の浮動小数点非決定性と整合する既知の現象であり、バッチ構成を変える以前に、ベースラインの`b1`自体が既にGPU依存である。
 
@@ -830,7 +838,7 @@ greedy生成は、7 config × 3ホスト = 21通りすべてが同一digest(`2d8
 
 TMLの報告との関係も改めて整理しておく。旧実験は「batchサイズ1と8のgreedy出力は3GPUとも一致した」ことを「理論で説明できなかった結果」として扱っていたが、これは不当な評価だった。今回の結果はTMLの報告と矛盾せず、むしろ補強する。TMLが指摘するのはカーネルのbatch依存性であり、今回の実測はそれをロジットの数値水準で確認した。
 ただし両者は同じ実験ではない。TMLが指摘する中心的な経路は本番サーバの継続的バッチング(負荷によってバッチ構成が非決定的に変わる)であり、今回の実測は単一プロセス内でバッチ構成を明示的に変える静的な実験である。カーネルのbatch依存性という同じ機構を突いてはいるが、同じ土俵には立っていない。
-また、TMLが観測した出力の分岐は、サンプリング(temperature > 0)を伴う設定で起きている。サンプリングであれば10^-5オーダーの摂動でも選択が変わりうるため、今回のgreedyで分岐がゼロだったことと矛盾しない。ただしこの説明は本実測が直接確かめたものではなく、断定はできない。
+また、TML自身の報告を仔細に見ると、今回greedyで分岐がゼロだったことと矛盾しない理由がある。TMLのブログは、1000個の補完が「最初の102トークンまでは実際に同一」であり、分岐が最初に起きるのは「103トークン目」だと明記している。992個の補完は"Queens, New York"に、8個は"New York City"に続く、という分岐である。本記事の生成は68トークンであり、TML自身が報告する分岐開始位置(103トークン目)にそもそも到達していない。これにモデル規模の差(Qwen3-235B-A22B-Instruct-2507という235BのMoEモデルに対し、本実測はQwen2.5-0.5B-Instruct)と生成長の差(1000トークンに対し68トークン)を重ねれば、分岐がゼロだったことは十分説明がつく。
 
 本実測が一次データとして測定している点で先行報告より強いという主張はしない。TMLはQwen3-235B-A22B-Instruct-2507で1000回生成しており、本実測(Qwen2.5-0.5B-Instruct、7 config×3ホスト、各config同一プロセス内2回)より規模も試行回数も大きい。
 
@@ -922,7 +930,7 @@ greedy生成の84ステップ全てで、top-1とtop-2のロジット差(margin)
 
 最小値は0.0037、中央値は約2.07、最大値は13.26だった。
 0.1未満のステップは84個中3個(約3.6%)だった。
-3GPUともmarginの大きさの分布(ヒストグラムの形)は一致したが、84個の値そのものは1つも揃わなかった。
+3GPUともmarginの大きさの分布(ヒストグラムの形)は一致したが、3ペアのいずれでも大半の値は揃わなかった(完全一致は84個中、anakin-blade 17個・anakin-dgxspark 5個・blade-dgxspark 10個)。
 
 anakinとbladeで完全一致したのは84個中17個、差がある要素の中央値は18 ULP、最大49,152 ULPだった。
 anakinとdgxsparkでは完全一致5個・中央値32 ULP・最大40,960 ULP、bladeとdgxsparkでは完全一致10個・中央値24 ULP・最大8,192 ULPだった。
@@ -1020,7 +1028,7 @@ def _make_generators(impl, seed):
 
 ここから言えるのは、「`SeedSequence.spawn()`を使えば安全」という単純な処方箋は成り立たないということである。`spawn`は成分**間**の並び替えや、成分間での呼び出し回数の増減には耐えるが、成分**自身**の内部の呼び出し順序を変えるリファクタには無力である。乱数を使うコードのレビューでは、「別のGeneratorに分けてあるか」だけでなく「各Generatorの内部での呼び出し順序を変えていないか」も確認する必要がある。
 
-最後に、本節が事前登録になっていない理由を明記しておく。本プロジェクトの計画は、S11を含む実務4軸について、実装・テストを行うタスクを予測を事前登録するタスクより先に置いていた。S11はCPUのみで完結するプローブであり、実装者は実装・テストの時点(事前登録より前)で既に本節の結果を手にしていた。後から「予測」として書いても事後確証にしかならないため、`PRACTICE_AXES_PREDICTION.md`はS11の予測登録を撤回している。これは「CPU専用のプローブは原理的に事前登録できない」という話ではない——もし計画のタスク順序が逆(先に予測を登録してから実装する順序)であれば、S11も他の軸と同様に事前登録できたはずである。本節が事前登録を欠いているのは、本計画のタスク順序が事前登録の機会を構造的に奪ったからであり、論理的な不可能性ではない。
+最後に、本節が事前登録になっていない理由を明記しておく。本プロジェクトの計画は、S11を含む実務4軸について、実装・テストを行うタスクを予測を事前登録するタスクより先に置いていた。S11はCPUのみで完結するプローブであり、実装者は実装・テストの時点(事前登録より前)で既に本節の結果を手にしていた。後から「予測」として書いても事後確証にしかならないため、`PRACTICE_AXES_PREDICTION.md`はS11の予測登録を撤回している。同じ理由で、CPUのみで完結しTask 3の時点で実装者が実測済みだった**S14(DataLoaderのworker seeding)の予測登録も同ファイルは撤回している**。さらに同ファイルは、素朴版(S11 naive)がリファクタで壊れること、および`S15_index_add_repeats`が非決定であることの2点については、そもそも事前登録の対象にしていない——前者は単一Generatorの共有ストリームを前提にした時点で結果が文書から予想がつき、後者は`index_add_`のCUDA実装がatomicAddを使うことをPyTorch公式ドキュメントが明記しており、本プロジェクト自身`S8_index_add_atomics`で既に実測済みだったため、「自明」として最初から予測の対象外としている。これは「CPU専用のプローブは原理的に事前登録できない」という話ではない——もし計画のタスク順序が逆(先に予測を登録してから実装する順序)であれば、S11・S14も他の軸と同様に事前登録できたはずである。本節が事前登録を欠いているのは、本計画のタスク順序が事前登録の機会を構造的に奪ったからであり、論理的な不可能性ではない。
 
 ---
 
@@ -1036,7 +1044,7 @@ def _make_generators(impl, seed):
 手元の計算と、それを動かす設定(deterministicアルゴリズムの指定・スレッド数の固定・SIMD/BLAS実装の指定等)を1組選び、上から順に問いに答えていく。
 
 1. 同一プロセス・同一設定を2回実行して結果が変わる、またはプロセス/コンテナを起動し直すだけで結果が変わりうるか。YESならL4(保証なし)。NOなら次へ。
-2. 今、結果を決めているのはIEEE754の基本演算(`+ - × ÷ √`)、明示的に呼んだ`fma()`(自動contractされた`a*b+c`は含まない)**単独**、または公開されたPRNG仕様の生ビット列(MT19937/PCG64/Philox)だけか。IEEE754が規格として保証するのは演算1つの結果であって、演算の並び(結合順序)ではない(第4章参照)。複数の演算を組み合わせている場合はここでNOに倒す。YESならL0(規格)。NOなら次へ。
+2. 今、結果を決めているのはIEEE754の基本演算(`+ - × ÷ √`)、明示的に呼んだ`fma()`(自動contractされた`a*b+c`は含まない)**単独**、または公開されたPRNG仕様の、同一の内部状態から次状態・出力を計算する生ビット列(MT19937/PCG64/Philox)だけか。IEEE754が規格として保証するのは演算1つの結果であって、演算の並び(結合順序)ではない(第4章参照)。複数の演算を組み合わせている場合はここでNOに倒す。PRNGについても、seedという整数値を内部状態に変換する処理(例: NumPyの`SeedSequence`)を含む場合はこのコア部分の外側にあるため、ここでNOに倒す(第4章参照)。YESならL0(規格)。NOなら次へ。
 3. 使っているAPIについて、ライブラリが版間のビット互換性を文書で明言しているか。YESならL1(明文の規約)。NO(非保証と明記、または文書なし)なら次へ。
 4. 現在の設定で、SIMDディスパッチ・BLASスレッド数・libm実装・GPUモデル・deterministicアルゴリズムの指定の有無といった既知の変動源を、実測または文献で既に固定・検証したか。未検証なら「分からない」に倒す。検証済みで、それらを変えると結果が変わることを確認している場合はL3(実行時環境)。検証済みで、今回試した範囲では変えても一致した場合はL2(事実上の実装)。ただしL2は「文書化された保証が無く、かつ試した範囲では割れなかった」という反証可能な主張にすぎない。何を・どの範囲まで試したかを記録していなければ、この判定自体に意味がない。新しい軸で試して割れた時点で、その計算は自動的にL3に移る。
 
@@ -1145,10 +1153,13 @@ GPUは全体として非決定的ではなく、非決定性は`atomicAdd`を使
 - musl メーリングリスト、Szabolcs Nagy氏の投稿(2019年2月2日、Message-ID: `<20190202033929.GK21289@port70.net>`。musl数学ライブラリの移植性に関する`__FP_FAST_FMA`チェックへの言及。同じ文面は2019年4月3日のDamian McGuckin氏の投稿内に`>`付きの引用として再掲されている)。https://www.openwall.com/lists/musl/2019/02/02/1 (取得日: 2026-10-20)
 - GCC ソース `gcc/c-family/c-cppbuiltin.cc`(GitHubミラー。`__FP_FAST_FMA`を定義する`mode_has_fma()`の実装)。https://github.com/gcc-mirror/gcc/blob/master/gcc/c-family/c-cppbuiltin.cc (取得日: 2026-10-20)
 - Alpine Linux aports `main/gcc/APKBUILD`(GitLab。aarch64にのみ`--with-arch=armv8-a`を指定するビルド設定)。https://gitlab.alpinelinux.org/alpine/aports/-/blob/master/main/gcc/APKBUILD (取得日: 2026-10-20)
+- Smith, T. M., van de Geijn, R., Smelyanskiy, M., Hammond, J. R. and Van Zee, F. G. (2014) "Anatomy of High-Performance Many-Threaded Matrix Multiplication." Proceedings of IPDPS 2014(査読論文。BLISの並列GEMM設計、タイル分割をスレッドに割り当てる方式。F6の出典)。https://www.cs.utexas.edu/~flame/pubs/blis3_ipdps14.pdf (取得日: 2026-10-21)
+- Intel oneMKL Developer Reference「Conditional Numerical Reproducibility Control」(公式ドキュメント。スレッド数が変わると内部の演算順序が変わりうることを明記。F6の出典)。https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-fortran/2023-2/conditional-numerical-reproducibility-control.html (取得日: 2026-10-21)
+- OpenMP Application Programming Interface, Version 5.1(公式仕様書。2.21.5節 Reduction Clauses and Directives。F3の出典)。https://www.openmp.org/wp-content/uploads/OpenMP-API-Specification-5-1.pdf (取得日: 2026-10-21)
 
 ### GPUとCUDA
 
-- NVIDIA cuBLAS Documentation「Results Reproducibility」(公式ドキュメント。ただし`cublas<t>symv()`/`cublas<t>hemv()`は`cublasSetAtomicsMode()`でatomics使用を選ぶと高速ルーチンに切り替わり、ビット再現性は保証されないという例外が明記されている。本記事の実測ではこれらのルーチンは使用していない)。https://docs.nvidia.com/cuda/cublas/ (取得日: 2026-10-14)
+- NVIDIA cuBLAS Documentation「Results Reproducibility」(公式ドキュメント。ただし`cublas<t>symv()`/`cublas<t>hemv()`は`cublasSetAtomicsMode()`でatomics使用を選ぶと高速ルーチンに切り替わり、ビット再現性は保証されないという例外、および固定小数点エミュレーション(fixed-point emulation)が使われる場合の例外が明記されている。本記事の実測ではこれらのルーチンも固定小数点エミュレーションも使用していない)。https://docs.nvidia.com/cuda/cublas/ (取得日: 2026-10-14)
 - NVIDIA cuDNN Backend Documentation「Odds and Ends」(公式ドキュメント。異なるアーキテクチャ間のビット再現性は非保証と明記)。https://docs.nvidia.com/deeplearning/cudnn/backend/latest/developer/misc.html (取得日: 2026-10-14)
 - PyTorch GitHub Issue #194676「CUDA RNG is not reproducible across GPU models above a launch-geometry threshold」。https://github.com/pytorch/pytorch/issues/194676 (取得日: 2026-10-14)
 - PyTorch GitHub PR #196733「[docs] CUDA generator output depends on the device's SM count」(レビュー承認済み、2026年10月20日時点でも未マージ)。https://github.com/pytorch/pytorch/pull/196733 (取得日: 2026-10-14、再確認日: 2026-10-20)

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1592.0" width="960" height="1592.0">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1608.5" width="960" height="1608.5">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
@@ -19,7 +19,7 @@
     .footnote { font-size: 12px; fill: #6b7280; }
     .diamond { fill: #ffffff; stroke: #374151; stroke-width: 1.6; }
   </style>
-  <rect x="0" y="0" width="960" height="1592.0" fill="#ffffff"/>
+  <rect x="0" y="0" width="960" height="1608.5" fill="#ffffff"/>
   <text x="30" y="36" class="title">F10. 保証レベルの判定フロー + 納品文言テンプレート</text>
   <text x="30" y="58" class="subtitle">手元の計算を上から順に当てはめる。各分岐の末尾に、そのままレベル欄の根拠として貼れる一文を置く。レベルL0〜L4の定義はF3、境界の実測根拠はF</text>
   <text x="30" y="75" class="subtitle">4を参照。</text>
@@ -28,9 +28,9 @@
   <text x="165" y="137" class="qtext" text-anchor="middle">手元の計算と、それを動かす設定を1組選ぶ</text>
   <line x1="165" y1="152" x2="165" y2="176" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
   <polygon points="165,176 300,251.0 165,326 30,251.0" class="diamond"/>
-  <text x="165" y="238.0" class="qtext" text-anchor="middle">同一プロセスを2回</text>
-  <text x="165" y="256.0" class="qtext" text-anchor="middle">実行しただけで結果が</text>
-  <text x="165" y="274.0" class="qtext" text-anchor="middle">変わりうるか?</text>
+  <text x="165" y="238.0" class="qtext" text-anchor="middle">同一プロセス・設定を2回</text>
+  <text x="165" y="256.0" class="qtext" text-anchor="middle">実行、または起動し直す</text>
+  <text x="165" y="274.0" class="qtext" text-anchor="middle">だけで結果が変わるか?</text>
   <text x="165" y="348.0" class="qcond" text-anchor="middle">(GPU atomicAdd系・PYTHONHASHSEED未設</text>
   <text x="165" y="363.0" class="qcond" text-anchor="middle">定・並列完了順 等。実測: F4の「同一プロセス</text>
   <text x="165" y="378.0" class="qcond" text-anchor="middle">内で2回」列)</text>
@@ -85,9 +85,9 @@
   <text x="423" y="843.0" class="cardcond">NEP19が保証するRandomStateは不変、非保証のGeneratorのみ不一致)。</text>
   <text x="423" y="869.0" class="tmpllabel">納品文言:</text>
   <text x="423" y="888.0" class="tmpltext">本計算は[ライブラリ名]が文書(例: NEP19)で明言するAPIのみを使う。[ライブラリ名</text>
-  <text x="423" y="904.5" class="tmpltext">]==[X.Y.Z]に固定する限り、実行環境を問わずビット単位で一致することを約束する</text>
-  <text x="423" y="921.0" class="tmpltext">。バージョンを上げた場合は無効。</text>
-  <text x="423" y="937.5" class="qcond" text-anchor="start">※(seed変換は別途バージョン固定が必要)</text>
+  <text x="423" y="904.5" class="tmpltext">]==[X.Y.Z]に固定する限り、生成される乱数列(生ビット列)がビット単位で一致す</text>
+  <text x="423" y="921.0" class="tmpltext">ることを約束する。バージョンを上げた場合は無効。</text>
+  <text x="423" y="937.5" class="qcond" text-anchor="start">※(後段の計算はL3の条件が別途必要。seed変換も別途バージョン固定が必要)</text>
   <line x1="165" y1="955.0" x2="165" y2="1017.5" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
   <text x="185" y="1009.5" class="no">NO(非保証と明記、または文書なし)</text>
   <polygon points="165,1041.5 300,1135.5 165,1229.5 30,1135.5" class="diamond"/>
@@ -113,16 +113,17 @@
   <text x="423" y="1215.5" class="tmpltext">れらのいずれかが変われば一致しない。</text>
   <line x1="165" y1="1271.5" x2="165" y2="1336.0" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
   <text x="185" y="1328.0" class="no">NO(今回の実測範囲では環境を変えても一致)</text>
-  <rect x="30" y="1336.0" width="900" height="164.0" rx="10" fill="#f9a825" fill-opacity="0.1" stroke="#f9a825" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="30" y="1336.0" width="900" height="180.5" rx="10" fill="#f9a825" fill-opacity="0.1" stroke="#f9a825" stroke-opacity="0.5" stroke-width="1.5"/>
   <rect x="46" y="1352.0" width="56" height="56" rx="10" fill="#f9a825"/>
   <text x="74" y="1387.0" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937" font-family="'Noto Sans CJK JP','Noto Sans',sans-serif">L2</text>
-  <text x="118" y="1368.0" class="cardtitle">事実上の実装 — 文書化なし、実装がたまたま決めている</text>
-  <text x="118" y="1392.0" class="cardcond">バージョン差で根拠なく変わりうる(実測: 正規乱数の変換(ziggurat/polar法)はPython版・SIMD世代を変えても今回は崩れなかったが、これは</text>
-  <text x="118" y="1408.0" class="cardcond">保証ではなく「たまたま」)。</text>
+  <text x="118" y="1368.0" class="cardtitle">事実上の実装 — 証拠の状態を表す段階。反証可能</text>
+  <text x="118" y="1392.0" class="cardcond">バージョン差、または新しい軸で試して割れた時点でL3に移る(実測: 正規乱数の変換(ziggurat/polar法)はPython版・SIMD世代を</text>
+  <text x="118" y="1408.0" class="cardcond">変えても今回は崩れなかったが、これは保証ではなく「試した範囲では」)。</text>
   <text x="118" y="1434.0" class="tmpllabel">納品文言:</text>
-  <text x="118" y="1453.0" class="tmpltext">本計算の結果は、現在のバージョン[X.Y.Z]・現在の環境では一致することを実測で確認した。ただしこれは文書化された保証ではなく、</text>
-  <text x="118" y="1469.5" class="tmpltext">将来のバージョンアップで予告なく変わりうるため、一致は約束しない。</text>
-  <text x="30" y="1530.0" class="footnote">実測依存の図(境界は本プロジェクトの実測、4ホスト・7イメージ・7構成・35ラン、2026-10-14の30ランに2026-10-20の追加5ランを加えたものに基づく。詳細はF4と</text>
-  <text x="30" y="1546.0" class="footnote">results/report.jsonを参照)。各レベルの定義そのものはF3(原理図)。</text>
-  <text x="30" y="1562.0" class="footnote">納品文言は雛形であり、実際の納品では角括弧[ ]の中を自分の計算・バージョン・環境に置き換えて使う。</text>
+  <text x="118" y="1453.0" class="tmpltext">本計算の結果は、現在のバージョン[X.Y.Z]・現在の環境、かつ[試した軸: 例. Python</text>
+  <text x="118" y="1469.5" class="tmpltext">3.11/3.13、スレッド数1/8/max]の範囲では一致することを実測で確認した。ただしこれは</text>
+  <text x="118" y="1486.0" class="tmpltext">文書化された保証ではなく、試していない軸やバージョンアップで変わりうるため約束しない。</text>
+  <text x="30" y="1546.5" class="footnote">実測依存の図(境界は本プロジェクトの実測、4ホスト・7イメージ・8構成・42ラン、2026-10-14の30ランに2026-10-20の追加5ラン・2026-10-21の実務4軸7ランを加えたもの</text>
+  <text x="30" y="1562.5" class="footnote">に基づく。詳細はF4とresults/report.jsonを参照)。各レベルの定義そのものはF3(原理図)。</text>
+  <text x="30" y="1578.5" class="footnote">納品文言は雛形であり、実際の納品では角括弧[ ]の中を自分の計算・バージョン・環境に置き換えて使う。</text>
   </svg>
