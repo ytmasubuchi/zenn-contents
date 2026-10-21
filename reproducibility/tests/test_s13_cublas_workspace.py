@@ -10,6 +10,8 @@
 「例外が出ることが期待挙動」節)。テストが検証してよいのは「演算ごとに
 digestまたはraisedのいずれかが記録されていること」までである。
 """
+import os
+
 import reprobench.probes  # モジュールimportの副作用でS13プローブ群を登録する
 from reprobench import registry
 from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
@@ -75,8 +77,6 @@ def test_s13_does_not_set_cublas_workspace_config_itself(monkeypatch):
     r = run_probe("S13_cublas_workspace_config")
     if isinstance(r, ProbeResult):
         assert r.meta["cublas_workspace_config"] is None
-    import os
-
     assert os.environ.get("CUBLAS_WORKSPACE_CONFIG") is None
 
 

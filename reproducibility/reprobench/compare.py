@@ -11,10 +11,10 @@ Task 10のランナーがホスト・イメージ・構成ごとに書き出し�
 
 (1) そのラベルにこのプローブの結果が無い(欠損)ことを「一致」として
     数えてしまうこと(resolution 8)。
-(2) `S0_parallel_completion_order`/`S0_glob_order`/`S8_index_add_atomics`
-    のように、プローブ自身が「この不安定さ自体が測定対象である」と
-    自己申告しているものを、環境間の通常の不一致として報告してしまう
-    こと(resolution 3)。
+(2) `S0_parallel_completion_order`/`S0_glob_order`/`S8_index_add_atomics`/
+    `S12_cudnn_benchmark_deterministic`のように、プローブ自身が「この
+    不安定さ自体が測定対象である」と自己申告しているものを、環境間の
+    通常の不一致として報告してしまうこと(resolution 3)。
 (3) `S5_kmeans_centers`のように、`meta["effective_thread_count"]`が
     違う2ランを比較してしまうこと(resolution 2)。スレッド数1・2・4
     では安定、8では不安定という相関が実測で確認されている(測定条件・
@@ -418,6 +418,18 @@ _POLICY: dict[str, ProbePolicy] = {
             "s8_torch_gpu参照)。そのためこのプローブに限っては自己申告では"
             "なく通常どおり(kind=normal)不一致として扱う——ここでの"
             "予期しない不一致はそれ自体が実在の知見になる。"
+        ),
+    ),
+    "S12_cudnn_benchmark_deterministic": ProbePolicy(
+        kind="self_reported_stability",
+        note=(
+            "プローブ自身が各cudnn設定(benchmark x deterministicの2x2)で"
+            "同一プロセス内で畳み込みの順伝播・逆伝播を複数回実行し、"
+            "meta['stable_within_process']に一致したかを自己申告する"
+            "(reprobench.probes.s12_cudnn参照)。benchmark=Trueは実行時の"
+            "タイミング計測でアルゴリズムを選ぶため、環境間のdigest不一致"
+            "はこのプローブの測定対象そのものであり、不一致として報告"
+            "しない。"
         ),
     ),
     "S0_set_iteration_order": ProbePolicy(
