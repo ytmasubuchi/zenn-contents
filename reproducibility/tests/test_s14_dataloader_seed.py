@@ -5,11 +5,21 @@
 `SkippedProbe`を返すため、該当テストは`pytest.importorskip`でライブラリ
 不在時にスキップへ丸める(test_torch_probes.pyと同じ流儀)。
 
-**`numpy`版が全worker数で重複するかどうかはテストで固定しない。** それは
-実測で確かめる対象であり、事前登録された予測の1つに過ぎない。テストが
-検証してよいのは「各組み合わせについて記録(digestと、
-duplicate_sample_countまたはworker_start_failedのいずれか)が存在する
-こと」までである(brief Step1の例の通り)。
+**`numpy_instance_held_before_fork`が全worker数で重複するかどうかはテスト
+で固定しない。** それは実測で確かめる対象であり、事前登録された予測の
+1つに過ぎない。テストが検証してよいのは「各組み合わせについて記録
+(digestと、duplicate_sample_countまたはworker_start_failedのいずれか)
+が存在すること」までである(brief Step1の例の通り)。
+
+レビュー対応(統括者裁定): brief原案の`RNG_SOURCES = ("torch", "numpy")`
+というキー名は、ライブラリ識別と「fork前に作られ保持されたRNGインスタンス
+が再シード対象になるか否か」という測定対象の軸を混同させ、記事執筆時に
+「torchは安全・numpyは危険」という誤った一般化を誘発しかねないという
+指摘を受け、アクセスパターンを明示する名前
+(`"torch_global_call"`/`"numpy_instance_held_before_fork"`)に変更した。
+これに伴い`test_rng_sources_matches_brief`は撤回し、新しい契約を検証する
+テストに置き換えている。測定の中身(何を呼ぶか、いつGeneratorを作るか)
+は変えていないため、cellごとのdigestはrename前と同じである。
 """
 import pytest
 
@@ -25,8 +35,10 @@ from reprobench.probes.s14_dataloader_seed import (
 # --- 定数が仕様書の値と一致していること ------------------------------------
 
 
-def test_rng_sources_matches_brief():
-    assert RNG_SOURCES == ("torch", "numpy")
+def test_rng_sources_are_access_pattern_labels_not_library_names():
+    # ライブラリ名("torch"/"numpy")ではなく、アクセスパターンを明示する
+    # 名前であること(統括者裁定)。
+    assert RNG_SOURCES == ("torch_global_call", "numpy_instance_held_before_fork")
 
 
 def test_worker_counts_matches_brief():
@@ -63,6 +75,18 @@ def test_probe_records_each_rng_source_and_worker_count():
             cell = r.meta["results"][src][str(n)]
             assert "digest" in cell
             assert "duplicate_sample_count" in cell or "worker_start_failed" in cell
+
+
+def test_probe_meta_describes_each_rng_source_coding_pattern():
+    # 記事執筆側がキー名だけで判断しなくても、metaを読めば各rng_sourceが
+    # 「どういうコーディングパターンか」が分かるようにする(統括者裁定)。
+    pytest.importorskip("torch")
+    r = run_probe("S14_dataloader_worker_seed")
+    assert isinstance(r, ProbeResult)
+    descriptions = r.meta["rng_source_descriptions"]
+    assert set(descriptions.keys()) == set(RNG_SOURCES)
+    for text in descriptions.values():
+        assert isinstance(text, str) and text
 
 
 def test_probe_meta_keys_are_json_safe_strings():

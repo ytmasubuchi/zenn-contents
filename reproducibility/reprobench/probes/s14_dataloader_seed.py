@@ -24,14 +24,24 @@ fork前)で一度だけ作られ、インスタンス変数として保持され
 ## 題材
 
 サンプルのインデックスに依存しない1個の乱数値をデータ拡張の代わりに
-引く`Dataset`を、`rng_source`(`"torch"`/`"numpy"`)ごとに用意する。
+引く`Dataset`を、`rng_source`(`RNG_SOURCES`)ごとに用意する。**ここで
+分けている軸はライブラリ(torch/numpy)ではなく「fork前に作られ保持
+された乱数源インスタンスが、worker起動時の自動再シードの対象になるか
+否か」であることに注意する**(この軸が本質であり、たまたま対照実験に
+torch・調査対象にnumpyを使っているだけである――brief原案は
+`RNG_SOURCES = ("torch", "numpy")`という素のライブラリ名だったが、
+統括者の誤前提(numpyは一律再シードされない)に基づいており、記事反映
+時に「torchは安全・numpyは危険」という誤った一般化を誘発しかねないため、
+アクセスパターンを明示する名前に変更した。各値の1行説明は
+`meta["rng_source_descriptions"]`にも記録する)。
 
-- `torch`: `__getitem__`の中で`torch.rand(1)`(グローバルな既定の
-  torch RNG)を直接呼ぶ。workerごとに自動で異なる値へ再シードされる
-  側の対照実験。
-- `numpy`: `__init__`(= 親プロセス側)で`np.random.default_rng(seed)`を
-  1回だけ作り、インスタンス変数に保持する。`__getitem__`はこの
-  インスタンスから引く。自動再シードの対象外になる側。
+- `"torch_global_call"`: `__getitem__`の中で都度`torch.rand(1)`
+  (グローバルな既定のtorch RNG)を直接呼ぶ。workerごとに自動で異なる
+  値へ再シードされる側の対照実験。
+- `"numpy_instance_held_before_fork"`: `__init__`(= 親プロセス側、
+  fork前)で`np.random.default_rng(seed)`を1回だけ作り、インスタンス
+  変数に保持する。`__getitem__`はこのインスタンスから引く。自動再
+  シードの対象外になる側。
 
 インデックスに依存しないのは意図的: あるworkerが処理するk番目のサンプル
 と、別のworkerが処理するk番目のサンプルが**同じ乱数源の状態から**値を
@@ -39,10 +49,11 @@ fork前)で一度だけ作られ、インスタンス変数として保持され
 (= データ拡張が重複する)。これを観測値列の重複として数えたものが
 `duplicate_sample_count`である。
 
-`torch`版は各workerが異なるシードで再シードされるため重複は(統計的に)
-起きないはずで、`numpy`版は全workerが同一のGeneratorインスタンスの状態を
-物理的に共有するため重複が起きるはずだ、というのがこのプローブの検証
-対象の予測である。ただし「numpy版が壊れる」という結果そのものをテストで
+`torch_global_call`は各workerが異なるシードで再シードされるため重複は
+(統計的に)起きないはずで、`numpy_instance_held_before_fork`は全worker
+が同一のGeneratorインスタンスの状態を物理的に共有するため重複が起きる
+はずだ、というのがこのプローブの検証対象の予測である。ただし
+`numpy_instance_held_before_fork`が壊れるという結果そのものをテストで
 固定してはならない(`tests/test_s14_dataloader_seed.py`参照) — 実測で
 確かめる対象である。
 
@@ -65,9 +76,29 @@ import numpy as np
 from reprobench.digest import digest
 from reprobench.registry import ProbeResult, register
 
-#: データ拡張の乱数源2通り。宣言順が`meta["results"]`のトップレベルキー
-#: の順序、およびプローブ全体のdigestの順序付きマッピングの順序になる。
-RNG_SOURCES: tuple[str, ...] = ("torch", "numpy")
+#: データ拡張の乱数源2通り。キー名はライブラリ名ではなく「fork前に
+#: 作られ保持された乱数源インスタンスが、worker起動時の自動再シードの
+#: 対象になるか否か」というアクセスパターンを表す(モジュールdocstring
+#: 「題材」参照)。各値の説明は`_RNG_SOURCE_DESCRIPTIONS`、および実行結果
+#: の`meta["rng_source_descriptions"]`にも記録する。宣言順が
+#: `meta["results"]`のトップレベルキーの順序、およびプローブ全体の
+#: digestの順序付きマッピングの順序になる。
+RNG_SOURCES: tuple[str, ...] = ("torch_global_call", "numpy_instance_held_before_fork")
+
+#: `RNG_SOURCES`の各値が「どういうコーディングパターンか」を示す1行説明。
+#: 記事執筆側がキー名だけで判断しなくても済むよう、`meta`にもそのまま
+#: 載せる(統括者裁定: 注意書きに頼らず、データ構造自体が何を測ったかを
+#: 語るようにするため)。
+_RNG_SOURCE_DESCRIPTIONS: dict[str, str] = {
+    "torch_global_call": (
+        "__getitem__の中で都度torch.rand()を呼ぶ"
+        "(グローバルな既定RNG。workerごとに自動で異なる値へ再シードされる)"
+    ),
+    "numpy_instance_held_before_fork": (
+        "Dataset.__init__(fork前の親プロセス)でnp.random.default_rng()を"
+        "1回だけ作りインスタンス変数に保持する(自動再シードの対象外)"
+    ),
+}
 
 #: 検証するworker数3通り。0は「workerを使わない(= 比較対象の素のベース
 #: ライン)」ケース。
@@ -96,15 +127,16 @@ def _build_dataset(rng_source: str):
     インデックス非依存であることが、worker間の重複を観測可能にする
     設計そのもの)。
 
-    `torch`版は`__getitem__`の中で都度グローバルな既定RNGを呼ぶ(= worker
-    毎の自動再シードの対象)。`numpy`版は`__init__`(= 親プロセス、fork前)
-    で一度だけ`np.random.default_rng`を作りインスタンス変数に保持する
-    (= 自動再シードの対象外。モジュールdocstring参照)。
+    `"torch_global_call"`は`__getitem__`の中で都度グローバルな既定RNGを
+    呼ぶ(= worker毎の自動再シードの対象)。`"numpy_instance_held_before_fork"`
+    は`__init__`(= 親プロセス、fork前)で一度だけ`np.random.default_rng`を
+    作りインスタンス変数に保持する(= 自動再シードの対象外。モジュール
+    docstring参照)。
     """
     import torch
     from torch.utils.data import Dataset
 
-    if rng_source == "torch":
+    if rng_source == "torch_global_call":
 
         class _TorchAugmentedDataset(Dataset):
             def __len__(self) -> int:
@@ -114,7 +146,7 @@ def _build_dataset(rng_source: str):
                 return float(torch.rand(1).item())
 
         return _TorchAugmentedDataset()
-    if rng_source == "numpy":
+    if rng_source == "numpy_instance_held_before_fork":
 
         class _NumpyAugmentedDataset(Dataset):
             def __init__(self) -> None:
@@ -138,9 +170,10 @@ def _run_cell(rng_source: str, num_workers: int) -> dict:
 
     毎回`torch.manual_seed`でtorchのグローバルRNGを固定シードへreseed
     してから`DataLoader`を構築する(S7と同じ、呼び出し順序への依存を
-    断つための流儀)。`numpy`版のシードは`_build_dataset`が作る
-    `Generator`インスタンス自身に対して固定されるため、ここでグローバル
-    numpy状態を触る必要はない。`worker_init_fn`は指定しない(測定対象
+    断つための流儀)。`numpy_instance_held_before_fork`のシードは
+    `_build_dataset`が作る`Generator`インスタンス自身に対して固定される
+    ため、ここでグローバルnumpy状態を触る必要はない。`worker_init_fn`は
+    指定しない(測定対象
     そのものを消してしまうため、モジュールdocstring参照)。
 
     worker起動・反復が失敗した場合は例外を握りつぶさず、`digest`には
@@ -198,6 +231,9 @@ def _dataloader_worker_seed() -> ProbeResult:
         "seed": _SEED,
         "dataset_size": _DATASET_SIZE,
         "rng_sources": list(RNG_SOURCES),
+        # 記事執筆側がキー名だけで判断しなくても済むよう、各rng_sourceが
+        # 「どういうコーディングパターンか」を1行で説明する(統括者裁定)。
+        "rng_source_descriptions": dict(_RNG_SOURCE_DESCRIPTIONS),
         "worker_counts": list(WORKER_COUNTS),
         "results": results,
     }
