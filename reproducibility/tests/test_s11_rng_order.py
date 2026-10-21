@@ -14,6 +14,7 @@ from reprobench.registry import ProbeResult, run_probe
 from reprobench.probes.s11_rng_order import (
     IMPL_NAMES,
     REFACTOR_PATTERNS,
+    _make_generators,
     generate,
 )
 
@@ -61,14 +62,41 @@ def test_all_impl_pattern_combinations_are_generatable():
 
 
 def test_spawn_impl_uses_independent_streams_per_component():
-    # 頑健版は成分ごとに別ストリームを使う。成分数ぶんの子SeedSequenceが
-    # 生成されることを、消費した乱数の個数が素朴版と異なることで間接的に
-    # 見る……わけではなく、ここでは単に両方が生成可能であることだけを
-    # 確認する(brief記載のテストそのもの)。実際の独立性は
-    # `S11_rng_consumption_order`のmeta(同一baseline比較)が記録する。
-    _, n_naive = generate("naive", "baseline", 20261014)
-    _, n_spawn = generate("spawn", "baseline", 20261014)
-    assert n_naive > 0 and n_spawn > 0
+    """spawnは成分ごとに独立したGenerator、naiveは全成分が同一の共有
+    Generatorを参照する(`_make_generators`のdocstring参照)。この性質を
+    「ある成分から余計に何回描画しても、他の成分の次の描画値は変わらない
+    (spawn)/変わる(naive)」という形で直接検証する。
+
+    (fix round 1, レビュー指摘対応: 当初の実装は関数名・docstringが
+    「独立したストリームを使うことを見る」と謳いながら
+    `n_naive > 0 and n_spawn > 0` しか確認しておらず、独立性そのものは
+    何も検証していなかった。`matches_baseline`の実測値を数値で固定する
+    のではなく、`SeedSequence.spawn`が与える「他成分の消費から無関係」
+    という設計上の契約そのものを直接確かめる形に書き直した。これは
+    `REFACTOR_PATTERNS`のどれが生き残るかという実験結果の先取りではない
+    — 対象のGeneratorオブジェクトが物理的に同一か別かという、
+    `_make_generators`自身の実装から自明に決まる性質である。)
+    """
+    seed = 20261014
+
+    def second_component_first_draw(impl: str, extra_draws_on_first_component: int) -> float:
+        generators = _make_generators(impl, seed)
+        for _ in range(extra_draws_on_first_component):
+            generators[0].standard_normal()
+        return float(generators[1].standard_normal())
+
+    # spawn: 成分0から余計に5回描画しても、成分1の最初の描画値は変わらない
+    # (別々のSeedSequenceから作った、物理的に別のGeneratorだから)。
+    spawn_untouched = second_component_first_draw("spawn", extra_draws_on_first_component=0)
+    spawn_perturbed = second_component_first_draw("spawn", extra_draws_on_first_component=5)
+    assert spawn_untouched == spawn_perturbed
+
+    # naive: 成分0・成分1は同一のGeneratorインスタンスを参照するため、
+    # 成分0から余計に描画した分だけ共有ストリームの位置が進み、成分1の
+    # 「最初の描画値」そのものが変わる。
+    naive_untouched = second_component_first_draw("naive", extra_draws_on_first_component=0)
+    naive_perturbed = second_component_first_draw("naive", extra_draws_on_first_component=5)
+    assert naive_untouched != naive_perturbed
 
 
 def test_generate_rejects_unknown_impl():
