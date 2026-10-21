@@ -1,0 +1,422 @@
+{
+  "schema": 1,
+  "env": {
+    "host": "local",
+    "host_source": "REPRO_HOST",
+    "arch": "aarch64",
+    "libc": {
+      "name": "glibc",
+      "version": "2.41",
+      "method": "platform.libc_ver"
+    },
+    "kernel": "6.8.0-117-generic",
+    "python": "3.11.17",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.2",
+      "scikit-learn": "1.7.2",
+      "lightgbm": "4.5.0",
+      "torch": "2.14.1+cpu",
+      "transformers": null
+    },
+    "numpy_cpu_features": {
+      "module": "numpy._core._multiarray_umath",
+      "features": {
+        "MMX": false,
+        "SSE": false,
+        "SSE2": false,
+        "SSE3": false,
+        "SSSE3": false,
+        "SSE41": false,
+        "POPCNT": false,
+        "SSE42": false,
+        "AVX": false,
+        "F16C": false,
+        "XOP": false,
+        "FMA4": false,
+        "FMA3": false,
+        "AVX2": false,
+        "AVX512F": false,
+        "AVX512CD": false,
+        "AVX512ER": false,
+        "AVX512PF": false,
+        "AVX5124FMAPS": false,
+        "AVX5124VNNIW": false,
+        "AVX512VPOPCNTDQ": false,
+        "AVX512VL": false,
+        "AVX512BW": false,
+        "AVX512DQ": false,
+        "AVX512VNNI": false,
+        "AVX512IFMA": false,
+        "AVX512VBMI": false,
+        "AVX512VBMI2": false,
+        "AVX512BITALG": false,
+        "AVX512FP16": false,
+        "AVX512_KNL": false,
+        "AVX512_KNM": false,
+        "AVX512_SKX": false,
+        "AVX512_CLX": false,
+        "AVX512_CNL": false,
+        "AVX512_ICL": false,
+        "AVX512_SPR": false,
+        "VSX": false,
+        "VSX2": false,
+        "VSX3": false,
+        "VSX4": false,
+        "VX": false,
+        "VXE": false,
+        "VXE2": false,
+        "NEON": true,
+        "NEON_FP16": true,
+        "NEON_VFPV4": true,
+        "ASIMD": true,
+        "FPHP": true,
+        "ASIMDHP": true,
+        "ASIMDDP": true,
+        "ASIMDFHM": true,
+        "SVE": false,
+        "RVV": false
+      },
+      "baseline": [
+        "NEON",
+        "NEON_FP16",
+        "NEON_VFPV4",
+        "ASIMD"
+      ],
+      "dispatch": [
+        "ASIMDHP",
+        "ASIMDFHM",
+        "SVE"
+      ]
+    },
+    "blas": {
+      "Compilers": {
+        "c": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "10.2.1",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.1.0",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "10.2.1",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "linux"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "linux"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.29",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.11.12/lib/python3.11/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.11.12/lib/python3.11/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY neoversen1 MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        },
+        "lapack": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.29",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.11.12/lib/python3.11/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.11.12/lib/python3.11/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY neoversen1 MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        }
+      },
+      "Python Information": {
+        "path": "/tmp/build-env-gbx29db4/bin/python",
+        "version": "3.11"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDFHM"
+        ],
+        "not found": [
+          "SVE"
+        ]
+      }
+    },
+    "thread_env": {
+      "OMP_NUM_THREADS": "18",
+      "OPENBLAS_NUM_THREADS": "18",
+      "MKL_NUM_THREADS": "18",
+      "NUMEXPR_NUM_THREADS": "18",
+      "VECLIB_MAXIMUM_THREADS": "18"
+    },
+    "torch": {
+      "version": "2.14.1+cpu",
+      "cuda_version": null,
+      "cudnn_version": null,
+      "matmul_allow_tf32": false,
+      "cudnn_allow_tf32": true
+    },
+    "cuda": {
+      "available": false,
+      "device_count": 0
+    },
+    "gpus": [],
+    "image": "base",
+    "config_label": "practice",
+    "pythonhashseed": null,
+    "control_env": {
+      "NPY_DISABLE_CPU_FEATURES": null,
+      "NPY_ENABLE_CPU_FEATURES": null,
+      "MKL_CBWR": null,
+      "CUBLAS_WORKSPACE_CONFIG": null
+    }
+  },
+  "probe_order": [
+    "S11_rng_consumption_order",
+    "S12_cudnn_benchmark_deterministic",
+    "S13_cublas_workspace_config",
+    "S14_dataloader_worker_seed",
+    "S15_index_add_repeats",
+    "S15_kmeans_repeats"
+  ],
+  "probes": [
+    {
+      "probe": "S11_rng_consumption_order",
+      "digest": "9421f9ea484e1e231d6e6bc2d7ba944cb9372e4b1a09a228a8918c2cc88da35b",
+      "scalars": {},
+      "sample_b64": null,
+      "meta": {
+        "seed": 20261014,
+        "n_components": 3,
+        "impl_names": [
+          "naive",
+          "spawn"
+        ],
+        "refactor_patterns": [
+          "baseline",
+          "loop_split",
+          "swap_order",
+          "drop_dead_call",
+          "early_return"
+        ],
+        "results": {
+          "naive": {
+            "baseline": {
+              "digest": "3041014ac0932812cfc28e4b663d33ab8a968dd76e33fef68f50d03c4489c4cc",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "loop_split": {
+              "digest": "479b7443ccda5b6106d8da7f9bd2cba41635fa718f191bc14b2a731d17a6a9b8",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "swap_order": {
+              "digest": "f74ec30bf05f273ec81eeaf5645c8c1d3c5a32c81e3e185143cd5ee20fb6f999",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "drop_dead_call": {
+              "digest": "fe42da4d7631bad101b40b063fd4c6e896b0c3150c4cc7a1acf41689adf72ab8",
+              "n_consumed": 6,
+              "matches_baseline": false
+            },
+            "early_return": {
+              "digest": "073a6c280924046222469011dece8a1c47014d5e14a67d90964f48b726848b8b",
+              "n_consumed": 8,
+              "matches_baseline": false
+            }
+          },
+          "spawn": {
+            "baseline": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "loop_split": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "swap_order": {
+              "digest": "7993d407d1ef9742a7b6f16dcddf73d1eccef1e1ba529502f812728b45122345",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "drop_dead_call": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 6,
+              "matches_baseline": true
+            },
+            "early_return": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 8,
+              "matches_baseline": true
+            }
+          }
+        }
+      },
+      "wall_time_s": 0.00024924613535404205
+    },
+    {
+      "probe": "S12_cudnn_benchmark_deterministic",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 6.6659413278102875e-06
+    },
+    {
+      "probe": "S13_cublas_workspace_config",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 1.4579854905605316e-06
+    },
+    {
+      "probe": "S14_dataloader_worker_seed",
+      "digest": "6b777328ebbe3c6ca1f8a1b605c671f80f9dd4a0a4de999a2063ab2dafd69cfe",
+      "scalars": {},
+      "sample_b64": null,
+      "meta": {
+        "seed": 20261014,
+        "dataset_size": 16,
+        "rng_sources": [
+          "torch_global_call",
+          "numpy_instance_held_before_fork"
+        ],
+        "rng_source_descriptions": {
+          "torch_global_call": "__getitem__の中で都度torch.rand()を呼ぶ(グローバルな既定RNG。workerごとに自動で異なる値へ再シードされる)",
+          "numpy_instance_held_before_fork": "Dataset.__init__(fork前の親プロセス)でnp.random.default_rng()を1回だけ作りインスタンス変数に保持する(自動再シードの対象外)"
+        },
+        "worker_counts": [
+          0,
+          2,
+          4
+        ],
+        "results": {
+          "torch_global_call": {
+            "0": {
+              "digest": "18a5626e6be72e79855ccb6507aacd58336af70ec489e4a93c5d0497b64ffd08",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "2": {
+              "digest": "bf3153c84f7b7f045447127b5f643499679ba1b26e5fc74e3cc27d57776bb0f7",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "4": {
+              "digest": "5f7db92e44827be6d5d00940d59ee33dfce29a03fb9ddf2c05e39905601d49a4",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            }
+          },
+          "numpy_instance_held_before_fork": {
+            "0": {
+              "digest": "4c740f5623be6a766397ee081c177ba86dd1b52dc70d522cf8055fcde96b50b0",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "2": {
+              "digest": "4ab21b73b2bd822ee21b8dad54108029f63bea3f3187e7a26bd215c00803e6c2",
+              "n_samples": 16,
+              "duplicate_sample_count": 8
+            },
+            "4": {
+              "digest": "4f1e96a51d12cdee231cfc078ad594e5147de1ea0e94bd9dcc05f4c8b49432f9",
+              "n_samples": 16,
+              "duplicate_sample_count": 12
+            }
+          }
+        }
+      },
+      "wall_time_s": 0.06170114898122847
+    },
+    {
+      "probe": "S15_index_add_repeats",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 2.0582927390933037e-05
+    },
+    {
+      "probe": "S15_kmeans_repeats",
+      "digest": "9dfd002f0ea192027cb690ba8dff7f898fe7d607aee0ba0ec8d05f42e9693b5f",
+      "scalars": {
+        "inertia_first_round": 598665.0976181066
+      },
+      "sample_b64": "qrjF2yAAJMD0H55d7ESCv1rSpFHSNYq/h3/X6Nb8nD8I3XJkAJwXv6RKdZupZqA/lhILvKXzc794LLeS1rmYvxccFGBIGHE/at/HkoZ8jz+9RGPOiROaP6Q18wNlRFY/vmlBYESXgr+Y1fZAOfFlvyhEfMIU2jC/8uV6E7qwfT/TVFgyi7SRv/jzbnoniZC/IyiCrDhOeD/i2ODrcVV1v+Bi92/dB5O/kgm8BfH7a78o2Ol/7JdWP9LVjwFft2i/oiGRAOnWfT94cXW1tvx4vyrZKWYxr4S/ailsXNDIhj9iGB5QCQSQP3+iLi1uc3A/4McbuOO6D78QzXPpVQokQPhXCj6tkpA/bnKpSv0rc78NiOPutu+Kv8cGb8CBRJi/aELmmrYWRL+ViH3A3MGlvwBig0SSDPQ+siGeoZrHiz9uEFD7iseXv+xxdUkWpY+/Wj3Hp/71eb9OWLCO5PV5P4+M75HzW5U/5gBIyy+YVb+VuhwlL+KUP+9sh08RoGO/qOAGEAhkkT/C8FKHRaWCv1n0rb8SuIa/dnmV53U/Zr+eXttXfb6cP6xBztjwJY8/BGRxkenWhT+4iA2FZCuIv0dLXeezA5O/IikSwaJjcb/PtpCHz7mNv6GzHH/+RGa/z94T5ySTez+UXVAdLAAkwNLomrsvqpC/HIQXStIZUz+Tf8Ahk3OTP4Agbbj8/I2/WLOx7SnQS78fvqLT3KCGP6R2iY+RW40/Rv/yp8I+dr8SoJ9tfMhzvyPmnR8wMHO/2kg+ycPXgr+KTXiZ7W2SP7LNiXDnuoC/Mek4i0DVmL/g3MpDuxJFP932OoUZ6YY/K+mZWDRBd79L0r2g4RCHPzp8Wqs7WJy/BMVoJOqzfL+eUdlpatuAv0O7oca05JG/VoQwGfvzj7+eulilE8yYv6ld6yLOEoM/dGphEgGyhT90mIYgip6VP8rcBKP7v4i/Uir87A/5I0DMIm2yADBkv3YmODAnz5S/NRwZyqDAgD/KrM8zeqWBv47DBqCNPI+/zIJEJvQ9kb8Ux+nCsYFivzd5Gryy9m4/GESXKkk8bL/0cPBGrfiQv0q28s3AtV2/vv7GN0DZkD8oUTAD7piIP7rZ0vn4al0/YcMbYOCOhD/Di23x9xiFv9e92psgKo6/8QE0JMlJiD/ukLRqiDyVv7B4UtMdrXy/pV8EEAd2gz/chUaLvJ6Jv0BqVSAkMZS/kmhMuzQEjT9IH4ArVPdqP9osMe7rzHA/KG/lYjote789AEgqFUiVP/r2x+/f93S/",
+      "meta": {
+        "seed": 20261014,
+        "n_clusters": 4,
+        "n_init": 10,
+        "n_rounds": 5,
+        "round_digests": [
+          "310e789ec1afdaa45ad35893ca03930adea6c7a1683c8dbe2e42062f4d5f7b7b",
+          "285df09f75b84460a90ae339a08f34a0b46eaf2d2dcfac39e9925c6f062ba90a",
+          "d9a0b1a97cb0818214f9db6c8aceb1708725285c80605cecef64c308b58440ad",
+          "cd4afd36df6537c6e086e01f68cce2916e02685846a4396da6ef78862452b877",
+          "c80b94949910773db1cb93cfb3f0d5af7232974e95879c1bbaa5f9299be79725"
+        ],
+        "inertia_per_round": [
+          598665.0976181066,
+          598665.0976181068,
+          598665.0976181066,
+          598665.0976181066,
+          598665.0976181066
+        ],
+        "stable_within_process": false,
+        "omp_num_threads_env": "18",
+        "effective_thread_count": 18,
+        "thread_pool_info": [
+          {
+            "user_api": "blas",
+            "internal_api": "openblas",
+            "num_threads": 8
+          },
+          {
+            "user_api": "blas",
+            "internal_api": "openblas",
+            "num_threads": 8
+          },
+          {
+            "user_api": "blas",
+            "internal_api": "openblas",
+            "num_threads": 8
+          },
+          {
+            "user_api": "openmp",
+            "internal_api": "openmp",
+            "num_threads": 18
+          },
+          {
+            "user_api": "openmp",
+            "internal_api": "openmp",
+            "num_threads": 18
+          }
+        ],
+        "centers_canonicalized": "lexsort_rows",
+        "inertia_first_round_hex": "0x1.2451231fb001fp+19"
+      },
+      "wall_time_s": 0.4428663190919906
+    }
+  ]
+}

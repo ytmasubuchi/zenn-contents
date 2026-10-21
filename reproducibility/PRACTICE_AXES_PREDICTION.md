@@ -213,3 +213,56 @@ v2.14系)の「will throw a RuntimeError」リストにも、`torch.mm`/`torch.b
 `S13_cublas_workspace_config`のmetaを読み、本ファイルの表・予測と突き合わせる。
 **予測に合わせて結果を解釈しない。外れた予測は外れたまま記録する。** 判定結果は
 本ファイルに「実測結果」節として追記し、実測で使われたコミットとは別のコミットとして記録する。
+
+---
+
+# 実測結果 (2026-10-21 11:41 実行、予測コミット 4c186f3a6a86a13e5447d2bfac47c2938dc4c8d2 [2026-10-21 11:19:03 +0900] の後)
+
+対象ファイル: `results/{anakin,blade,dgxspark}__gpu__practice.json`(新規3件)。
+GPU: anakin=NVIDIA GeForce RTX 4090 / blade=NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition /
+dgxspark=NVIDIA GB10。いずれも`torch==2.14.1+cu130`。
+
+## 予測Aの採点: S12 `cudnn.benchmark` × `cudnn.deterministic`
+
+| benchmark | deterministic | 予測 | anakin(4090) | blade(Blackwell) | dgxspark(GB10) |
+|---|---|---|---|---|---|
+| False | False | 不安定 | **不安定**(digest `25b74487ba81`) | **不安定**(`dc208cb6178e`) | **不安定**(`9c442eb1a3c0`) |
+| False | True  | 安定   | **安定**(`b2d03ddede6a`) | **安定**(`ace6816c1f80`) | **安定**(`86e9731b3676`) |
+| True  | False | 不安定 | **不安定**(`d8c08c201645`) | **不安定**(`0bcd4c0a616a`) | **不安定**(`54a4d8515571`) |
+| True  | True  | 安定   | **安定**(`b2d03ddede6a`) | **安定**(`ace6816c1f80`) | **安定**(`86e9731b3676`) |
+
+**判定: 的中。** 3GPUすべてで、`stable_within_process`を決めたのは`deterministic`の値のみであり、
+`benchmark`の値(True/False)は安定性に一切影響しなかった(`deterministic=True`側では`benchmark`の
+値に関わらず同一digestが3回とも一致、`deterministic=False`側では`benchmark`の値に関わらず3回の
+反復digestが割れた)。予測の核心「安定性を決めるのは`deterministic`であって`benchmark`ではない」は
+3GPUとも支持された。
+
+副次的な観測(予測の対象外、参考情報): `deterministic=True`側の安定digest自体は
+GPUアーキテクチャごとに異なる(`b2d03ddede6a` / `ace6816c1f80` / `86e9731b3676`)。
+これは「決定的アルゴリズムの選択」と「GPUを跨いだ再現性」が別問題であることを示す
+(本プロジェクトが他のプローブ、例えばS3のGPU間不一致で既に確認してきた構造と同型)。
+これは予測Aが扱った範囲(同一プロセス内の安定性)の外側であり、予測の的中/外れの判定には含めない。
+
+## 予測Bの採点: S13 `CUBLAS_WORKSPACE_CONFIG`未設定時の例外
+
+| 演算 | 予測 | anakin | blade | dgxspark |
+|---|---|---|---|---|
+| mm | 例外なし | **例外なし**(digest `4315747f8608`) | **例外なし**(`88464ba00866`) | **例外なし**(`00569edfb8d0`) |
+| bmm | 例外なし | **例外なし**(`fdf4d4507c17`) | **例外なし**(`fdf4d4507c17`) | **例外なし**(`256a4d876c55`) |
+| addmm | 例外なし | **例外なし**(`ba6361e168bf`) | **例外なし**(`250f5b8c95cd`) | **例外なし**(`5c871d2ee3fd`) |
+| linear_forward_backward | 例外なし | **例外なし**(`dbc70796a6e4`) | **例外なし**(`dbc70796a6e4`) | **例外なし**(`b119dc284797`) |
+
+(`meta.cublas_workspace_config`は3ホストとも`null` — `practice`configの仕様通りCUBLAS_WORKSPACE_CONFIGは未設定のまま実行された。)
+
+**判定: 的中。** 3GPU×4演算=12通りすべてで`RuntimeError`等の例外は一切発生せず、全て`digest`を
+正常に記録した。予測の核心「`torch==2.14.1+cu130`では`CUBLAS_WORKSPACE_CONFIG`未設定でも
+mm/bmm/addmm/linear_forward_backwardのいずれも例外にならない」が3GPUとも支持された。
+これは予測文書が一次資料(PyTorch PR #161749、v2.10.0でのチェック削除)から導いた機構的説明と
+整合する。「`CUBLAS_WORKSPACE_CONFIG`を設定しないと例外になる」という広く流布した知識は、
+少なくとも本プロジェクトが使う`torch==2.14.1+cu130`では成立しないことが実測で確認された。
+
+## まとめ
+
+予測A・予測Bともに、3GPU全てで的中した。本ファイル冒頭で事前登録を撤回したS11・S14とは異なり、
+S12・S13はGPU実機でしか答えが出ない予測であり、執筆陣が実測前に機構の仮説(PyTorch公式ドキュメント
+の原文、およびソースコード・PRの一次調査)から予測を導き、その通りの結果が出た事例として記録する。

@@ -1,0 +1,441 @@
+{
+  "schema": 1,
+  "env": {
+    "host": "anakin",
+    "host_source": "REPRO_HOST",
+    "arch": "x86_64",
+    "libc": {
+      "name": "glibc",
+      "version": "2.41",
+      "method": "platform.libc_ver"
+    },
+    "kernel": "6.8.0-138-generic",
+    "python": "3.11.17",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.2",
+      "scikit-learn": "1.7.2",
+      "lightgbm": "4.5.0",
+      "torch": "2.14.1+cpu",
+      "transformers": null
+    },
+    "numpy_cpu_features": {
+      "module": "numpy._core._multiarray_umath",
+      "features": {
+        "MMX": true,
+        "SSE": true,
+        "SSE2": true,
+        "SSE3": true,
+        "SSSE3": true,
+        "SSE41": true,
+        "POPCNT": true,
+        "SSE42": true,
+        "AVX": true,
+        "F16C": true,
+        "XOP": false,
+        "FMA4": false,
+        "FMA3": true,
+        "AVX2": true,
+        "AVX512F": false,
+        "AVX512CD": false,
+        "AVX512ER": false,
+        "AVX512PF": false,
+        "AVX5124FMAPS": false,
+        "AVX5124VNNIW": false,
+        "AVX512VPOPCNTDQ": false,
+        "AVX512VL": false,
+        "AVX512BW": false,
+        "AVX512DQ": false,
+        "AVX512VNNI": false,
+        "AVX512IFMA": false,
+        "AVX512VBMI": false,
+        "AVX512VBMI2": false,
+        "AVX512BITALG": false,
+        "AVX512FP16": false,
+        "AVX512_KNL": false,
+        "AVX512_KNM": false,
+        "AVX512_SKX": false,
+        "AVX512_CLX": false,
+        "AVX512_CNL": false,
+        "AVX512_ICL": false,
+        "AVX512_SPR": false,
+        "VSX": false,
+        "VSX2": false,
+        "VSX3": false,
+        "VSX4": false,
+        "VX": false,
+        "VXE": false,
+        "VXE2": false,
+        "NEON": false,
+        "NEON_FP16": false,
+        "NEON_VFPV4": false,
+        "ASIMD": false,
+        "FPHP": false,
+        "ASIMDHP": false,
+        "ASIMDDP": false,
+        "ASIMDFHM": false,
+        "SVE": false,
+        "RVV": false
+      },
+      "baseline": [
+        "SSE",
+        "SSE2",
+        "SSE3"
+      ],
+      "dispatch": [
+        "SSSE3",
+        "SSE41",
+        "POPCNT",
+        "SSE42",
+        "AVX",
+        "F16C",
+        "FMA3",
+        "AVX2",
+        "AVX512F",
+        "AVX512CD",
+        "AVX512_KNL",
+        "AVX512_KNM",
+        "AVX512_SKX",
+        "AVX512_CLX",
+        "AVX512_CNL",
+        "AVX512_ICL"
+      ]
+    },
+    "blas": {
+      "Compilers": {
+        "c": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "10.2.1",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.1.0",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "10.2.1",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "x86_64",
+          "family": "x86_64",
+          "endian": "little",
+          "system": "linux"
+        },
+        "build": {
+          "cpu": "x86_64",
+          "family": "x86_64",
+          "endian": "little",
+          "system": "linux"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.29",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        },
+        "lapack": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.29",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        }
+      },
+      "Python Information": {
+        "path": "/tmp/build-env-nx8g0bo7/bin/python",
+        "version": "3.11"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "SSE",
+          "SSE2",
+          "SSE3"
+        ],
+        "found": [
+          "SSSE3",
+          "SSE41",
+          "POPCNT",
+          "SSE42",
+          "AVX",
+          "F16C",
+          "FMA3",
+          "AVX2"
+        ],
+        "not found": [
+          "AVX512F",
+          "AVX512CD",
+          "AVX512_KNL",
+          "AVX512_KNM",
+          "AVX512_SKX",
+          "AVX512_CLX",
+          "AVX512_CNL",
+          "AVX512_ICL"
+        ]
+      }
+    },
+    "thread_env": {
+      "OMP_NUM_THREADS": "32",
+      "OPENBLAS_NUM_THREADS": "32",
+      "MKL_NUM_THREADS": "32",
+      "NUMEXPR_NUM_THREADS": "32",
+      "VECLIB_MAXIMUM_THREADS": "32"
+    },
+    "torch": {
+      "version": "2.14.1+cpu",
+      "cuda_version": null,
+      "cudnn_version": null,
+      "matmul_allow_tf32": false,
+      "cudnn_allow_tf32": true
+    },
+    "cuda": {
+      "available": false,
+      "device_count": 0
+    },
+    "gpus": [],
+    "image": "base",
+    "config_label": "practice",
+    "pythonhashseed": null,
+    "control_env": {
+      "NPY_DISABLE_CPU_FEATURES": null,
+      "NPY_ENABLE_CPU_FEATURES": null,
+      "MKL_CBWR": null,
+      "CUBLAS_WORKSPACE_CONFIG": null
+    }
+  },
+  "probe_order": [
+    "S11_rng_consumption_order",
+    "S12_cudnn_benchmark_deterministic",
+    "S13_cublas_workspace_config",
+    "S14_dataloader_worker_seed",
+    "S15_index_add_repeats",
+    "S15_kmeans_repeats"
+  ],
+  "probes": [
+    {
+      "probe": "S11_rng_consumption_order",
+      "digest": "9421f9ea484e1e231d6e6bc2d7ba944cb9372e4b1a09a228a8918c2cc88da35b",
+      "scalars": {},
+      "sample_b64": null,
+      "meta": {
+        "seed": 20261014,
+        "n_components": 3,
+        "impl_names": [
+          "naive",
+          "spawn"
+        ],
+        "refactor_patterns": [
+          "baseline",
+          "loop_split",
+          "swap_order",
+          "drop_dead_call",
+          "early_return"
+        ],
+        "results": {
+          "naive": {
+            "baseline": {
+              "digest": "3041014ac0932812cfc28e4b663d33ab8a968dd76e33fef68f50d03c4489c4cc",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "loop_split": {
+              "digest": "479b7443ccda5b6106d8da7f9bd2cba41635fa718f191bc14b2a731d17a6a9b8",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "swap_order": {
+              "digest": "f74ec30bf05f273ec81eeaf5645c8c1d3c5a32c81e3e185143cd5ee20fb6f999",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "drop_dead_call": {
+              "digest": "fe42da4d7631bad101b40b063fd4c6e896b0c3150c4cc7a1acf41689adf72ab8",
+              "n_consumed": 6,
+              "matches_baseline": false
+            },
+            "early_return": {
+              "digest": "073a6c280924046222469011dece8a1c47014d5e14a67d90964f48b726848b8b",
+              "n_consumed": 8,
+              "matches_baseline": false
+            }
+          },
+          "spawn": {
+            "baseline": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "loop_split": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 9,
+              "matches_baseline": true
+            },
+            "swap_order": {
+              "digest": "7993d407d1ef9742a7b6f16dcddf73d1eccef1e1ba529502f812728b45122345",
+              "n_consumed": 9,
+              "matches_baseline": false
+            },
+            "drop_dead_call": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 6,
+              "matches_baseline": true
+            },
+            "early_return": {
+              "digest": "407e7a025e3f43f02a42a7be08e3b7fc33e7b43f5e07dc7f565eb088216b0f0a",
+              "n_consumed": 8,
+              "matches_baseline": true
+            }
+          }
+        }
+      },
+      "wall_time_s": 0.0003465404734015465
+    },
+    {
+      "probe": "S12_cudnn_benchmark_deterministic",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 9.139999747276306e-06
+    },
+    {
+      "probe": "S13_cublas_workspace_config",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 2.168118953704834e-06
+    },
+    {
+      "probe": "S14_dataloader_worker_seed",
+      "digest": "6b777328ebbe3c6ca1f8a1b605c671f80f9dd4a0a4de999a2063ab2dafd69cfe",
+      "scalars": {},
+      "sample_b64": null,
+      "meta": {
+        "seed": 20261014,
+        "dataset_size": 16,
+        "rng_sources": [
+          "torch_global_call",
+          "numpy_instance_held_before_fork"
+        ],
+        "rng_source_descriptions": {
+          "torch_global_call": "__getitem__の中で都度torch.rand()を呼ぶ(グローバルな既定RNG。workerごとに自動で異なる値へ再シードされる)",
+          "numpy_instance_held_before_fork": "Dataset.__init__(fork前の親プロセス)でnp.random.default_rng()を1回だけ作りインスタンス変数に保持する(自動再シードの対象外)"
+        },
+        "worker_counts": [
+          0,
+          2,
+          4
+        ],
+        "results": {
+          "torch_global_call": {
+            "0": {
+              "digest": "18a5626e6be72e79855ccb6507aacd58336af70ec489e4a93c5d0497b64ffd08",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "2": {
+              "digest": "bf3153c84f7b7f045447127b5f643499679ba1b26e5fc74e3cc27d57776bb0f7",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "4": {
+              "digest": "5f7db92e44827be6d5d00940d59ee33dfce29a03fb9ddf2c05e39905601d49a4",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            }
+          },
+          "numpy_instance_held_before_fork": {
+            "0": {
+              "digest": "4c740f5623be6a766397ee081c177ba86dd1b52dc70d522cf8055fcde96b50b0",
+              "n_samples": 16,
+              "duplicate_sample_count": 0
+            },
+            "2": {
+              "digest": "4ab21b73b2bd822ee21b8dad54108029f63bea3f3187e7a26bd215c00803e6c2",
+              "n_samples": 16,
+              "duplicate_sample_count": 8
+            },
+            "4": {
+              "digest": "4f1e96a51d12cdee231cfc078ad594e5147de1ea0e94bd9dcc05f4c8b49432f9",
+              "n_samples": 16,
+              "duplicate_sample_count": 12
+            }
+          }
+        }
+      },
+      "wall_time_s": 0.07370572071522474
+    },
+    {
+      "probe": "S15_index_add_repeats",
+      "skipped": "missing requirement: cuda",
+      "wall_time_s": 3.117043524980545e-05
+    },
+    {
+      "probe": "S15_kmeans_repeats",
+      "digest": "cd6e5557f2813c90a0c354ecbe5569109f6cded668dc61ab3ec5256ba00b55cd",
+      "scalars": {
+        "inertia_first_round": 598665.0976181064
+      },
+      "sample_b64": "rLjF2yAAJMAEIJ5d7ESCv07SpFHSNYq/hn/X6Nb8nD8A3HJkAJwXv6dKdZupZqA/khILvKXzc790LLeS1rmYvxocFGBIGHE/d9/HkoZ8jz+9RGPOiROaP3A18wNlRFY/tWlBYESXgr+Q1fZAOfFlv/hFfMIU2jC/5uV6E7qwfT/fVFgyi7SRv/XzbnoniZC/LiiCrDhOeD+32ODrcVV1v+Bi92/dB5O/jgm8BfH7a79Q2Ol/7JdWP+bVjwFft2i/pCGRAOnWfT+CcXW1tvx4vyfZKWYxr4S/bilsXNDIhj9gGB5QCQSQP3uiLi1uc3A/YM4buOO6D78QzXPpVQokQPxXCj6tkpA/fnKpSv0rc78XiOPutu+Kv80Gb8CBRJi/EELmmrYWRL+YiH3A3MGlvwBrg0SSDPQ+uSGeoZrHiz9wEFD7iseXv+RxdUkWpY+/ZD3Hp/71eb9UWLCO5PV5P5CM75HzW5U/AQFIyy+YVb+QuhwlL+KUPw5th08RoGO/q+AGEAhkkT+88FKHRaWCv170rb8SuIa/anmV53U/Zr+ZXttXfb6cP6RBztjwJY8/BmRxkenWhT/AiA2FZCuIv0RLXeezA5O/FCkSwaJjcb/dtpCHz7mNv4ezHH/+RGa/y94T5ySTez+YXVAdLAAkwM7omrsvqpC/jIMXStIZUz+Zf8Ahk3OTP4Ygbbj8/I2/8LKx7SnQS78jvqLT3KCGP7J2iY+RW40/Yv/yp8I+dr/3n59tfMhzv0nmnR8wMHO/zUg+ycPXgr+RTXiZ7W2SP6zNiXDnuoC/Luk4i0DVmL903MpDuxJFP9f2OoUZ6YY/G+mZWDRBd7850r2g4RCHPzt8Wqs7WJy/9cRoJOqzfL+WUdlpatuAv0m7oca05JG/VoQwGfvzj7+XulilE8yYv6Zd6yLOEoM/ZGphEgGyhT90mIYgip6VP9LcBKP7v4i/USr87A/5I0CuIm2yADBkv3AmODAnz5S/IhwZyqDAgD/NrM8zeqWBv4rDBqCNPI+/zIJEJvQ9kb8Yx+nCsYFiv1t5Gryy9m4/DESXKkk8bL/zcPBGrfiQvwK28s3AtV2/tv7GN0DZkD8rUTAD7piIP63Z0vn4al0/bcMbYOCOhD/Ii23x9xiFv9W92psgKo6/4gE0JMlJiD/0kLRqiDyVv6x4UtMdrXy/rF8EEAd2gz/ihUaLvJ6Jv0pqVSAkMZS/jmhMuzQEjT80H4ArVPdqP+YsMe7rzHA/DG/lYjote786AEgqFUiVPxj3x+/f93S/",
+      "meta": {
+        "seed": 20261014,
+        "n_clusters": 4,
+        "n_init": 10,
+        "n_rounds": 5,
+        "round_digests": [
+          "ca77f9c29dcf1c6ea55676cf648191396fa64d6cbc092ad143e7f5deb75fa3f8",
+          "a176a561b97a03868290bed6123f31ee1c86686053636ce8cf4170acd5084515",
+          "8ebdf2e237c104f0866045238a0a7a89ebe14516f63cb24486ae138e30799562",
+          "c0237831edfbc895340ff0e55d3f558d97c4516ba048336ae178510fd10e06ef",
+          "31af066990aa7e4f2e157099d2b9247137344e7c4223c448c8650257e0eb8d91"
+        ],
+        "inertia_per_round": [
+          598665.0976181064,
+          598665.0976181064,
+          598665.0976181063,
+          598665.0976181065,
+          598665.0976181064
+        ],
+        "stable_within_process": false,
+        "omp_num_threads_env": "32",
+        "effective_thread_count": 24,
+        "thread_pool_info": [
+          {
+            "user_api": "blas",
+            "internal_api": "openblas",
+            "num_threads": 32
+          },
+          {
+            "user_api": "blas",
+            "internal_api": "openblas",
+            "num_threads": 32
+          },
+          {
+            "user_api": "openmp",
+            "internal_api": "openmp",
+            "num_threads": 24
+          },
+          {
+            "user_api": "openmp",
+            "internal_api": "openmp",
+            "num_threads": 32
+          }
+        ],
+        "centers_canonicalized": "lexsort_rows",
+        "inertia_first_round_hex": "0x1.2451231fb001dp+19"
+      },
+      "wall_time_s": 5.102113393135369
+    }
+  ]
+}

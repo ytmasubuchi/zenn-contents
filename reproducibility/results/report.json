@@ -3,9 +3,11 @@
     "anakin/alpine/threadsmax",
     "anakin/base/hashseed0",
     "anakin/base/hashseedfree",
+    "anakin/base/practice",
     "anakin/base/threads1",
     "anakin/base/threads8",
     "anakin/base/threadsmax",
+    "anakin/gpu/practice",
     "anakin/gpu/s10batch",
     "anakin/gpu/threadsmax",
     "blade/alpine/nosimd512",
@@ -13,9 +15,11 @@
     "blade/base/hashseed0",
     "blade/base/hashseedfree",
     "blade/base/nosimd512",
+    "blade/base/practice",
     "blade/base/threads1",
     "blade/base/threads8",
     "blade/base/threadsmax",
+    "blade/gpu/practice",
     "blade/gpu/s10batch",
     "blade/gpu/threadsmax",
     "blade/mkl/threadsmax",
@@ -25,13 +29,16 @@
     "dgxspark/alpine/threadsmax",
     "dgxspark/base/hashseed0",
     "dgxspark/base/hashseedfree",
+    "dgxspark/base/practice",
     "dgxspark/base/threads1",
     "dgxspark/base/threads8",
     "dgxspark/base/threadsmax",
+    "dgxspark/gpu/practice",
     "dgxspark/gpu/s10batch",
     "dgxspark/gpu/threadsmax",
     "local/base/hashseed0",
     "local/base/hashseedfree",
+    "local/base/practice",
     "local/base/threads1",
     "local/base/threads8",
     "local/base/threadsmax"
@@ -44,6 +51,12 @@
     "S0_set_iteration_order",
     "S10_batch_invariance_greedy",
     "S10_batch_invariance_logits",
+    "S11_rng_consumption_order",
+    "S12_cudnn_benchmark_deterministic",
+    "S13_cublas_workspace_config",
+    "S14_dataloader_worker_seed",
+    "S15_index_add_repeats",
+    "S15_kmeans_repeats",
     "S1_generator_random_float32",
     "S1_numpy_mt19937_generator",
     "S1_numpy_normal_generator",
@@ -103,9 +116,16 @@
         "linked_with": "S0_set_iteration_order"
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -209,9 +229,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -227,9 +254,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -317,9 +351,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -423,9 +464,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -440,9 +488,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -530,9 +585,16 @@
         "linked_with": "S0_dict_from_set"
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -636,9 +698,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -657,18 +726,22 @@
         "anakin/alpine/threadsmax",
         "anakin/base/hashseed0",
         "anakin/base/hashseedfree",
+        "anakin/base/practice",
         "anakin/base/threads1",
         "anakin/base/threads8",
         "anakin/base/threadsmax",
+        "anakin/gpu/practice",
         "anakin/gpu/threadsmax",
         "blade/alpine/nosimd512",
         "blade/alpine/threadsmax",
         "blade/base/hashseed0",
         "blade/base/hashseedfree",
         "blade/base/nosimd512",
+        "blade/base/practice",
         "blade/base/threads1",
         "blade/base/threads8",
         "blade/base/threadsmax",
+        "blade/gpu/practice",
         "blade/gpu/threadsmax",
         "blade/mkl/threadsmax",
         "blade/oldlibs/threadsmax",
@@ -677,12 +750,15 @@
         "dgxspark/alpine/threadsmax",
         "dgxspark/base/hashseed0",
         "dgxspark/base/hashseedfree",
+        "dgxspark/base/practice",
         "dgxspark/base/threads1",
         "dgxspark/base/threads8",
         "dgxspark/base/threadsmax",
+        "dgxspark/gpu/practice",
         "dgxspark/gpu/threadsmax",
         "local/base/hashseed0",
         "local/base/hashseedfree",
+        "local/base/practice",
         "local/base/threads1",
         "local/base/threads8",
         "local/base/threadsmax"
@@ -707,18 +783,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/threadsmax",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -727,12 +807,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/threadsmax",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -753,18 +836,22 @@
         "anakin/alpine/threadsmax",
         "anakin/base/hashseed0",
         "anakin/base/hashseedfree",
+        "anakin/base/practice",
         "anakin/base/threads1",
         "anakin/base/threads8",
         "anakin/base/threadsmax",
+        "anakin/gpu/practice",
         "anakin/gpu/threadsmax",
         "blade/alpine/nosimd512",
         "blade/alpine/threadsmax",
         "blade/base/hashseed0",
         "blade/base/hashseedfree",
         "blade/base/nosimd512",
+        "blade/base/practice",
         "blade/base/threads1",
         "blade/base/threads8",
         "blade/base/threadsmax",
+        "blade/gpu/practice",
         "blade/gpu/threadsmax",
         "blade/mkl/threadsmax",
         "blade/oldlibs/threadsmax",
@@ -773,12 +860,15 @@
         "dgxspark/alpine/threadsmax",
         "dgxspark/base/hashseed0",
         "dgxspark/base/hashseedfree",
+        "dgxspark/base/practice",
         "dgxspark/base/threads1",
         "dgxspark/base/threads8",
         "dgxspark/base/threadsmax",
+        "dgxspark/gpu/practice",
         "dgxspark/gpu/threadsmax",
         "local/base/hashseed0",
         "local/base/hashseedfree",
+        "local/base/practice",
         "local/base/threads1",
         "local/base/threads8",
         "local/base/threadsmax"
@@ -807,9 +897,120 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
+          "anakin/gpu/threadsmax",
+          "blade/alpine/nosimd512",
+          "blade/alpine/threadsmax",
+          "blade/base/hashseed0",
+          "blade/base/hashseedfree",
+          "blade/base/nosimd512",
+          "blade/base/practice",
+          "blade/base/threads1",
+          "blade/base/threads8",
+          "blade/base/threadsmax",
+          "blade/gpu/practice",
+          "blade/gpu/threadsmax",
+          "blade/mkl/threadsmax",
+          "blade/oldlibs/threadsmax",
+          "blade/oldpy/threadsmax",
+          "blade/py313/threadsmax",
+          "dgxspark/alpine/threadsmax",
+          "dgxspark/base/hashseed0",
+          "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
+          "dgxspark/base/threads1",
+          "dgxspark/base/threads8",
+          "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/threadsmax",
+          "local/base/hashseed0",
+          "local/base/hashseedfree",
+          "local/base/practice",
+          "local/base/threads1",
+          "local/base/threads8",
+          "local/base/threadsmax"
+        ],
+        "numeric": {},
+        "label_conflicts": {}
+      }
+    },
+    "S11_rng_consumption_order": {
+      "probe": "S11_rng_consumption_order",
+      "policy": {
+        "kind": "normal",
+        "note": "既定の扱い: 比較方針テーブルに個別の記載が無いプローブ。存在するラベル間でdigestが完全一致するかどうかのみで判定する。",
+        "group_by_meta": null,
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {},
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "agreement": {
+        "groups": {
+          "9421f9ea484e1e231d6e6bc2d7ba944cb9372e4b1a09a228a8918c2cc88da35b": [
+            "anakin/base/practice",
+            "anakin/gpu/practice",
+            "blade/base/practice",
+            "blade/gpu/practice",
+            "dgxspark/base/practice",
+            "dgxspark/gpu/practice",
+            "local/base/practice"
+          ]
+        },
+        "all_equal": true,
+        "missing": [
+          "anakin/alpine/threadsmax",
+          "anakin/base/hashseed0",
+          "anakin/base/hashseedfree",
+          "anakin/base/threads1",
+          "anakin/base/threads8",
+          "anakin/base/threadsmax",
+          "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
@@ -819,6 +1020,7 @@
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -830,6 +1032,7 @@
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/s10batch",
           "dgxspark/gpu/threadsmax",
           "local/base/hashseed0",
           "local/base/hashseedfree",
@@ -841,6 +1044,482 @@
         "label_conflicts": {}
       }
     },
+    "S12_cudnn_benchmark_deterministic": {
+      "probe": "S12_cudnn_benchmark_deterministic",
+      "policy": {
+        "kind": "self_reported_stability",
+        "note": "プローブ自身が各cudnn設定(benchmark x deterministicの2x2)で同一プロセス内で畳み込みの順伝播・逆伝播を複数回実行し、meta['stable_within_process']に一致したかを自己申告する(reprobench.probes.s12_cudnn参照)。benchmark=Trueは実行時のタイミング計測でアルゴリズムを選ぶため、環境間のdigest不一致はこのプローブの測定対象そのものであり、不一致として報告しない。",
+        "group_by_meta": null,
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {
+          "anakin/base/practice": "missing requirement: cuda",
+          "blade/base/practice": "missing requirement: cuda",
+          "dgxspark/base/practice": "missing requirement: cuda",
+          "local/base/practice": "missing requirement: cuda"
+        },
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "stability": {
+        "anakin/gpu/practice": false,
+        "blade/gpu/practice": false,
+        "dgxspark/gpu/practice": false
+      },
+      "digests": {
+        "anakin/gpu/practice": "68f13627872519dec729b82be8fce295c7419fcf5e7e846cc39bdbe5b2ca0e67",
+        "blade/gpu/practice": "33c1091b09e82a48e297883af9c10e73883cc874ee4de06c0031c39e2aa90cbd",
+        "dgxspark/gpu/practice": "7f726537d51c49ea7f37e504a30aca6b91f01a4da67eebbbd5de578f52483b2b"
+      },
+      "label_conflicts": {}
+    },
+    "S13_cublas_workspace_config": {
+      "probe": "S13_cublas_workspace_config",
+      "policy": {
+        "kind": "normal",
+        "note": "既定の扱い: 比較方針テーブルに個別の記載が無いプローブ。存在するラベル間でdigestが完全一致するかどうかのみで判定する。",
+        "group_by_meta": null,
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {
+          "anakin/base/practice": "missing requirement: cuda",
+          "blade/base/practice": "missing requirement: cuda",
+          "dgxspark/base/practice": "missing requirement: cuda",
+          "local/base/practice": "missing requirement: cuda"
+        },
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "agreement": {
+        "groups": {
+          "c7e202d8dfcc6515abfe128cf0b35bee967c1f4baa424b4b8e56a308dbae6280": [
+            "anakin/gpu/practice"
+          ],
+          "24b073f641e3787671f50a2e7cc60455b97076fc4d2bf281916a9b1beb31fef8": [
+            "blade/gpu/practice"
+          ],
+          "c4f9fc36dd6081bab9900ac34e2fbc434979fcfed43ff5c8856d5d2979391cb5": [
+            "dgxspark/gpu/practice"
+          ]
+        },
+        "all_equal": false,
+        "missing": [
+          "anakin/alpine/threadsmax",
+          "anakin/base/hashseed0",
+          "anakin/base/hashseedfree",
+          "anakin/base/practice",
+          "anakin/base/threads1",
+          "anakin/base/threads8",
+          "anakin/base/threadsmax",
+          "anakin/gpu/s10batch",
+          "anakin/gpu/threadsmax",
+          "blade/alpine/nosimd512",
+          "blade/alpine/threadsmax",
+          "blade/base/hashseed0",
+          "blade/base/hashseedfree",
+          "blade/base/nosimd512",
+          "blade/base/practice",
+          "blade/base/threads1",
+          "blade/base/threads8",
+          "blade/base/threadsmax",
+          "blade/gpu/s10batch",
+          "blade/gpu/threadsmax",
+          "blade/mkl/threadsmax",
+          "blade/oldlibs/threadsmax",
+          "blade/oldpy/threadsmax",
+          "blade/py313/threadsmax",
+          "dgxspark/alpine/threadsmax",
+          "dgxspark/base/hashseed0",
+          "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
+          "dgxspark/base/threads1",
+          "dgxspark/base/threads8",
+          "dgxspark/base/threadsmax",
+          "dgxspark/gpu/s10batch",
+          "dgxspark/gpu/threadsmax",
+          "local/base/hashseed0",
+          "local/base/hashseedfree",
+          "local/base/practice",
+          "local/base/threads1",
+          "local/base/threads8",
+          "local/base/threadsmax"
+        ],
+        "numeric": {},
+        "label_conflicts": {}
+      }
+    },
+    "S14_dataloader_worker_seed": {
+      "probe": "S14_dataloader_worker_seed",
+      "policy": {
+        "kind": "normal",
+        "note": "既定の扱い: 比較方針テーブルに個別の記載が無いプローブ。存在するラベル間でdigestが完全一致するかどうかのみで判定する。",
+        "group_by_meta": null,
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {},
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "agreement": {
+        "groups": {
+          "6b777328ebbe3c6ca1f8a1b605c671f80f9dd4a0a4de999a2063ab2dafd69cfe": [
+            "anakin/base/practice",
+            "anakin/gpu/practice",
+            "blade/base/practice",
+            "blade/gpu/practice",
+            "dgxspark/base/practice",
+            "dgxspark/gpu/practice",
+            "local/base/practice"
+          ]
+        },
+        "all_equal": true,
+        "missing": [
+          "anakin/alpine/threadsmax",
+          "anakin/base/hashseed0",
+          "anakin/base/hashseedfree",
+          "anakin/base/threads1",
+          "anakin/base/threads8",
+          "anakin/base/threadsmax",
+          "anakin/gpu/s10batch",
+          "anakin/gpu/threadsmax",
+          "blade/alpine/nosimd512",
+          "blade/alpine/threadsmax",
+          "blade/base/hashseed0",
+          "blade/base/hashseedfree",
+          "blade/base/nosimd512",
+          "blade/base/threads1",
+          "blade/base/threads8",
+          "blade/base/threadsmax",
+          "blade/gpu/s10batch",
+          "blade/gpu/threadsmax",
+          "blade/mkl/threadsmax",
+          "blade/oldlibs/threadsmax",
+          "blade/oldpy/threadsmax",
+          "blade/py313/threadsmax",
+          "dgxspark/alpine/threadsmax",
+          "dgxspark/base/hashseed0",
+          "dgxspark/base/hashseedfree",
+          "dgxspark/base/threads1",
+          "dgxspark/base/threads8",
+          "dgxspark/base/threadsmax",
+          "dgxspark/gpu/s10batch",
+          "dgxspark/gpu/threadsmax",
+          "local/base/hashseed0",
+          "local/base/hashseedfree",
+          "local/base/threads1",
+          "local/base/threads8",
+          "local/base/threadsmax"
+        ],
+        "numeric": {},
+        "label_conflicts": {}
+      }
+    },
+    "S15_index_add_repeats": {
+      "probe": "S15_index_add_repeats",
+      "policy": {
+        "kind": "self_reported_stability",
+        "note": "S8_index_add_atomicsと同じ計算(同じseed・同じ`_index_add_once`)を同一プロセス内で`_N_ROUNDS`回繰り返し、meta['round_digests']に各回のdigestを、meta['stable_within_process']に全回が一致したかを自己申告する(reprobench.probes.s15_repeat_raw参照)。CUDAの`index_add_`はatomicAdd由来の非決定性が測定対象そのものであり、環境間のdigest不一致を不一致として報告しない(S8_index_add_atomicsと同じ扱い)。",
+        "group_by_meta": null,
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {
+          "anakin/base/practice": "missing requirement: cuda",
+          "blade/base/practice": "missing requirement: cuda",
+          "dgxspark/base/practice": "missing requirement: cuda",
+          "local/base/practice": "missing requirement: cuda"
+        },
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "stability": {
+        "anakin/gpu/practice": false,
+        "blade/gpu/practice": false,
+        "dgxspark/gpu/practice": false
+      },
+      "digests": {
+        "anakin/gpu/practice": "0c9d39a894eaef1d144f4369cfb7db499fc23f59784b8c3e4cffd55f394a31d5",
+        "blade/gpu/practice": "609ed4178c28bdcbe8128c885c618da20b1b0f0f74c133d332672272074ae544",
+        "dgxspark/gpu/practice": "599322c606e490aee26e1369e86726702d44dce570ffd45ba070917d56391e8f"
+      },
+      "label_conflicts": {}
+    },
+    "S15_kmeans_repeats": {
+      "probe": "S15_kmeans_repeats",
+      "policy": {
+        "kind": "grouped",
+        "note": "S5_kmeans_centersと同じデータ・同じパラメータでのKMeansフィットを同一プロセス内で`_N_ROUNDS`回繰り返し、meta['round_digests']に各回の(正準化した)クラスタ中心のdigestを記録する(reprobench.probes.s15_repeat_raw参照)。S5_kmeans_centersと同じ原因(有効スレッド数)で同じように不安定になりうるため、S5_kmeans_centersと同じ`kind='grouped'`(`effective_thread_count`ごとの比較)を適用する——'自己申告だから不一致を握り潰す'のではなく、スレッド数が同じ環境同士でだけ比較することで、1・2・4スレッド環境間の本物の一致/不一致は引き続き報告できるようにするため(S5_kmeans_centers自身もkind='self_reported_stability'ではなくkind='grouped'を使っている)。",
+        "group_by_meta": "effective_thread_count",
+        "linked_with": null
+      },
+      "absent": [
+        "anakin/alpine/threadsmax",
+        "anakin/base/hashseed0",
+        "anakin/base/hashseedfree",
+        "anakin/base/threads1",
+        "anakin/base/threads8",
+        "anakin/base/threadsmax",
+        "anakin/gpu/s10batch",
+        "anakin/gpu/threadsmax",
+        "blade/alpine/nosimd512",
+        "blade/alpine/threadsmax",
+        "blade/base/hashseed0",
+        "blade/base/hashseedfree",
+        "blade/base/nosimd512",
+        "blade/base/threads1",
+        "blade/base/threads8",
+        "blade/base/threadsmax",
+        "blade/gpu/s10batch",
+        "blade/gpu/threadsmax",
+        "blade/mkl/threadsmax",
+        "blade/oldlibs/threadsmax",
+        "blade/oldpy/threadsmax",
+        "blade/py313/threadsmax",
+        "dgxspark/alpine/threadsmax",
+        "dgxspark/base/hashseed0",
+        "dgxspark/base/hashseedfree",
+        "dgxspark/base/threads1",
+        "dgxspark/base/threads8",
+        "dgxspark/base/threadsmax",
+        "dgxspark/gpu/s10batch",
+        "dgxspark/gpu/threadsmax",
+        "local/base/hashseed0",
+        "local/base/hashseedfree",
+        "local/base/threads1",
+        "local/base/threads8",
+        "local/base/threadsmax"
+      ],
+      "skips": {
+        "missing_requirement": {
+          "anakin/gpu/practice": "missing requirement: sklearn",
+          "blade/gpu/practice": "missing requirement: sklearn",
+          "dgxspark/gpu/practice": "missing requirement: sklearn"
+        },
+        "missing_env_var": {},
+        "raised": {},
+        "unknown": {}
+      },
+      "rounds": {},
+      "group_by": "effective_thread_count",
+      "groups": {
+        "24": {
+          "groups": {
+            "cd6e5557f2813c90a0c354ecbe5569109f6cded668dc61ab3ec5256ba00b55cd": [
+              "anakin/base/practice"
+            ]
+          },
+          "all_equal": true,
+          "missing": [],
+          "numeric": {},
+          "label_conflicts": {},
+          "group_labels": [
+            "anakin/base/practice"
+          ]
+        },
+        "32": {
+          "groups": {
+            "183501ce1d8663ffcbe864b14d57bf289eff5d42d7b3c967bab473d58894367f": [
+              "blade/base/practice"
+            ]
+          },
+          "all_equal": true,
+          "missing": [],
+          "numeric": {},
+          "label_conflicts": {},
+          "group_labels": [
+            "blade/base/practice"
+          ]
+        },
+        "20": {
+          "groups": {
+            "175d715935dae023091ef7df741d40914f85a89866173f6fd81146d2d763fbd6": [
+              "dgxspark/base/practice"
+            ]
+          },
+          "all_equal": true,
+          "missing": [],
+          "numeric": {},
+          "label_conflicts": {},
+          "group_labels": [
+            "dgxspark/base/practice"
+          ]
+        },
+        "18": {
+          "groups": {
+            "9dfd002f0ea192027cb690ba8dff7f898fe7d607aee0ba0ec8d05f42e9693b5f": [
+              "local/base/practice"
+            ]
+          },
+          "all_equal": true,
+          "missing": [],
+          "numeric": {},
+          "label_conflicts": {},
+          "group_labels": [
+            "local/base/practice"
+          ]
+        }
+      },
+      "ungroupable": []
+    },
     "S1_generator_random_float32": {
       "probe": "S1_generator_random_float32",
       "policy": {
@@ -850,9 +1529,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -902,9 +1588,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -3896,9 +4589,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -3946,9 +4646,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -6940,9 +7647,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -6990,9 +7704,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -9984,9 +10705,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -10034,9 +10762,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -13028,9 +13763,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -13078,9 +13820,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -16072,9 +16821,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -16122,9 +16878,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -19116,9 +19879,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -19166,9 +19936,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -22160,9 +22937,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -22210,9 +22994,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -25204,9 +25995,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -25254,9 +26052,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -28248,9 +29053,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -28298,9 +29110,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -31292,9 +32111,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -31342,9 +32168,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -31359,9 +32192,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -31409,9 +32249,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -31426,9 +32273,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -31476,9 +32330,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -31493,9 +32354,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -31543,9 +32411,16 @@
         },
         "all_equal": true,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -31560,9 +32435,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -31624,9 +32506,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -34618,9 +35507,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -34684,9 +35580,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -37678,9 +38581,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -37734,9 +38644,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -40728,9 +41645,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -40786,9 +41710,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -43780,9 +44711,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -43838,9 +44776,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -46832,9 +47777,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -46884,9 +47836,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -49878,9 +50837,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {},
@@ -49930,9 +50896,16 @@
         },
         "all_equal": false,
         "missing": [
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/alpine/threadsmax|anakin/base/hashseed0": {
@@ -52924,9 +53897,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -53381,9 +54361,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -53449,15 +54436,22 @@
         "all_equal": false,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "dgxspark/alpine/threadsmax",
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
-          "dgxspark/gpu/threadsmax"
+          "dgxspark/gpu/threadsmax",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -55273,9 +56267,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -55325,15 +56326,22 @@
         "all_equal": true,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "dgxspark/alpine/threadsmax",
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
-          "dgxspark/gpu/threadsmax"
+          "dgxspark/gpu/threadsmax",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -57149,9 +58157,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -57201,15 +58216,22 @@
         "all_equal": true,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "dgxspark/alpine/threadsmax",
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
-          "dgxspark/gpu/threadsmax"
+          "dgxspark/gpu/threadsmax",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -59025,9 +60047,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -59077,15 +60106,22 @@
         "all_equal": true,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "dgxspark/alpine/threadsmax",
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
-          "dgxspark/gpu/threadsmax"
+          "dgxspark/gpu/threadsmax",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -60901,9 +61937,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -60953,15 +61996,22 @@
         "all_equal": true,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "anakin/gpu/threadsmax",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/gpu/threadsmax",
           "dgxspark/alpine/threadsmax",
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
-          "dgxspark/gpu/threadsmax"
+          "dgxspark/gpu/threadsmax",
+          "local/base/practice"
         ],
         "numeric": {},
         "label_conflicts": {}
@@ -60976,9 +62026,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -61036,14 +62093,21 @@
         "all_equal": false,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
           "dgxspark/alpine/threadsmax",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -63009,9 +64073,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -63077,14 +64148,21 @@
         "all_equal": false,
         "missing": [
           "anakin/alpine/threadsmax",
+          "anakin/base/practice",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
+          "blade/base/practice",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
           "dgxspark/alpine/threadsmax",
-          "dgxspark/gpu/s10batch"
+          "dgxspark/base/practice",
+          "dgxspark/gpu/practice",
+          "dgxspark/gpu/s10batch",
+          "local/base/practice"
         ],
         "numeric": {
           "anakin/base/hashseed0|anakin/base/hashseedfree": {
@@ -65050,9 +66128,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65108,18 +66193,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65128,12 +66217,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65151,9 +66243,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65213,9 +66312,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65269,18 +66375,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65289,12 +66399,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65331,9 +66444,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65387,18 +66507,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65407,12 +66531,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65449,9 +66576,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65507,18 +66641,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65527,12 +66665,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65569,9 +66710,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65627,18 +66775,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65647,12 +66799,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65689,9 +66844,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65747,18 +66909,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65767,12 +66933,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65809,9 +66978,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65867,18 +67043,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -65887,12 +67067,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -65929,9 +67112,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -65983,18 +67173,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66003,12 +67197,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66026,9 +67223,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66080,18 +67284,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66100,12 +67308,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66123,9 +67334,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66179,18 +67397,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66199,12 +67421,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66222,9 +67447,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66276,18 +67508,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66296,12 +67532,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66319,9 +67558,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66373,18 +67619,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66393,12 +67643,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66416,9 +67669,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66470,18 +67730,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66490,12 +67754,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66513,9 +67780,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66569,18 +67843,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66589,12 +67867,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66612,9 +67893,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66668,18 +67956,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66688,12 +67980,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66711,9 +68006,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66767,18 +68069,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66787,12 +68093,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66810,9 +68119,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66866,18 +68182,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66886,12 +68206,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
@@ -66909,9 +68232,16 @@
         "linked_with": null
       },
       "absent": [
+        "anakin/base/practice",
+        "anakin/gpu/practice",
         "anakin/gpu/s10batch",
+        "blade/base/practice",
+        "blade/gpu/practice",
         "blade/gpu/s10batch",
-        "dgxspark/gpu/s10batch"
+        "dgxspark/base/practice",
+        "dgxspark/gpu/practice",
+        "dgxspark/gpu/s10batch",
+        "local/base/practice"
       ],
       "skips": {
         "missing_requirement": {
@@ -66963,18 +68293,22 @@
           "anakin/alpine/threadsmax",
           "anakin/base/hashseed0",
           "anakin/base/hashseedfree",
+          "anakin/base/practice",
           "anakin/base/threads1",
           "anakin/base/threads8",
           "anakin/base/threadsmax",
+          "anakin/gpu/practice",
           "anakin/gpu/s10batch",
           "blade/alpine/nosimd512",
           "blade/alpine/threadsmax",
           "blade/base/hashseed0",
           "blade/base/hashseedfree",
           "blade/base/nosimd512",
+          "blade/base/practice",
           "blade/base/threads1",
           "blade/base/threads8",
           "blade/base/threadsmax",
+          "blade/gpu/practice",
           "blade/gpu/s10batch",
           "blade/mkl/threadsmax",
           "blade/oldlibs/threadsmax",
@@ -66983,12 +68317,15 @@
           "dgxspark/alpine/threadsmax",
           "dgxspark/base/hashseed0",
           "dgxspark/base/hashseedfree",
+          "dgxspark/base/practice",
           "dgxspark/base/threads1",
           "dgxspark/base/threads8",
           "dgxspark/base/threadsmax",
+          "dgxspark/gpu/practice",
           "dgxspark/gpu/s10batch",
           "local/base/hashseed0",
           "local/base/hashseedfree",
+          "local/base/practice",
           "local/base/threads1",
           "local/base/threads8",
           "local/base/threadsmax"
