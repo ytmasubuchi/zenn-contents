@@ -53,6 +53,17 @@ docstring参照)。このプローブ全体のdigestは4設定分の最終反復
 安定する保証は無い。このプローブ自身が設定ごとに`_N_ITERS`回実行して
 `meta["results"][...]["stable_within_process"]`に安定性を記録している
 ので、ここではそれが存在することだけを確認する。
+
+Task 5 (S15): `S15_index_add_repeats`/`S15_kmeans_repeats`も同じ扱いに
+加えた。両者とも`S8_index_add_atomics`/`S5_kmeans_centers`と同じ計算
+(同じseed・同じデータ・同じパラメータ)を内部で複数回(`_N_ROUNDS`回)
+繰り返すプローブである(`reprobench/probes/s15_repeat_raw.py`のモジュール
+docstring参照)。`S15_index_add_repeats`は`atomicAdd`由来の非決定性
+そのものが測定対象であり、`S15_kmeans_repeats`は`S5_kmeans_centers`と
+同じ理由(有効スレッド数依存)で同一プロセス内でも不安定になりうる。
+どちらも`meta["round_digests"]`(各回のdigestの列)と
+`meta["stable_within_process"]`(全回が一致したかの自己申告)を記録して
+いるので、ここでは後者が存在することだけを確認する。
 """
 import reprobench.probes  # モジュールimportの副作用で全プローブを登録する
 from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
@@ -70,6 +81,8 @@ _SELF_REPORTED_STABILITY = {
     "S5_kmeans_centers",
     "S8_index_add_atomics",
     "S12_cudnn_benchmark_deterministic",
+    "S15_index_add_repeats",
+    "S15_kmeans_repeats",
 }
 
 # fix round 1 finding 5: レジストリの設計通りのスキップには2種類ある。

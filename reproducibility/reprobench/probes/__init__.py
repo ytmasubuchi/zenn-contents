@@ -25,3 +25,4 @@ from reprobench.probes import s11_rng_order  # 副作用: S11プローブ群を�
 from reprobench.probes import s12_cudnn  # 副作用: S12プローブ群を登録する
 from reprobench.probes import s13_cublas_workspace  # 副作用: S13プローブ群を登録する
 from reprobench.probes import s14_dataloader_seed  # 副作用: S14プローブ群を登録する
+from reprobench.probes import s15_repeat_raw  # 副作用: S15プローブ群を登録する

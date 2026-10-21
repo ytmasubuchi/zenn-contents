@@ -12,16 +12,17 @@ Task 10のランナーがホスト・イメージ・構成ごとに書き出し�
 (1) そのラベルにこのプローブの結果が無い(欠損)ことを「一致」として
     数えてしまうこと(resolution 8)。
 (2) `S0_parallel_completion_order`/`S0_glob_order`/`S8_index_add_atomics`/
-    `S12_cudnn_benchmark_deterministic`のように、プローブ自身が「この
-    不安定さ自体が測定対象である」と自己申告しているものを、環境間の
-    通常の不一致として報告してしまうこと(resolution 3)。
-(3) `S5_kmeans_centers`のように、`meta["effective_thread_count"]`が
-    違う2ランを比較してしまうこと(resolution 2)。スレッド数1・2・4
-    では安定、8では不安定という相関が実測で確認されている(測定条件・
-    実測値は`reprobench.probes.s5_sklearn`のモジュールdocstring参照)。
-    このフィールドの値が特定できなかった(`None`)ラベル同士も、同じ
-    "不明"というだけで同じスレッド数だったとは限らないため、同様に
-    比較してはならない(fix round 1 finding 1)。
+    `S12_cudnn_benchmark_deterministic`/`S15_index_add_repeats`のように、
+    プローブ自身が「この不安定さ自体が測定対象である」と自己申告している
+    ものを、環境間の通常の不一致として報告してしまうこと(resolution 3)。
+(3) `S5_kmeans_centers`/`S15_kmeans_repeats`のように、
+    `meta["effective_thread_count"]`が違う2ランを比較してしまうこと
+    (resolution 2)。スレッド数1・2・4では安定、8では不安定という相関が
+    実測で確認されている(測定条件・実測値は`reprobench.probes.
+    s5_sklearn`のモジュールdocstring参照)。このフィールドの値が特定
+    できなかった(`None`)ラベル同士も、同じ"不明"というだけで同じ
+    スレッド数だったとは限らないため、同様に比較してはならない
+    (fix round 1 finding 1)。
 (4) 比較対象の観測が1件しかないのに「全ラベルが一致した」と読める表示を
     すること(fix round 1 finding 0, critical)。1件の観測は一致の証拠に
     ならない。
@@ -430,6 +431,37 @@ _POLICY: dict[str, ProbePolicy] = {
             "タイミング計測でアルゴリズムを選ぶため、環境間のdigest不一致"
             "はこのプローブの測定対象そのものであり、不一致として報告"
             "しない。"
+        ),
+    ),
+    "S15_index_add_repeats": ProbePolicy(
+        kind="self_reported_stability",
+        note=(
+            "S8_index_add_atomicsと同じ計算(同じseed・同じ`_index_add_once`)"
+            "を同一プロセス内で`_N_ROUNDS`回繰り返し、"
+            "meta['round_digests']に各回のdigestを、"
+            "meta['stable_within_process']に全回が一致したかを自己申告する"
+            "(reprobench.probes.s15_repeat_raw参照)。CUDAの`index_add_`は"
+            "atomicAdd由来の非決定性が測定対象そのものであり、環境間の"
+            "digest不一致を不一致として報告しない(S8_index_add_atomics"
+            "と同じ扱い)。"
+        ),
+    ),
+    "S15_kmeans_repeats": ProbePolicy(
+        kind="grouped",
+        group_by_meta="effective_thread_count",
+        note=(
+            "S5_kmeans_centersと同じデータ・同じパラメータでのKMeansフィット"
+            "を同一プロセス内で`_N_ROUNDS`回繰り返し、"
+            "meta['round_digests']に各回の(正準化した)クラスタ中心のdigest"
+            "を記録する(reprobench.probes.s15_repeat_raw参照)。"
+            "S5_kmeans_centersと同じ原因(有効スレッド数)で同じように"
+            "不安定になりうるため、S5_kmeans_centersと同じ"
+            "`kind='grouped'`(`effective_thread_count`ごとの比較)を適用"
+            "する——'自己申告だから不一致を握り潰す'のではなく、スレッド数"
+            "が同じ環境同士でだけ比較することで、1・2・4スレッド環境間の"
+            "本物の一致/不一致は引き続き報告できるようにするため"
+            "(S5_kmeans_centers自身もkind='self_reported_stability'では"
+            "なくkind='grouped'を使っている)。"
         ),
     ),
     "S0_set_iteration_order": ProbePolicy(
