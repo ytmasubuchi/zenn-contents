@@ -42,6 +42,17 @@ Task 8 fix round 1 finding 0: `S8_index_add_atomics`も同じ扱いに加えた�
 `meta["stable_within_process"]`に記録している
 (`S8_index_add_atomics_deterministic`は対照実験で、安定することが
 期待されるため`_SELF_REPORTED_STABILITY`には含めない)。
+
+Task 12: `S12_cudnn_benchmark_deterministic`も同じ扱いに加えた。
+`torch.backends.cudnn.benchmark = True`は実行時のタイミング計測で畳み込み
+アルゴリズムを選ぶため、同一プロセス内の反復ですら計算結果が変わりうる
+(プローブ自身の要点、`reprobench/probes/s12_cudnn.py`のモジュール
+docstring参照)。このプローブ全体のdigestは4設定分の最終反復のdigestを
+束ねたものであり、`benchmark=True`側が2回の独立した`run_probe`呼び出し
+(=プロセス内のモデル・入力をそれぞれ新規に構築し直す呼び出し)の間でも
+安定する保証は無い。このプローブ自身が設定ごとに`_N_ITERS`回実行して
+`meta["results"][...]["stable_within_process"]`に安定性を記録している
+ので、ここではそれが存在することだけを確認する。
 """
 import reprobench.probes  # モジュールimportの副作用で全プローブを登録する
 from reprobench.registry import ProbeResult, SkippedProbe, all_probes, run_probe
@@ -58,6 +69,7 @@ _SELF_REPORTED_STABILITY = {
     "S0_glob_order",
     "S5_kmeans_centers",
     "S8_index_add_atomics",
+    "S12_cudnn_benchmark_deterministic",
 }
 
 # fix round 1 finding 5: レジストリの設計通りのスキップには2種類ある。
